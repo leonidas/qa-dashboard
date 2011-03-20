@@ -36,10 +36,17 @@ groups_for_hw = (hw, cb) ->
     targets_for_hw hw, (err, targets) ->
         async.concat(targets, map_target, cb)
 
-latest_for_group = (g, cb) -> async.waterfall \
+latest_for_group = (g, cb) -> 
+    fields =
+        total_cases:1
+        total_pass:1
+        total_fail:1
+        total_na:1
+
+    async.waterfall \
     [reports
     ,(col, cb) ->
-        col.find g, { sort: {"tested_at":-1}, limit: 1 }, cb
+        col.find g, fields, { sort: {"tested_at":-1}, limit: 1 }, cb
     ,(cur, cb) ->
         cur.toArray(cb)
     ,(arr) ->

@@ -1,4 +1,6 @@
 
+_ = require("underscore")
+
 class RadarChart
     constructor: (@elem, @width, @height) ->
         @paper = Raphael(@elem, @width, @height)
@@ -15,6 +17,22 @@ class RadarChart
         @group_arc 190, 50, 120, 3,5,2
         @group_arc 240, 80, 130, 3,3,10
         @group_arc 320, 40, 100, 5,4,2
+
+    render_reports: (rs) ->
+        sumtotal = (acc,x) -> acc + x.total_cases
+        grand_total = _(rs).reduce sumtotal, 0
+
+        # the sector width for a report will be 360*total_cases/grand_total
+        # total_height = max_height * 50/pass_target
+
+        a = 0
+
+        _(rs).each (r) ->
+            arcw = 360 * r.total_cases/grand_total
+            arch = @height * 50/r.pass_target
+            @group_arc a, arcw, arch, r.total_pass, r.total_fail, r.total_na
+            a += arcw
+
 
     group_arc: (start, width, length, pass, fail, na) ->
         cx = @width * 0.5
