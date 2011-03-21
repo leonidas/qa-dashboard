@@ -2,7 +2,7 @@
 PORT   = 3030
 PUBLIC = __dirname + "/public"
 COFFEE = __dirname + "/client/coffee"
-JS     = PUBLIC + "/js"
+LESS   = __dirname + "/client/less"
 
 express = require('express')
 app = express.createServer()
@@ -14,6 +14,11 @@ app.configure ->
         src: COFFEE
         dest: PUBLIC
         enable: ['coffeescript']
+    app.use express.compiler
+        src: LESS
+        dest: PUBLIC
+        enable: ['less']
+
     app.use express.logger()
     app.use express.cookieParser()
     app.use express.bodyParser()

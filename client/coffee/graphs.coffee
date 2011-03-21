@@ -75,8 +75,6 @@ class RadarChart
             txt.attr
                 "stroke-opacity": 0.8
                 href: title.href
-                #cursor: "pointer"
-
 
             w = txt.getBBox().width + 10
             tx = x-dir*w
