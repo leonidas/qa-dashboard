@@ -17,11 +17,11 @@ reports = (cb) ->
 
 targets_for_hw = (hw, cb) ->
     reports (err,col) ->
-        col.distinct "target", {hwproduct: hw}, cb
+        col.distinct "target", {hwproduct: hw, version:"1.2"}, cb
 
 types_for_hw = (hw, target, cb) ->
     reports (err,col) ->
-        col.distinct "testtype", {hwproduct: hw, target: target}, cb
+        col.distinct "testtype", {hwproduct: hw, target: target, version:"1.2"}, cb
 
 groups_for_hw = (hw, cb) ->
 
@@ -36,27 +36,31 @@ groups_for_hw = (hw, cb) ->
     targets_for_hw hw, (err, targets) ->
         async.concat(targets, map_target, cb)
 
-latest_for_group = (g, cb) -> 
+latest_for_group = (g, cb) ->
     fields =
+        hwproduct:1
+        target:1
+        testtype:1
+        version:1
         total_cases:1
         total_pass:1
         total_fail:1
         total_na:1
 
-    async.waterfall \
-    [reports
-    ,(col, cb) ->
-        col.find g, fields, { sort: {"tested_at":-1}, limit: 1 }, cb
-    ,(cur, cb) ->
-        cur.toArray(cb)
-    ,(arr) ->
-        cb arr[0]
-    ]
+    reports (err, col) ->
+        col.find g, fields, { sort: {"tested_at":-1}, limit: 1 }, (err, cur) ->
+            cur.toArray (err, arr) ->
+                cb null,arr[0]
 
+
+latest_reports = (hw, cb) ->
+    groups_for_hw hw, (err, groups) ->
+        async.map groups, latest_for_group, cb
 
 exports.reports = reports
 exports.targets_for_hw = targets_for_hw
 exports.types_for_hw = types_for_hw
 exports.groups_for_hw = groups_for_hw
 exports.latest_for_group = latest_for_group
+exports.latest_reports = latest_reports
 
