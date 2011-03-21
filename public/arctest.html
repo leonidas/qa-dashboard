@@ -1,6 +1,7 @@
 <!DOCTYPE HTML>
 <head>
     <script language="javascript" src="/js/raphael.js"></script>
+    <script language="javascript" src="/js/underscore.js"></script>
     <script language="javascript" src="/js/jquery-1.4.4.min.js"></script>
     <script language="javascript" src="/graphs.js"></script>
 </head>
@@ -9,5 +10,8 @@
     </div>
     <script language="javascript" type="text/javascript">
         var rc = new RadarChart("radar", 600, 300);
+        $.getJSON("/latest_reports/N900", function(data){
+            rc.render_reports(data);
+        });
     </script>
 </body>

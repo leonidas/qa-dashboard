@@ -5,8 +5,9 @@ COFFEE = __dirname + "/client/coffee"
 JS     = PUBLIC + "/js"
 
 express = require('express')
-
 app = express.createServer()
+
+db = require('./server/queries.coffee')
 
 app.configure ->
     app.use express.compiler
@@ -26,5 +27,9 @@ app.configure "development", ->
 
 app.configure "production", ->
     app.use express.errorHandler()
+
+app.get "/latest_reports/:hw", (req,res) ->
+   db.latest_reports req.params.hw, (err, arr) ->
+       res.send arr
 
 app.listen(PORT)

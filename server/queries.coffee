@@ -46,11 +46,14 @@ latest_for_group = (g, cb) ->
         total_pass:1
         total_fail:1
         total_na:1
+        qa_id:1
 
     reports (err, col) ->
         col.find g, fields, { sort: {"tested_at":-1}, limit: 1 }, (err, cur) ->
             cur.toArray (err, arr) ->
-                cb null,arr[0]
+                report = arr[0]
+                report.pass_target = 80
+                cb null, report
 
 
 latest_reports = (hw, cb) ->
