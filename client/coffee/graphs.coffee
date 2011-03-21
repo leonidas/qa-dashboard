@@ -26,8 +26,8 @@ class RadarChart
             apex = obj.group_arc a, arcw, arch, r.total_pass, r.total_fail, r.total_na
             a += arcw
             title = r.target + " " + r.testtype
-            #console.log "a:"+a+" w:"+arcw+" h:"+arch+" t:"+title+" m:"+(a-arcw/2)
-            return {title:title, apex:apex, mid:a-arcw/2, arcw:arcw}
+            url   = "http://qa-reports.meego.com/#{r.version}/#{r.target}/#{r.testtype}/#{r.hwproduct}/#{r.qa_id}"
+            return {title:title, apex:apex, mid:a-arcw/2, arcw:arcw, href:url}
 
         @render_target_circle()
 
@@ -47,6 +47,7 @@ class RadarChart
         y = 10
         x = @width
         dir = 1
+        prevy = 0
         for title in titles
             if title.arcw < 1
                 continue
@@ -55,12 +56,16 @@ class RadarChart
                 y = @height-10
                 dir = -1
             mr = title.mid*Math.PI/180.0
-            [ax,ay] = title.apex
+            [ax,ay,tax,tay] = title.apex
             c = Math.cos(mr)
             ex = ax+Math.sin(mr)*5
             ey = ay-c*5
-            dy = -(c*Math.abs(c*c*c*c*c*c*c*c))*30
-            ty = ey + dy
+
+            ty = ey
+            
+            if Math.abs(ty-prevy) < 10 || (dir*ty < dir*prevy) || (Math.abs(c) > 0.5)
+                ty = tay-c*5
+            
             if ty < 10
                 ty = 10
             if ty > @height - 10
@@ -69,6 +74,9 @@ class RadarChart
             txt = @paper.text(x, ty, title.title)
             txt.attr
                 "stroke-opacity": 0.8
+                href: title.href
+                #cursor: "pointer"
+
 
             w = txt.getBBox().width + 10
             tx = x-dir*w
@@ -81,8 +89,8 @@ class RadarChart
                 txt.attr("text-anchor", "end")
             else
                 txt.attr("text-anchor", "begin")
-            y += dir*20
 
+            prevy = ty
 
     group_arc: (start, width, length, pass, fail, na) ->
         cx = @cx
@@ -116,7 +124,9 @@ class RadarChart
             stroke: "white"
 
         mid = (start + width/2.0)*Math.PI/180.0
-        [cx+Math.sin(mid)*length, cy-Math.cos(mid)*length]
+        msin = Math.sin(mid)
+        mcos = Math.cos(mid)
+        [cx+msin*length,cy-mcos*length,cx+msin*@maxsize,cy-mcos*@maxsize]
 
 
 drawArc = (paper, cx, cy, start, end, radius) ->

@@ -20,19 +20,20 @@
       obj = this;
       maxsize = this.maxsize;
       titles = _(rs).map(function(r) {
-        var apex, arch, arcw, target, title;
+        var apex, arch, arcw, target, title, url;
         arcw = 360 * r.total_cases / grand_total;
         target = Math.random() * 30 + 60;
         arch = maxsize * 50 / target;
         apex = obj.group_arc(a, arcw, arch, r.total_pass, r.total_fail, r.total_na);
         a += arcw;
         title = r.target + " " + r.testtype;
-        console.log("a:" + a + " w:" + arcw + " h:" + arch + " t:" + title + " m:" + (a - arcw / 2));
+        url = "http://qa-reports.meego.com/" + r.version + "/" + r.target + "/" + r.testtype + "/" + r.hwproduct + "/" + r.qa_id;
         return {
           title: title,
           apex: apex,
           mid: a - arcw / 2,
-          arcw: arcw
+          arcw: arcw,
+          href: url
         };
       });
       this.render_target_circle();
@@ -50,10 +51,11 @@
       });
     };
     RadarChart.prototype.render_titles = function(titles) {
-      var ax, ay, c, dir, dy, ex, ey, line, mr, title, tx, txt, ty, w, x, y, _i, _len, _ref, _results;
+      var ax, ay, c, dir, ex, ey, line, mr, prevy, tax, tay, title, tx, txt, ty, w, x, y, _i, _len, _ref, _results;
       y = 10;
       x = this.width;
       dir = 1;
+      prevy = 0;
       _results = [];
       for (_i = 0, _len = titles.length; _i < _len; _i++) {
         title = titles[_i];
@@ -66,12 +68,14 @@
           dir = -1;
         }
         mr = title.mid * Math.PI / 180.0;
-        _ref = title.apex, ax = _ref[0], ay = _ref[1];
+        _ref = title.apex, ax = _ref[0], ay = _ref[1], tax = _ref[2], tay = _ref[3];
         c = Math.cos(mr);
         ex = ax + Math.sin(mr) * 5;
         ey = ay - c * 5;
-        dy = -(c * Math.abs(c * c * c * c * c * c * c * c)) * 30;
-        ty = ey + dy;
+        ty = ey;
+        if (Math.abs(ty - prevy) < 10 || (dir * ty < dir * prevy) || (Math.abs(c) > 0.5)) {
+          ty = tay - c * 5;
+        }
         if (ty < 10) {
           ty = 10;
         }
@@ -80,7 +84,8 @@
         }
         txt = this.paper.text(x, ty, title.title);
         txt.attr({
-          "stroke-opacity": 0.8
+          "stroke-opacity": 0.8,
+          href: title.href
         });
         w = txt.getBBox().width + 10;
         tx = x - dir * w;
@@ -95,12 +100,12 @@
         } else {
           txt.attr("text-anchor", "begin");
         }
-        _results.push(y += dir * 20);
+        _results.push(prevy = ty);
       }
       return _results;
     };
     RadarChart.prototype.group_arc = function(start, width, length, pass, fail, na) {
-      var cx, cy, fail_arc, fail_len, mid, na_arc, na_len, outline, pass_arc, pass_len, total;
+      var cx, cy, fail_arc, fail_len, mcos, mid, msin, na_arc, na_len, outline, pass_arc, pass_len, total;
       cx = this.cx;
       cy = this.cy;
       total = pass + fail + na;
@@ -129,7 +134,9 @@
         stroke: "white"
       });
       mid = (start + width / 2.0) * Math.PI / 180.0;
-      return [cx + Math.sin(mid) * length, cy - Math.cos(mid) * length];
+      msin = Math.sin(mid);
+      mcos = Math.cos(mid);
+      return [cx + msin * length, cy - mcos * length, cx + msin * this.maxsize, cy - mcos * this.maxsize];
     };
     return RadarChart;
   })();
