@@ -1,7 +1,7 @@
 
 class RadarChart
     constructor: (@elem, @width, @height) ->
-        @paper = Raphael(@elem, @width, @height)
+        @paper = Raphael(@elem.get(0), @width, @height)
 
         @cx = @width * 0.5
         @cy = @height * 0.5

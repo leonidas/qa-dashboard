@@ -18,6 +18,9 @@ reports = (cb) ->
 widgets = (cb) ->
     db.collection "widgets", cb
 
+users = (cb) ->
+    db.collection "users", cb
+
 targets_for_hw = (hw, cb) ->
     reports (err,col) ->
         col.distinct "target", {hwproduct: hw, version:"1.2"}, cb
@@ -72,6 +75,19 @@ widget_config = (wgt, cb) ->
             else
                 cur.nextObject(cb)
 
+user_dashboard = (uname, cb) ->
+    users (err,col) ->
+        col.find {username:uname}, {dashboard:1}, (err, cur) ->
+            cur.nextObject (err, obj) ->
+                if err
+                    cb err, {left_col:[], sidebar:[]}
+                else
+                    cb null, obj.dashboard
+
+save_dashboard = (uname, dashb, cb) ->
+    users (err,col) ->
+        col.update {username:uname}, {$set: {dashboard:dashb}}, cb
+
 exports.reports = reports
 exports.targets_for_hw = targets_for_hw
 exports.types_for_hw = types_for_hw
@@ -80,4 +96,8 @@ exports.latest_for_group = latest_for_group
 exports.latest_reports = latest_reports
 
 exports.widget_config = widget_config
+
+exports.user_dashboard = user_dashboard
+exports.save_dashboard = save_dashboard
+
 

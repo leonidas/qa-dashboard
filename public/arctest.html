@@ -6,10 +6,10 @@
     <script language="javascript" src="/graphs.js"></script>
 </head>
 <body>
-    <div id="radar">
+    <div class="radar">
     </div>
     <script language="javascript" type="text/javascript">
-        var rc = new RadarChart("radar", 600, 500);
+        var rc = new RadarChart($(".radar"), 600, 500);
         $.getJSON("/reports/latest/N900", function(data){
             rc.render_reports(data);
         });

@@ -5,7 +5,7 @@
       this.elem = elem;
       this.width = width;
       this.height = height;
-      this.paper = Raphael(this.elem, this.width, this.height);
+      this.paper = Raphael(this.elem.get(0), this.width, this.height);
       this.cx = this.width * 0.5;
       this.cy = this.height * 0.5;
       this.maxsize = this.height * 0.45;

@@ -38,6 +38,10 @@ app.get "/reports/latest/:hw", (req,res) ->
    db.latest_reports req.params.hw, (err, arr) ->
        res.send arr
 
+app.get "/reports/groups/:hw", (req,res) ->
+    db.groups_for_hw req.params.hw, (err, arr) ->
+        res.send arr
+
 app.get "/widget/:widget/config", (req, res) ->
     db.widget_config req.params.widget, (err, cfg) ->
         res.send cfg
