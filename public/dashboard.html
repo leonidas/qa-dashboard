@@ -38,16 +38,23 @@ Important measurements of layout:
 	<script type="text/javascript" src="js/widget-data.js"></script>
 	<script type="text/javascript" src="js/application.js"></script>
         <script type="text/javascript" src="/graphs.js"></script>
+        <script type="text/javascript" src="/widgets.js"></script>
 	
 	<script type="text/javascript">
 		$(document).ready(function() {
 			// Default widgets
+                        /*
 			$('#left_column').append(createWidget('widget_qa_reports_radar'));	
 			$('#left_column').append(createWidget('widget_qa_reports'));	
 				
 			$('#sidebar').append(createWidget('widget_top_blockers'));
 			$('#sidebar').append(createWidget('widget_critical_bugs'));	
-
+                        */
+                        widgets.pass_rate().init_new(function(dom){
+                            console.log(dom);
+                            $('#left_column').append(dom);
+                            equals();
+                        });
 		});
 	</script>
 	
