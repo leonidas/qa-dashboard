@@ -140,5 +140,5 @@ drawArc = (paper, cx, cy, start, end, radius) ->
     s = s.concat  "A",[radius,radius,0,0,1,ex,ey], "Z"
     paper.path(s)
 
-
-window.RadarChart = RadarChart
+window.graphs = {}
+window.graphs.RadarChart = RadarChart

@@ -153,5 +153,6 @@
     s = s.concat("A", [radius, radius, 0, 0, 1, ex, ey], "Z");
     return paper.path(s);
   };
-  window.RadarChart = RadarChart;
+  window.graphs = {};
+  window.graphs.RadarChart = RadarChart;
 }).call(this);

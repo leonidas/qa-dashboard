@@ -9,7 +9,8 @@ class WidgetBase
         @get_reports cfg.groups, (reports) =>
             @reports = reports
             @dom = $ @create_dom()
-            @render_chart @dom
+            @dom.data("widgetObj", this)
+            @render_chart @dom.find(".radar-chart")
             db @dom
                 
 
@@ -39,7 +40,10 @@ class PassRateChart extends WidgetBase
 
     create_dom: -> createWidget(@type+"_"+@config.type)
 
-    render_chart: (@elem) ->
+    render_chart: (@chart_elem) ->
         @chart = new RadarChart @elem, @width, @height
         @chart.render_reports(@reports)
-    
+
+window.widgets = {}
+window.widgets.pass_rate = -> new PassRateChart()
+
