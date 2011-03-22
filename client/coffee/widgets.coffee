@@ -2,23 +2,21 @@
 class WidgetBase
     init_new: (cb) ->
         @dom = $ @create_dom() 
+        @dom.data("widgetObj", this)
         @get_default_config (cfg) =>
             @init_from cfg, cb, @dom
         @dom
     
     init_from: (cfg, cb, dom) ->
         @config = cfg
-        if not dom
+        if dom == undefined
             @dom = $ @create_dom()
+            @dom.data("widgetObj", this)
         else
             @dom = dom
         @get_reports cfg.groups, (reports) =>
-            console.log "init_from: entered callback"
             @reports = reports
-            @dom.data("widgetObj", this)
-            console.log "rendering chart"
             @render_chart @dom.find(".radar-chart")
-            console.log "triggering callback"
             if cb
                 cb @dom
         @dom
@@ -39,17 +37,14 @@ class PassRateChart extends WidgetBase
 
     get_default_config: (cb) ->
         hw = "N900"
-        $.getJSON "/reports/groups/#{hw}", (data) ->
+        cached.get "/reports/groups/#{hw}", (data) ->
             cb {type:"radar", hwproduct:hw, groups: data, alert:30}
 
     get_reports: (groups, cb) ->
-        $.getJSON "/reports/latest/#{@config.hwproduct}", (data) =>
+        cached.get "/reports/latest/#{@config.hwproduct}", (data) =>
             reports  = _ data
             selected = _ @config.groups
-            console.log "get_reports"
-            console.log selected
             cb reports.filter (r) ->
-                console.log r
                 selected.any (s) ->
                     s.hwproduct == r.hwproduct && s.testtype ==  r.testtype && s.target == r.target
 
@@ -60,11 +55,8 @@ class PassRateChart extends WidgetBase
             createWidget("widget_"+@type+"_radar")
 
     render_chart: (@chart_elem) ->
-        console.log "entered render_chart"
         @chart = new graphs.RadarChart @chart_elem, @width, @height
-        console.log "render_chart: new RadarChart"
         @chart.render_reports(@reports)
-        console.log "render_chart: render_reports finished"
 
 window.widgets = {}
 window.widgets.pass_rate = PassRateChart
@@ -89,10 +81,11 @@ window.save_widgets = (cb) ->
 
     find_configs = ($elem) ->
         result = []
-        $elem.each (idx, sub) ->
+        $elem.find('.widget').each (idx, sub) ->
             obj = $(sub).data("widgetObj")
-            cfg = obj.config
-            result.append {type:obj.type, config:cfg}
+            if obj != undefined
+                cfg = obj.config
+                result.push {type:obj.type, config:cfg}
         result
 
     dashboard =
@@ -118,5 +111,8 @@ window.load_widgets = (cb) ->
             wt = window.widgets[w.type]
             dom = new wt().init_from(w.config)
             $sb.append(dom)
+
+        if cb
+            cb dashb
 
 

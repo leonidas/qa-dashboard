@@ -89,14 +89,14 @@ user_dashboard = (uname, cb) ->
     users (err,col) ->
         col.find {username:uname}, {dashboard:1}, (err, cur) ->
             cur.nextObject (err, obj) ->
-                if err
+                if err || obj == null
                     cb err, {column:[], sidebar:[]}
                 else
                     cb null, obj.dashboard
 
 save_dashboard = (uname, dashb, cb) ->
     users (err,col) ->
-        col.update {username:uname}, {$set: {dashboard:dashb}}, cb
+        col.update {username:uname}, {$set: {dashboard:dashb}}, {upsert:true}, cb
 
 exports.reports = reports
 exports.targets_for_hw = targets_for_hw

@@ -49,6 +49,7 @@ initialize_qa_dashboard = function() {
 			if(newWidget != null && newWidget.type != 'undefined') {
                             $(this).append(newWidget);
                             initWidgetEvents(newWidget);
+                            save_widgets();
                         }
 //				newWidget.unwrap();
 //				newWidget = null;
