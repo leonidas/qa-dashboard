@@ -48,6 +48,7 @@ initialize_qa_dashboard = function() {
                         $(this).find(".ui-draggable").remove();
 			if(newWidget != null && newWidget.type != 'undefined') {
                             $(this).append(newWidget);
+                            initWidgetEvents(newWidget);
                         }
 //				newWidget.unwrap();
 //				newWidget = null;
@@ -80,8 +81,11 @@ initialize_qa_dashboard = function() {
 		'scope' : 'widget',
 		'start' : function(event, ui) {
 			//newWidget = createWidget($(this).attr('id'));
-                        cls = $(this).data("widgetClass")
-                        newWidget = new cls().init_new();
+                        var cls = $(this).data("widgetClass");
+                        var dom = new cls().init_new(function(){
+                            equals();
+                        });
+                        newWidget = dom;
 		}
 	});
 	
@@ -100,7 +104,8 @@ initialize_qa_dashboard = function() {
 		'drop' : function(event, ui) {
 			$(ui.draggable).children().remove();
                         //$(this).find(".placeholder").remove();
-			$(ui.draggable).append(newWidget);
+			//$(ui.draggable).append(newWidget);
+                        //initWidgetEvents(newWidget);
 			equals();
 		}
 	});
@@ -132,29 +137,34 @@ var createWidget = function(type) {
 	widget.find('.widget_edit_content').hide();
 	widget.show();
 	
-	// Binding the events
-	widget.find('.widget_edit').bind('click', function() {
-		widget.find('.widget_content').toggle();
-		widget.find('.widget_edit_content').toggle();
-		$('.widget_edit_columns_container').equalHeights();
-    $('.shiftcb').shiftcheckbox();
-    equals();
-		$(this).toggleClass('active');
-		return false;
-	});
-	widget.find('.widget_move').bind('mouseover', function() {
-		widget.addClass('move_mode');
-	});
-	widget.find('.widget_move').bind('mouseout', function() {
-		widget.removeClass('move_mode');
-	});
-	widget.find('.widget_close').bind('click', function() {
-		widget.slideUp(200);	
-		return false;
-	});
-	
 	// Good to go!
 	return widget;
+}
+
+var initWidgetEvents = function(widget) {
+    // Binding the events
+    widget.find('.widget_edit').bind('click', function() {
+            widget.find('.widget_content').toggle();
+            widget.find('.widget_edit_content').toggle();
+            $('.widget_edit_columns_container').equalHeights();
+            $('.shiftcb').shiftcheckbox();
+            equals();
+            $(this).toggleClass('active');
+            return false;
+    });
+    widget.find('.widget_move').bind('mouseover', function() {
+            $(this).addClass('move_mode');
+    });
+    widget.find('.widget_move').bind('mouseout', function() {
+            $(this).removeClass('move_mode');
+    });
+    widget.find('.widget_close').bind('click', function() {
+            widget.slideUp(200, function(){
+                widget.remove();
+                });
+            return false;
+    });
+	
 }
 
 function getHeight(widget, column) {
