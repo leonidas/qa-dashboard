@@ -102,15 +102,15 @@ window.load_widgets = (cb) ->
         $lc.empty()
         $sb.empty()
 
-        _(dashb.column).each (w) ->
-            wt = window.widgets[w.type]
-            dom = new wt().init_from(w.config)
-            $lc.append(dom)
+        add_widgets = (arr, $elem) ->
+            _(arr).each (w) ->
+                wt = window.widgets[w.type]
+                dom = new wt().init_from(w.config)
+                initWidgetEvents(dom)
+                $elem.append(dom)
 
-        _(dashb.sidebar).each (w) ->
-            wt = window.widgets[w.type]
-            dom = new wt().init_from(w.config)
-            $sb.append(dom)
+        add_widgets dashb.column, $lc
+        add_widgets dashb.sidebar, $sb
 
         if cb
             cb dashb

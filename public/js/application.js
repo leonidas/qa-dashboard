@@ -162,6 +162,8 @@ var initWidgetEvents = function(widget) {
     widget.find('.widget_close').bind('click', function() {
             widget.slideUp(200, function(){
                 widget.remove();
+                save_widgets();
+                equals();
                 });
             return false;
     });
