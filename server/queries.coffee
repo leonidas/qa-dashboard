@@ -15,6 +15,9 @@ db.open(->)
 reports = (cb) ->
     db.collection "reports", cb
 
+widgets = (cb) ->
+    db.collection "widgets", cb
+
 targets_for_hw = (hw, cb) ->
     reports (err,col) ->
         col.distinct "target", {hwproduct: hw, version:"1.2"}, cb
@@ -60,10 +63,21 @@ latest_reports = (hw, cb) ->
     groups_for_hw hw, (err, groups) ->
         async.map groups, latest_for_group, cb
 
+
+widget_config = (wgt, cb) ->
+    widgets (err,col) ->
+        col.find {widget:wgt}, (err, cur) ->
+            if err
+                cb err, {}
+            else
+                cur.nextObject(cb)
+
 exports.reports = reports
 exports.targets_for_hw = targets_for_hw
 exports.types_for_hw = types_for_hw
 exports.groups_for_hw = groups_for_hw
 exports.latest_for_group = latest_for_group
 exports.latest_reports = latest_reports
+
+exports.widget_config = widget_config
 

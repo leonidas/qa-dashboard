@@ -10,7 +10,7 @@
     </div>
     <script language="javascript" type="text/javascript">
         var rc = new RadarChart("radar", 600, 500);
-        $.getJSON("/latest_reports/N900", function(data){
+        $.getJSON("/reports/latest/N900", function(data){
             rc.render_reports(data);
         });
     </script>
