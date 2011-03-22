@@ -20,7 +20,7 @@ class WidgetBase
 class PassRateChart extends WidgetBase
     width:  600
     height: 500
-    type: "widget_qa_reports"
+    type: "pass_rate"
 
     init_reports: (@reports) ->
 
@@ -42,7 +42,7 @@ class PassRateChart extends WidgetBase
                 selected.any (s) ->
                     s.hwproduct == r.hwproduct && s.testtype ==  r.testtype && s.target == r.target
 
-    create_dom: -> createWidget(@type+"_"+@config.type)
+    create_dom: -> createWidget("widget_"+@type+"_"+@config.type)
 
     render_chart: (@chart_elem) ->
         console.log "entered render_chart"
@@ -53,4 +53,41 @@ class PassRateChart extends WidgetBase
 
 window.widgets = {}
 window.widgets.pass_rate = -> new PassRateChart()
+
+window.widgets.save_widgets = (cb) ->
+    $lc = $('#left_column')
+    $sb = $('#sidebar')
+
+    find_configs = ($elem) ->
+        result = []
+        $elem.each (idx, sub) ->
+            obj = $(sub).data("widgetObj")
+            cfg = obj.config
+            result.append {type:obj.type, config:cfg}
+        result
+
+    dashboard =
+        column:  find_configs $lc
+        sidebar: find_configs $sb
+
+    $.post "/user/dashboard/save", dashboard, cb
+    
+window.widgets.load_widgets = (cb) ->
+    $.getJSON "/user/dashboard", (dashb) ->
+        $lc = $('#left_column')
+        $sb = $('#sidebar')
+
+        $lc.empty()
+        $sb.empty()
+
+        _(dashb.column).each (w) ->
+            wt = window.widgets[w.type]
+            dom = wt().init_from(w.config)
+            $lc.append(dom)
+
+        _(dashb.sidebar).each (w) ->
+            wt = window.widgets[w.type]
+            dom = wt().init_from(w.config)
+            $sb.append(dom)
+
 

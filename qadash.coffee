@@ -46,4 +46,22 @@ app.get "/widget/:widget/config", (req, res) ->
     db.widget_config req.params.widget, (err, cfg) ->
         res.send cfg
 
+app.post "/user/dashboard/save", (req, res) ->
+    uname = "dummy"
+    db.save_dashboard uname, req.body, (err) ->
+        if err
+            res.send {status:"error", error:err}
+        else
+            res.send {status:"OK"}
+
+app.get "/user/dashboard", (req, res) ->
+    uname = "dummy"
+    db.user_dashboard uname, (err, dashb) ->
+       res.send dashb
+
+app.get "/admin/init_indexes", (req, res) ->
+    db.init_indexes()
+    res.send("Started DB index initialization")
+
 app.listen(PORT)
+

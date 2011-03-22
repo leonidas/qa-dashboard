@@ -10,7 +10,8 @@ HOST = "localhost"
 PORT = Connection.DEFAULT_PORT
 
 db = new Db('qadash-db', new Server(HOST, PORT, {}), {native_parser:true})
-db.open(->)
+
+db.open (->)
 
 reports = (cb) ->
     db.collection "reports", cb
@@ -21,19 +22,28 @@ widgets = (cb) ->
 users = (cb) ->
     db.collection "users", cb
 
+init_indexes = ->
+    reports (err,col) ->
+        col.ensureIndex [["qa_id",1]], true, (->)
+        col.ensureIndex [["version",1], ["hwproduct",1], ["target","1"], ["testtype",1], ["tested_at",-1]], false, (->)
+
+    users (err, col) ->
+        col.ensureIndex [["username",1]], true, (->)
+
+
 targets_for_hw = (hw, cb) ->
     reports (err,col) ->
-        col.distinct "target", {hwproduct: hw, version:"1.2"}, cb
+        col.distinct "target", {version:"1.2", hwproduct: hw}, cb
 
 types_for_hw = (hw, target, cb) ->
     reports (err,col) ->
-        col.distinct "testtype", {hwproduct: hw, target: target, version:"1.2"}, cb
+        col.distinct "testtype", {version:"1.2", hwproduct: hw, target: target}, cb
 
 groups_for_hw = (hw, cb) ->
 
     map_target = (target, cb) ->
         map_type = (typ, cb) ->
-            cb null, {hwproduct:hw, target:target, testtype:typ}
+            cb null, {version:"1.2", hwproduct:hw, target:target, testtype:typ}
         async.waterfall [
             async.apply(types_for_hw, hw, target),
             (types) ->
@@ -80,7 +90,7 @@ user_dashboard = (uname, cb) ->
         col.find {username:uname}, {dashboard:1}, (err, cur) ->
             cur.nextObject (err, obj) ->
                 if err
-                    cb err, {left_col:[], sidebar:[]}
+                    cb err, {column:[], sidebar:[]}
                 else
                     cb null, obj.dashboard
 
@@ -100,4 +110,5 @@ exports.widget_config = widget_config
 exports.user_dashboard = user_dashboard
 exports.save_dashboard = save_dashboard
 
+exports.init_indexes = init_indexes
 
