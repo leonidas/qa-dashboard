@@ -1,12 +1,11 @@
 less.env = "development";
 //less.watch();
 
-$(document).ready(function(){
+initialize_qa_dashboard = function() {
 
 	jQuery.event.add(window, "load", equals);
 	jQuery.event.add(window, "resize", equals);
 	
-
 	
 	/* Widget bar actions */
 	
@@ -38,7 +37,7 @@ $(document).ready(function(){
 			equals();
 		},
 		'over' : function(event, ui) {
-			$('.ui-widget-sortable-placeholder').height(widgetData[$(ui.item).data('widgetType')][$(this).attr('id')]['height']);
+			//$('.ui-widget-sortable-placeholder').height(widgetData[$(ui.item).data('widgetType')][$(this).attr('id')]['height']);
 			$(this).sortable('refresh');
 			equals();
 		},
@@ -46,9 +45,12 @@ $(document).ready(function(){
 			equals();
 		},
 		'receive' : function(event, ui) {
-			if(newWidget != null && newWidget.type != 'undefined')
-				newWidget.unwrap();
-				newWidget = null;
+                        $(this).find(".ui-draggable").remove();
+			if(newWidget != null && newWidget.type != 'undefined') {
+                            $(this).append(newWidget);
+                        }
+//				newWidget.unwrap();
+//				newWidget = null;
 			equals();
 		},
 		'placeholder' : 'ui-widget-sortable-placeholder',
@@ -77,7 +79,9 @@ $(document).ready(function(){
 		'connectToSortable' : '#left_column, #sidebar',
 		'scope' : 'widget',
 		'start' : function(event, ui) {
-			newWidget = createWidget($(this).attr('id'));
+			//newWidget = createWidget($(this).attr('id'));
+                        cls = $(this).data("widgetClass")
+                        newWidget = new cls().init_new();
 		}
 	});
 	
@@ -89,12 +93,13 @@ $(document).ready(function(){
 		'greedy' : true,
 		'tolerance' : 'pointer',
 		'over' : function(event, ui) {
-			$('.ui-widget-sortable-placeholder').height(widgetData[newWidget.data('widgetType')][$(this).attr('id')]['height']);
+			//$('.ui-widget-sortable-placeholder').height(widgetData[newWidget.data('widgetType')][$(this).attr('id')]['height']);
 			$('#left_column, #sidebar').sortable('refresh');
 			equals();
 		},
 		'drop' : function(event, ui) {
 			$(ui.draggable).children().remove();
+                        //$(this).find(".placeholder").remove();
 			$(ui.draggable).append(newWidget);
 			equals();
 		}
@@ -112,8 +117,8 @@ $(document).ready(function(){
 	$('.fill_with_example').example(function() {
 	return $(this).attr('title');
 	}, {className: 'example'});
-		
-});
+
+};
 
 function equals() {
 	$('#page_content').equalHeights();	

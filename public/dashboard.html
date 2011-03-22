@@ -50,11 +50,16 @@ Important measurements of layout:
 			$('#sidebar').append(createWidget('widget_top_blockers'));
 			$('#sidebar').append(createWidget('widget_critical_bugs'));	
                         */
-                        widgets.pass_rate().init_new(function(dom){
-                            console.log(dom);
+
+                        /*
+                        new widgets.pass_rate().init_new(function(dom){
                             $('#left_column').append(dom);
                             equals();
-                        });
+                            });
+                         */
+
+                        init_widget_bar("#widget_bar");
+                        initialize_qa_dashboard();
 		});
 	</script>
 	
@@ -86,27 +91,7 @@ Important measurements of layout:
 		</div>
 
 		<!-- widget bar for adding widgets -->
-		<div id="widget_bar">
-			<section class="widget_info" id="widget_qa_reports">
-				<img src="img/widget_icons/qa_reports.png" alt="" />
-				<h1>QA Reports</h1>
-				<p>With bar chart</p>
-			</section>
-			<section class="widget_info" id="widget_qa_reports_radar">
-				<img src="img/widget_icons/qa_reports.png" alt="" />
-				<h1>QA Reports</h1>
-				<p>With radar chart.</p>
-			</section>
-			<section class="widget_info" id="widget_critical_bugs">
-				<img src="img/widget_icons/top_bugs.png" alt="" />
-				<h1>Top Bugs</h1>
-				<p>Lorem ipsum dolor sit amet, foo bar.</p>
-			</section>
-			<section class="widget_info" id="widget_top_blockers">
-				<img src="img/widget_icons/blockers.png" alt="" />
-				<h1>Blockers</h1>
-				<p>Lorem ipsum dolor sit amet, foo bar.</p>
-			</section>
+		<div id="widget_bar" style="display:none">
 			<a href="#" id="close_widget_bar">X</a>
 		</div>
 
@@ -116,6 +101,11 @@ Important measurements of layout:
 	
 	
 		<div id="hidden_widget_container">
+                    <section class="widget_info">
+                            <img src="img/widget_icons/qa_reports.png" alt="" />
+                            <h1>Widget title</h1>
+                            <p>Widget desc</p>
+                    </section>
 	
 		<section class="widget widget_top_blockers">
 			<h2>Top Blockers: <strong>N900</strong></h2>
