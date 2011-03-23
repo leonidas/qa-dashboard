@@ -16,10 +16,13 @@ class WidgetBase
         @config = cfg
         @init_new()
 
-    create_dom:  ->
+    create_dom: ->
         $t = $("#widget-base-template").clone().removeAttr "id"
         $t.find(".widget_content").hide()
         return $t
+
+    reset_dom: ->
+        @dom.replaceWith @create_dom
     
     get_config: (cb) ->
         if @config == undefined
@@ -31,7 +34,7 @@ class WidgetBase
 
     render_header: (cb) ->
         selector = "#hidden_widget_container "+@template+" .widget_header"
-        $t = $(selector).clone()
+        $t = $(selector).clone(true)
         @get_config (cfg) =>
             @format_header $t, (dom) =>
                 @dom.find(".widget_header").replaceWith(dom)
@@ -43,7 +46,7 @@ class WidgetBase
         @get_config (cfg) =>
             @render_header =>
                 selector = "#hidden_widget_container "+@template+" ."+cls
-                $t = $(selector).clone()
+                $t = $(selector).clone(true)
                 formatfunc.apply(this, [$t, (dom) =>
                     @dom.find("."+cls).replaceWith(dom)
                     if cb
@@ -130,6 +133,9 @@ class PassRateChart extends WidgetBase
     format_settings_view: ($t, cb) ->
         if cb
             cb $t
+
+    process_save_settings: ($form, cb) ->
+
 
     get_reports: (groups, cb) ->
         cached.get "/reports/latest/#{@config.hwproduct}", (data) =>

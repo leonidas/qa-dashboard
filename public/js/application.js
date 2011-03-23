@@ -142,6 +142,16 @@ initialize_qa_dashboard = function() {
 		$(this).parent().addClass('active').siblings().removeClass('active');
 	}); 
 	
+        $('.widget_edit_content form').submit(function(){
+            var $form   = $(this);
+            var $widget = $form.closest(".widget");
+            var obj = $widget.data("widgetObj");
+            obj.process_save_settings($form);
+            save_widgets();
+            obj.reset_dom();
+            updateWidgetElement($widget);
+            return false;
+        });
 	
 	/* Populate input text fields with example text */
 	$('.fill_with_example').example(function() {
