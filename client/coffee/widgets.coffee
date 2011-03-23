@@ -39,6 +39,17 @@ class WidgetBase
                     cb()
 
 
+    render_view: (cls, formatfunc, cb) ->
+        @get_config (cfg) =>
+            @render_header =>
+                selector = "#hidden_widget_container "+@template+" ."+cls
+                $t = $(selector).clone()
+                formatfunc.apply(this, [$t, (dom) =>
+                    @dom.find("."+cls).replaceWith(dom)
+                    if cb
+                        cb()
+                ])
+
     render_main_view: (cb) ->
         @dom.find(".widget_content").hide()
         @dom.find(".content_main").show()
@@ -46,14 +57,7 @@ class WidgetBase
             if cb
                 cb()
         else
-            @get_config (cfg) =>
-                @render_header =>
-                    selector = "#hidden_widget_container "+@template+" .content_main"
-                    $t = $(selector).clone()
-                    @format_main_view $t, (dom) =>
-                        @dom.find(".content_main").replaceWith(dom)
-                        if cb
-                            cb()
+            @render_view "content_main", @format_main_view, cb
 
     render_small_view: (cb) ->
         @dom.find(".widget_content").hide()
@@ -62,15 +66,16 @@ class WidgetBase
             if cb
                 cb()
         else
-            @get_config (cfg) =>
-                @render_header =>
-                    selector = "#hidden_widget_container "+@template+" .content_small"
-                    $t = $(selector).clone()
-                    @format_small_view $t, (dom) =>
-                        @dom.find(".content_small").replaceWith(dom)
-                        if cb
-                            cb()
+            @render_view "content_small", @format_small_view, cb
 
+    render_settings_view: (cb) ->
+        @dom.find(".widget_content").hide()
+        @dom.find(".content_settings").show()
+        if @is_small_view_ready()
+            if cb
+                cb()
+        else
+            @render_view "content_settings", @format_settings_view, cb
 
     is_main_view_ready: ->
         @dom.find(".content_main .loading").length == 0
@@ -121,6 +126,10 @@ class PassRateChart extends WidgetBase
             @render_small_chart $t.find(".radar-chart")
             if cb
                 cb $t
+
+    format_settings_view: ($t, cb) ->
+        if cb
+            cb $t
 
     get_reports: (groups, cb) ->
         cached.get "/reports/latest/#{@config.hwproduct}", (data) =>

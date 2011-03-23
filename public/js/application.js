@@ -166,16 +166,35 @@ var createWidget = function(type) {
 	return widget;
 }
 
+var updateWidgetElement = function(elem) {
+    var $e = $(elem);
+    var obj = $e.data("widgetObj");
+    var $parent = $e.parent();
+    if ($parent.attr("id") == "sidebar") {
+        obj.render_small_view(equals);
+    } else {
+        obj.render_main_view(equals);
+    }
+    equals();
+}
+
 var initWidgetEvents = function(widget) {
     // Binding the events
     widget.find('.widget_edit').bind('click', function() {
-            widget.find('.widget_content').toggle();
-            widget.find('.widget_edit_content').toggle();
-            $('.widget_edit_columns_container').equalHeights();
-            $('.shiftcb').shiftcheckbox();
+        var $settings = widget.find('.content_settings');
+        var $this = $(this);           
+        if ($this.hasClass("active")) {
+           updateWidgetElement(widget);
+        } else {
+            var obj = widget.data("widgetObj");
+            obj.render_settings_view(equals);
             equals();
-            $(this).toggleClass('active');
-            return false;
+        }
+        $this.toggleClass("active");
+        //$('.widget_edit_columns_container').equalHeights();
+        //$('.shiftcb').shiftcheckbox();
+        equals();
+        return false;
     });
     widget.find('.widget_move').bind('mouseover', function() {
             $(this).addClass('move_mode');
