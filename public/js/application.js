@@ -47,8 +47,14 @@ initialize_qa_dashboard = function() {
 		'receive' : function(event, ui) {
                         $(this).find(".ui-draggable").remove();
 			if(newWidget != null && newWidget.type != 'undefined') {
+                            console.log(newWidget);
                             $(this).append(newWidget);
                             initWidgetEvents(newWidget);
+                            var obj = newWidget.data("widgetObj");
+                            obj.render_main_view(function(){
+                                console.log("render_main_view ready");
+                                equals();
+                            });
                             save_widgets();
                         }
 //				newWidget.unwrap();
@@ -83,10 +89,9 @@ initialize_qa_dashboard = function() {
 		'start' : function(event, ui) {
 			//newWidget = createWidget($(this).attr('id'));
                         var cls = $(this).data("widgetClass");
-                        var dom = new cls().init_new(function(){
-                            equals();
-                        });
+                        var dom = new cls().init_new();
                         newWidget = dom;
+                        console.log(dom);
 		}
 	});
 	

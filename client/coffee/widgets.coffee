@@ -1,35 +1,81 @@
 
 class WidgetBase
-    init_new: (cb) ->
-        @dom = $ @create_dom() 
+    width: 600
+    side_width: 300
+    
+    height: 200
+    side_height: 150
+
+
+    init_new: ->
+        @dom = $ @create_dom()
         @dom.data("widgetObj", this)
-        @get_default_config (cfg) =>
-            @init_from cfg, cb, @dom
         @dom
     
-    init_from: (cfg, cb, dom) ->
+    init_from: (cfg) ->
         @config = cfg
-        if dom == undefined
-            @dom = $ @create_dom()
-            @dom.data("widgetObj", this)
+        @init_new()
+
+    create_dom:  ->
+        $t = $("#widget-base-template").clone().removeAttr "id"
+        $t.find(".widget_content").hide()
+        return $t
+    
+    get_config: (cb) ->
+        if @config == undefined
+            @get_default_config (cfg) =>
+                @config = cfg
+                cb cfg
         else
-            @dom = dom
-        @get_reports cfg.groups, (reports) =>
-            @reports = reports
-            @render_chart @dom.find(".radar-chart")
+            cb @config
+
+    render_header: (cb) ->
+        selector = "#hidden_widget_container "+@template+" .widget_header"
+        $t = $(selector).clone()
+        @get_config (cfg) =>
+            @format_header $t, (dom) =>
+                @dom.find(".widget_header").replaceWith(dom)
+                if cb
+                    cb()
+
+
+    render_main_view: (cb) ->
+        @dom.find(".widget_content").hide()
+        @dom.find(".content_main").show()
+        if @is_main_view_ready
             if cb
-                cb @dom
-        @dom
-                
+                cb()
+        else:
+            @get_config (cfg) =>
+                @render_header =>
+                    selector = "#hidden_widget_container "+@template+" .content_main"
+                    $t = $(selector).clone()
+                    @format_main_view $t, (dom) =>
+                        @dom.find(".content_main").replaceWith(dom)
+                        if cb
+                            cb()
+
+
+    is_main_view_ready: ->
+        @dom.find(".content_main .loading").length == 0
+
+    is_small_view_ready: ->
+        @dom.find(".content_small .loading").length == 0
+
+    is_settings_view_ready: ->
+        @dom.find(".content_settings .loading").length == 0
+
 
 class PassRateChart extends WidgetBase
-    width:  600
     height: 500
+
     type: "pass_rate"
 
     thumbnail: "img/widget_icons/qa_reports.png"
     title: "Pass Rates Summary"
     desc:  "Summary of latest pass rates in QA Reports"
+
+    template: ".widget_pass_rate"
 
     init_reports: (@reports) ->
 
@@ -40,23 +86,31 @@ class PassRateChart extends WidgetBase
         cached.get "/reports/groups/#{hw}", (data) ->
             cb {type:"radar", hwproduct:hw, groups: data, alert:30}
 
+    format_header: ($t, cb) ->
+        $t.find(".hwproduct").text @config.hwproduct
+        if cb
+            cb $t
+
+    format_main_view: ($t, cb) ->
+        @get_reports @config.groups, (reports) =>
+            @reports = reports
+            @render_chart $t.find(".radar-chart")
+            cb $t
+
+
     get_reports: (groups, cb) ->
         cached.get "/reports/latest/#{@config.hwproduct}", (data) =>
             reports  = _ data
-            selected = _ @config.groups
+            selected = _ groups
             cb reports.filter (r) ->
                 selected.any (s) ->
                     s.hwproduct == r.hwproduct && s.testtype ==  r.testtype && s.target == r.target
 
-    create_dom: ->
-        if @config
-            createWidget("widget_"+@type+"_"+@config.type)
-        else
-            createWidget("widget_"+@type+"_radar")
-
     render_chart: (@chart_elem) ->
         @chart = new graphs.RadarChart @chart_elem, @width, @height
         @chart.render_reports(@reports)
+
+
 
 window.widgets = {}
 window.widgets.pass_rate = PassRateChart
@@ -105,9 +159,16 @@ window.load_widgets = (cb) ->
         add_widgets = (arr, $elem) ->
             _(arr).each (w) ->
                 wt = window.widgets[w.type]
-                dom = new wt().init_from(w.config)
+                obj = new wt()
+                dom = obj.init_from(w.config)
                 initWidgetEvents(dom)
                 $elem.append(dom)
+                if $elem == $lc
+                    obj.render_main_view ->
+                        equals()
+                else
+                    obj.render_small_view ->
+                        equals()
 
         add_widgets dashb.column, $lc
         add_widgets dashb.sidebar, $sb

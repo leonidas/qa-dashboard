@@ -109,6 +109,52 @@ Important measurements of layout:
                             <p>Widget desc</p>
                     </section>
 	
+<div class="widget" id="widget-base-template">
+
+    <div class="widget_header">
+    </div>
+
+    <div class="widget_content content_main">
+        <div class="loading">
+                <img src="img/preloader.gif" alt="Loading..." />
+        </div>
+    </div>
+
+    <div class="widget_content content_small">
+        <div class="loading">
+                <img src="img/preloader.gif" alt="Loading..." />
+        </div>
+    </div>
+
+    <div class="widget_content content_settings">
+        <div class="loading">
+                <img src="img/preloader.gif" alt="Loading..." />
+        </div>
+    </div>
+    <div class="action">
+        <a class="widget_move">Move</a>
+        <a class="widget_edit">Edit</a>
+        <a class="widget_close">Close</a>								
+    </div>
+
+</div>
+
+
+<div class="widget widget_pass_rate">
+    <div class="widget_header">
+        <h1><span></span>QA Reports: <strong class="hwproduct">N900</strong></h1>
+    </div>
+    <div class="content_main">
+        <div class="radar-chart"></div>
+    </div>
+
+    <div class="content_small">
+        <div class="radar-chart"></div>
+    </div>
+</div>
+
+<!-- ******************************************************** -->
+
 		<section class="widget widget_top_blockers">
 			<h2>Top Blockers: <strong>N900</strong></h2>
 			
@@ -453,32 +499,32 @@ Important measurements of layout:
 		
 <!-- ************************************ -->
 		<section class="widget widget_pass_rate_radar">
-			<h1><span></span>QA Reports: <strong>N900</strong></h1>
+			<h1><span></span>QA Reports: <strong class="hwproduct">N900</strong></h1>
 			
-			<div class="widget_content">
-				<!-- <div class="loading">
+                        <div class="widget_content">
+				<div class="loading">
 					<img src="img/preloader.gif" alt="Loading..." />
-				</div>-->
+				</div>
 				
                                 <!--<img src="img/qa_radar_dummy.png" id="radar_dummy" alt="" />-->
                                 <div class="radar-chart"></div>
 			</div>
+
+                        <div class="widget_content_small">
+				<div class="loading">
+					<img src="img/preloader.gif" alt="Loading..." />
+				</div>
+                        </div>
 			
-			<div class="widget_edit_content" id="edit_toggle_container">
+			<div class="widget_edit_content">
 			<form method="post" action="">
 			<div class="widget_edit_columns_container">
 				<div class="widget_edit_left_column">
 					
 					
-<!--					<div class="field">
-						<label for="">Datasource:</label>
-							<input type="radio" value="" name="datasource" checked />&nbsp;qa-reports.meego.com<br/>
-							<input type="radio" value="" name="datasource"/>&nbsp;qa-reports.projects.maemo.org
-					</div>	-->
-					
 					<div class="field">
 						<label for="">Hardware:</label>
-						<input type="text" class="fill_with_example" title="N900" size="27	" /><small><br/>eq. <a href="">N900</a>, <a href="">Aava</a></small>
+						<input type="text" class="fill_with_example" title="N900" size="27" /><small><br/>eq. <a href="">N900</a>, <a href="">Aava</a></small>
 					</div>
 				
 					
