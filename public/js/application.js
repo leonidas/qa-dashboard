@@ -66,13 +66,14 @@ initialize_qa_dashboard = function() {
                                 console.log("sidebar");
                                 obj.render_small_view(function() {
                                     equals();
+                                    save_widgets();
                                 });
                             } else {
                                 obj.render_main_view(function(){
                                     equals();
+                                    save_widgets();
                                 });
                             }
-                            save_widgets();
                         }
 //				newWidget.unwrap();
 //				newWidget = null;
@@ -146,10 +147,11 @@ initialize_qa_dashboard = function() {
             var $widget = $form.closest(".widget");
             var obj = $widget.data("widgetObj");
             $widget.find(".action .widget_edit").toggleClass("active");
-            obj.process_save_settings($form);
-            save_widgets();
-            obj.reset_dom();
-            updateWidgetElement($widget);
+            obj.process_save_settings($form,function(){
+                obj.reset_dom();
+                save_widgets();
+                updateWidgetElement($widget);
+            });
             return false;
         });
 	

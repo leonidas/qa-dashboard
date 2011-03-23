@@ -122,7 +122,7 @@ class PassRateChart extends WidgetBase
     get_default_config: (cb) ->
         hw = "N900"
         cached.get "/reports/groups/#{hw}", (data) =>
-            targets = []
+            targets = {}
             _(data).each (grp) =>
                 targets[@group_key(grp)] = 90
             cb {type:"radar", hwproduct:hw, groups: data, alert:30, passtargets: targets}
@@ -162,9 +162,9 @@ class PassRateChart extends WidgetBase
             #   set check box according to selected groups in config
             #   set pass rate target
             $table = $t.find("table.multiple_select")
-            $trow = $table.find("tr.row-template").removeClass("row-template")
+            $trow = $table.find("tr.row-template").removeClass("row-template").addClass("graph-target")
 
-            $trow.detach()
+            #$trow.detach()
             _(data).each (grp) =>
                 checked = @contains_group(@config.groups, grp)
 
@@ -173,9 +173,11 @@ class PassRateChart extends WidgetBase
                 $row.find(".testtype").text(grp.testtype)
                 $row.find(".passtarget").val(""+targets[@group_key(grp)])
                 $row.find(".shiftcb").attr("checked", checked)
+                $row.data("groupData", grp)
 
-                $row.appendTo $table
+                $row.insertBefore $trow
 
+            $trow.remove()
             if cb
                 cb $t
 
@@ -185,7 +187,24 @@ class PassRateChart extends WidgetBase
     contains_group: (arr, grp) -> _(arr).any (g) => @same_group(g,grp)
 
     process_save_settings: ($form, cb) ->
+        @config.hwproduct = $form.find(".hwproduct").val()
+        @config.alert = $form.find(".alert").val()
+       
+        selected = []
 
+        $rows = $form.find("table.multiple_select").find(".graph-target")
+        $rows.each (idx, tr) =>
+            $tr = $(tr)
+            grp = $tr.data("groupData")
+            checked = $tr.find(".shiftcb").attr("checked")
+            if checked
+                selected.push(grp)
+        @config.groups = selected
+
+
+        if cb
+            cb()
+           
 
     get_reports: (groups, cb) ->
         cached.get "/reports/latest/#{@config.hwproduct}", (data) =>
