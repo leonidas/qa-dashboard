@@ -33,8 +33,19 @@ initialize_qa_dashboard = function() {
 			equals();
 		},
 		'stop' : function(event, ui) {
-			$(ui.item).removeClass('move_mode');
-			equals();
+                        var $item = $(ui.item);
+			$item.removeClass('move_mode');
+                        var obj = $item.data("widgetObj");
+                        if (obj != undefined) {
+                            var $parent = $item.parent();
+                            if ($parent.attr("id") == "sidebar") {
+                                obj.render_small_view(equals);
+                            } else {
+                                obj.render_main_view(equals);
+                            }
+                            save_widgets();
+                            equals();
+                        }
 		},
 		'over' : function(event, ui) {
 			//$('.ui-widget-sortable-placeholder').height(widgetData[$(ui.item).data('widgetType')][$(this).attr('id')]['height']);
@@ -45,16 +56,22 @@ initialize_qa_dashboard = function() {
 			equals();
 		},
 		'receive' : function(event, ui) {
-                        $(this).find(".ui-draggable").remove();
+                        var $this = $(this);
+                        $this.find(".ui-draggable").remove();
 			if(newWidget != null && newWidget.type != 'undefined') {
-                            console.log(newWidget);
-                            $(this).append(newWidget);
+                            $this.append(newWidget);
                             initWidgetEvents(newWidget);
                             var obj = newWidget.data("widgetObj");
-                            obj.render_main_view(function(){
-                                console.log("render_main_view ready");
-                                equals();
-                            });
+                            if ($this.attr("id") == "sidebar") {
+                                console.log("sidebar");
+                                obj.render_small_view(function() {
+                                    equals();
+                                });
+                            } else {
+                                obj.render_main_view(function(){
+                                    equals();
+                                });
+                            }
                             save_widgets();
                         }
 //				newWidget.unwrap();
@@ -109,6 +126,8 @@ initialize_qa_dashboard = function() {
 		},
 		'drop' : function(event, ui) {
 			$(ui.draggable).children().remove();
+                        console.log("drop");
+                        console.log(ui.item);
                         //$(this).find(".placeholder").remove();
 			//$(ui.draggable).append(newWidget);
                         //initWidgetEvents(newWidget);

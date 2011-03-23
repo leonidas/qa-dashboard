@@ -42,16 +42,32 @@ class WidgetBase
     render_main_view: (cb) ->
         @dom.find(".widget_content").hide()
         @dom.find(".content_main").show()
-        if @is_main_view_ready
+        if @is_main_view_ready()
             if cb
                 cb()
-        else:
+        else
             @get_config (cfg) =>
                 @render_header =>
                     selector = "#hidden_widget_container "+@template+" .content_main"
                     $t = $(selector).clone()
                     @format_main_view $t, (dom) =>
                         @dom.find(".content_main").replaceWith(dom)
+                        if cb
+                            cb()
+
+    render_small_view: (cb) ->
+        @dom.find(".widget_content").hide()
+        @dom.find(".content_small").show()
+        if @is_small_view_ready()
+            if cb
+                cb()
+        else
+            @get_config (cfg) =>
+                @render_header =>
+                    selector = "#hidden_widget_container "+@template+" .content_small"
+                    $t = $(selector).clone()
+                    @format_small_view $t, (dom) =>
+                        @dom.find(".content_small").replaceWith(dom)
                         if cb
                             cb()
 
@@ -68,6 +84,7 @@ class WidgetBase
 
 class PassRateChart extends WidgetBase
     height: 500
+    side_height: 250
 
     type: "pass_rate"
 
@@ -95,8 +112,15 @@ class PassRateChart extends WidgetBase
         @get_reports @config.groups, (reports) =>
             @reports = reports
             @render_chart $t.find(".radar-chart")
-            cb $t
+            if cb
+                cb $t
 
+    format_small_view: ($t, cb) ->
+        @get_reports @config.groups, (reports) =>
+            @reports = reports
+            @render_small_chart $t.find(".radar-chart")
+            if cb
+                cb $t
 
     get_reports: (groups, cb) ->
         cached.get "/reports/latest/#{@config.hwproduct}", (data) =>
@@ -110,6 +134,9 @@ class PassRateChart extends WidgetBase
         @chart = new graphs.RadarChart @chart_elem, @width, @height
         @chart.render_reports(@reports)
 
+    render_small_chart: (@chart_elem) ->
+        @chart = new graphs.RadarChart @chart_elem, @side_width, @side_height
+        @chart.render_reports(@reports, {labels:false})
 
 
 window.widgets = {}

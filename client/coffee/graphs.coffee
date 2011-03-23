@@ -7,7 +7,9 @@ class RadarChart
         @cy = @height * 0.5
         @maxsize = @height * 0.45
 
-    render_reports: (rs) ->
+    render_reports: (rs, opts) ->
+        if opts == undefined
+            opts = {labels:true}
         sumtotal = (acc,x) -> acc + x.total_cases
         grand_total = _(rs).reduce sumtotal, 0
 
@@ -31,7 +33,8 @@ class RadarChart
 
         @render_target_circle()
 
-        @render_titles titles
+        if opts.labels
+            @render_titles titles
 
 
     render_target_circle: ->
