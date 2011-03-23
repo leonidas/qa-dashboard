@@ -108,7 +108,6 @@ initialize_qa_dashboard = function() {
                         var cls = $(this).data("widgetClass");
                         var dom = new cls().init_new();
                         newWidget = dom;
-                        console.log(dom);
 		}
 	});
 	
