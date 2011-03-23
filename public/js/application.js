@@ -146,6 +146,7 @@ initialize_qa_dashboard = function() {
             var $form   = $(this);
             var $widget = $form.closest(".widget");
             var obj = $widget.data("widgetObj");
+            $widget.find(".action .widget_edit").toggleClass("active");
             obj.process_save_settings($form);
             save_widgets();
             obj.reset_dom();

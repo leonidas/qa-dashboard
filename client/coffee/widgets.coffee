@@ -9,7 +9,6 @@ class WidgetBase
 
     init_new: ->
         @dom = $ @create_dom()
-        @dom.data("widgetObj", this)
         @dom
     
     init_from: (cfg) ->
@@ -17,12 +16,17 @@ class WidgetBase
         @init_new()
 
     create_dom: ->
-        $t = $("#widget-base-template").clone().removeAttr "id"
+        $t = $("#widget-base-template").clone(true).removeAttr "id"
         $t.find(".widget_content").hide()
+        $t.data("widgetObj", this)
         return $t
 
     reset_dom: ->
-        @dom.replaceWith @create_dom
+        empty = @create_dom()
+        @dom.find(".widget_header").replaceWith empty.find(".widget_header")
+        @dom.find(".content_main").replaceWith empty.find(".content_main")
+        @dom.find(".content_small").replaceWith empty.find(".content_small")
+        @dom.find(".content_settings").replaceWith empty.find(".content_settings")
     
     get_config: (cb) ->
         if @config == undefined
