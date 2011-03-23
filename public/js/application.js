@@ -76,7 +76,7 @@ initialize_qa_dashboard = function() {
                             }
                         }
 //				newWidget.unwrap();
-//				newWidget = null;
+			newWidget = null;
 			equals();
 		},
 		'placeholder' : 'ui-widget-sortable-placeholder',

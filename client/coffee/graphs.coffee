@@ -7,7 +7,7 @@ class RadarChart
         @cy = @height * 0.5
         @maxsize = @height * 0.45
 
-    render_reports: (rs, opts) ->
+    render_reports: (rs, targets, opts) ->
         if opts == undefined
             opts = {labels:true}
         sumtotal = (acc,x) -> acc + x.total_cases
@@ -22,12 +22,14 @@ class RadarChart
         maxsize = @maxsize
 
         titles = _(rs).map (r) ->
+            title = r.target + " " + r.testtype
             arcw = 360 * r.total_cases/grand_total
-            target = Math.random()*30 + 60
+            target = targets[title]
+            if target == undefined || target < 50
+                target = 50
             arch = maxsize * 50/target #r.pass_target
             apex = obj.group_arc a, arcw, arch, r.total_pass, r.total_fail, r.total_na
             a += arcw
-            title = r.target + " " + r.testtype
             url   = "http://qa-reports.meego.com/#{r.version}/#{r.target}/#{r.testtype}/#{r.hwproduct}/#{r.qa_id}"
             return {title:title, apex:apex, mid:a-arcw/2, arcw:arcw, href:url}
 

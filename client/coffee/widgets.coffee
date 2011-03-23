@@ -111,10 +111,7 @@ class PassRateChart extends WidgetBase
     init_config: (@config) ->
 
     group_key: (grp) ->
-        sanitize = (s)->
-            s = s.replace(" ", "_")
-            s = s.replace("-", "_")
-        "#{sanitize(grp.target)}-#{sanitize(grp.testtype)}"
+        "#{grp.target} #{grp.testtype}"
 
     group_title: (grp) ->
         "#{grp.target} #{grp.testtype}"
@@ -191,6 +188,7 @@ class PassRateChart extends WidgetBase
         @config.alert = $form.find(".alert").val()
        
         selected = []
+        passtargets = {}
 
         $rows = $form.find("table.multiple_select").find(".graph-target")
         $rows.each (idx, tr) =>
@@ -199,7 +197,12 @@ class PassRateChart extends WidgetBase
             checked = $tr.find(".shiftcb").attr("checked")
             if checked
                 selected.push(grp)
+            target = parseInt($tr.find(".passtarget").val())
+            if not target > 0
+                target = 90
+            passtargets[@group_key(grp)] = parseInt(target)
         @config.groups = selected
+        @config.passtargets = passtargets
 
 
         if cb
@@ -216,11 +219,11 @@ class PassRateChart extends WidgetBase
 
     render_chart: (@chart_elem) ->
         @chart = new graphs.RadarChart @chart_elem, @width, @height
-        @chart.render_reports(@reports)
+        @chart.render_reports(@reports, @config.passtargets)
 
     render_small_chart: (@chart_elem) ->
         @chart = new graphs.RadarChart @chart_elem, @side_width, @side_height
-        @chart.render_reports(@reports, {labels:false})
+        @chart.render_reports(@reports, @config.passtargets, {labels:false})
 
 
 window.widgets = {}
