@@ -22,7 +22,7 @@ class RadarChart
         maxsize = @maxsize
 
         titles = _(rs).map (r) ->
-            title = r.target + " " + r.testtype
+            title = "#{r.target} #{r.testtype}"
             arcw = 360 * r.total_cases/grand_total
             target = targets[title]
             if target == undefined || target < 50

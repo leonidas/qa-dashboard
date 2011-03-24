@@ -57,9 +57,8 @@ initialize_qa_dashboard = function() {
 		},
 		'receive' : function(event, ui) {
                         var $this = $(this);
-                        $this.find(".ui-draggable").remove();
 			if(newWidget != null && newWidget.type != 'undefined') {
-                            $this.append(newWidget);
+                            $this.find(".ui-draggable").after(newWidget);
                             initWidgetEvents(newWidget);
                             var obj = newWidget.data("widgetObj");
                             if ($this.attr("id") == "sidebar") {
@@ -74,6 +73,7 @@ initialize_qa_dashboard = function() {
                                 });
                             }
                         }
+                        $this.find(".ui-draggable").remove();
 //				newWidget.unwrap();
 			newWidget = null;
 			equals();
