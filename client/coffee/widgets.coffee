@@ -85,7 +85,7 @@ class WidgetBase
     render_settings_view: (cb) ->
         @dom.find(".widget_content").hide()
         @dom.find(".content_settings").show()
-        if @is_small_view_ready()
+        if @is_settings_view_ready()
             if cb
                 cb()
         else
@@ -99,6 +99,43 @@ class WidgetBase
 
     is_settings_view_ready: ->
         @dom.find(".content_settings .loading").length == 0
+
+class MockWidget extends WidgetBase
+    template: ".widget_image_mock"
+
+    mock_image: ""
+
+    format_main_view: ($t, cb) ->
+        $img = $t.find("img.mock-image")
+        $img.attr("src", @mock_image)
+        if cb
+            $img.load ->
+                cb $t
+
+    format_small_view: ($t, cb) ->
+        $img = $t.find("img.mock-image")
+        $img.attr("src", @mock_image)
+        if cb
+            $img.load ->
+                cb $t
+
+class InjectionMock extends MockWidget
+    type: "injection"
+    height: 352
+    mock_image: "img/injection_chart_real_data.png"
+    
+    thumbnail: "img/widget_icons/bug_injection.png"
+    title: "Bug Injection Graph"
+    desc: "Injection rate of new bugs vs executed test cases"
+
+class BarChartMock extends MockWidget
+    type: "qa_bars"
+    height: 350
+    mock_image: "img/qa_bars_dummy.png"
+
+    thumbnail: "img/widget_icons/qa_reports.png"
+    title: "Pass Rate Bar Chart"
+    desc: "Pass rates of latest test runs"
 
 class TopBlockers extends WidgetBase
     type: "top_blockers"
@@ -275,7 +312,9 @@ class PassRateChart extends WidgetBase
 
 window.widgets = {}
 window.widgets.pass_rate = PassRateChart
+window.widgets.qa_bars = BarChartMock
 window.widgets.top_blockers = TopBlockers
+window.widgets.injection = InjectionMock
 
 window.init_widget_bar = (elem) ->
     $elem = $(elem)
@@ -321,16 +360,17 @@ window.load_widgets = (cb) ->
         add_widgets = (arr, $elem) ->
             _(arr).each (w) ->
                 wt = window.widgets[w.type]
-                obj = new wt()
-                dom = obj.init_from(w.config)
-                initWidgetEvents(dom)
-                $elem.append(dom)
-                if $elem == $lc
-                    obj.render_main_view ->
-                        equals()
-                else
-                    obj.render_small_view ->
-                        equals()
+                if wt != undefined
+                    obj = new wt()
+                    dom = obj.init_from(w.config)
+                    initWidgetEvents(dom)
+                    $elem.append(dom)
+                    if $elem == $lc
+                        obj.render_main_view ->
+                            equals()
+                    else
+                        obj.render_small_view ->
+                            equals()
 
         add_widgets dashb.column, $lc
         add_widgets dashb.sidebar, $sb
