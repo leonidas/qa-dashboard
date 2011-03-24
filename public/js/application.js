@@ -63,7 +63,6 @@ initialize_qa_dashboard = function() {
                             initWidgetEvents(newWidget);
                             var obj = newWidget.data("widgetObj");
                             if ($this.attr("id") == "sidebar") {
-                                console.log("sidebar");
                                 obj.render_small_view(function() {
                                     equals();
                                     save_widgets();
@@ -126,8 +125,8 @@ initialize_qa_dashboard = function() {
 		},
 		'drop' : function(event, ui) {
 			$(ui.draggable).children().remove();
-                        console.log("drop");
-                        console.log(ui.item);
+                        //console.log("drop");
+                        //console.log(ui.item);
                         //$(this).find(".placeholder").remove();
 			//$(ui.draggable).append(newWidget);
                         //initWidgetEvents(newWidget);

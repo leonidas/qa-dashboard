@@ -146,7 +146,7 @@ class TopBlockers extends WidgetBase
 
     template: ".widget_top_blockers"
 
-    get_default_config: (cb) -> {hwproduct:"N900", num:5}
+    get_default_config: (cb) -> cb {hwproduct:"N900", num:5}
 
     format_main_view: ($t, cb) ->
         $t.find("h1 .hwproduct").text(@config.hwproduct)
