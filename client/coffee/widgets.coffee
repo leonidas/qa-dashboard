@@ -36,6 +36,13 @@ class WidgetBase
         else
             cb @config
 
+    get_default_config: (cb) -> cb {}
+
+    format_header: ($t, cb) -> cb $t
+    format_main_view: ($t, cb) -> cb $t
+    format_small_view: ($t, cb) -> cb $t
+    format_settings_view: ($t, cb) -> cb $t
+
     render_header: (cb) ->
         selector = "#hidden_widget_container "+@template+" .widget_header"
         $t = $(selector).clone(true)
@@ -93,6 +100,46 @@ class WidgetBase
     is_settings_view_ready: ->
         @dom.find(".content_settings .loading").length == 0
 
+class TopBlockers extends WidgetBase
+    type: "top_blockers"
+
+    thumbnail: "img/widget_icons/top_bugs.png"
+    title: "Top Blocker Bugs"
+    desc: "List of bugs that are linked from most testcases"
+
+    template: ".widget_top_blockers"
+
+    get_default_config: (cb) -> {hwproduct:"N900", num:5}
+
+    format_main_view: ($t, cb) ->
+        $t.find("h1 .hwproduct").text(@config.hwproduct)
+        @format_bug_table $t, cb
+
+    format_small_view: ($t, cb) ->
+        $t.find("h2 .hwproduct").text(@config.hwproduct)
+        @format_bug_table $t, cb
+
+    format_bug_table: ($t, cb) ->
+        @get_top_bugs (bugs) ->
+            $table = $t.find("table")
+            $trow = $table.find("tr.row-template")
+            _(bugs).each (bug) ->
+                [count,bug_id,obj] = bug
+                url = "https://bugs.meego.com/show_bug.cgi?id=" + bug_id
+                title = obj.short_desc
+                $row = $trow.clone()
+                $row.find("td.bug_id a").attr("href", url).text(bug_id)
+                $row.find("td.bug_description a").attr("href", url).text(title)
+                $row.find("td.bug_blocker_count").text(count)
+                $row.insertBefore $trow
+            $trow.remove()
+            cb $t
+
+
+    get_top_bugs: (cb) ->
+        hw = @config.hwproduct or "N900"
+        num = @config.num or 5
+        cached.get "/bugs/#{hw}/top/#{num}", cb
 
 class PassRateChart extends WidgetBase
     height: 500
@@ -228,6 +275,7 @@ class PassRateChart extends WidgetBase
 
 window.widgets = {}
 window.widgets.pass_rate = PassRateChart
+window.widgets.top_blockers = TopBlockers
 
 window.init_widget_bar = (elem) ->
     $elem = $(elem)

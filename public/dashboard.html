@@ -11,60 +11,44 @@ Important measurements of layout:
  
  -->
 
-<head>
-	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-	<meta name="description" content="" />
-	<meta name="keywords" content="" />
-	
-	<title>Meego Dashboard mockup</title>
-	
-	<!-- stylesheets -->
-	<link rel="stylesheet/less" media="screen" href="/less/dashboard.less" />
-	
-	<!-- script packages -->
-	<script src="js/jquery-1.4.4.min.js" type="text/javascript"></script>
-	<script src="js/jquery-ui-1.8.9.custom.min.js" type="text/javascript"></script>
-       	<script src="http://lesscss.googlecode.com/files/less-1.0.41.min.js" type="text/javascript"></script>
-	<script type="text/javascript" src="centage/js/centage.js"></script>
-	<script type="text/javascript" src="js/equal.js"></script>
-	<script type="text/javascript" src="js/jquery.qtip-1.0.0-rc3.min.js"></script>
-	<script type="text/javascript" src="js/example.js"></script>
-	<script type="text/javascript" src="js/jquery.shiftcheckbox.js"></script>	
-        <script type="text/javascript" src="/js/raphael.js"></script>
-        <script type="text/javascript" src="/js/underscore.js"></script>
-        <script type="text/javascript" src="/js/async.js"></script>
-	
-	<!-- custom scripts -->
-	<script type="text/javascript" src="js/widget-data.js"></script>
-	<script type="text/javascript" src="js/application.js"></script>
-        <script type="text/javascript" src="/cached.js"></script>
-        <script type="text/javascript" src="/graphs.js"></script>
-        <script type="text/javascript" src="/widgets.js"></script>
-	
-	<script type="text/javascript">
-		$(document).ready(function() {
-			// Default widgets
-                        /*
-			$('#left_column').append(createWidget('widget_qa_reports_radar'));	
-			$('#left_column').append(createWidget('widget_qa_reports'));	
-				
-			$('#sidebar').append(createWidget('widget_top_blockers'));
-			$('#sidebar').append(createWidget('widget_critical_bugs'));	
-                        */
+ <head>
+     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+     <meta name="description" content="" />
+     <meta name="keywords" content="" />
 
-                        /*
-                        new widgets.pass_rate().init_new(function(dom){
-                            $('#left_column').append(dom);
-                            equals();
-                            });
-                         */
+     <title>Meego Dashboard mockup</title>
 
-                        init_widget_bar("#widget_bar");
-                        initialize_qa_dashboard();
-                        load_widgets();
-		});
-	</script>
-	
+     <!-- stylesheets -->
+     <link rel="stylesheet/less" media="screen" href="/less/dashboard.less" />
+
+     <!-- script packages -->
+     <script src="js/jquery-1.4.4.min.js" type="text/javascript"></script>
+     <script src="js/jquery-ui-1.8.9.custom.min.js" type="text/javascript"></script>
+     <script src="http://lesscss.googlecode.com/files/less-1.0.41.min.js" type="text/javascript"></script>
+     <script type="text/javascript" src="centage/js/centage.js"></script>
+     <script type="text/javascript" src="js/equal.js"></script>
+     <script type="text/javascript" src="js/jquery.qtip-1.0.0-rc3.min.js"></script>
+     <script type="text/javascript" src="js/example.js"></script>
+     <script type="text/javascript" src="js/jquery.shiftcheckbox.js"></script>	
+     <script type="text/javascript" src="/js/raphael.js"></script>
+     <script type="text/javascript" src="/js/underscore.js"></script>
+     <script type="text/javascript" src="/js/async.js"></script>
+
+     <!-- custom scripts -->
+     <script type="text/javascript" src="js/widget-data.js"></script>
+     <script type="text/javascript" src="js/application.js"></script>
+     <script type="text/javascript" src="/cached.js"></script>
+     <script type="text/javascript" src="/graphs.js"></script>
+     <script type="text/javascript" src="/widgets.js"></script>
+
+     <script type="text/javascript">
+         $(document).ready(function() {
+                 init_widget_bar("#widget_bar");
+                 initialize_qa_dashboard();
+                 load_widgets();
+                 });
+    </script>
+
 </head>
 
 <body>
@@ -102,7 +86,7 @@ Important measurements of layout:
 	</div><!-- /wrap -->
 	
 	
-		<div id="hidden_widget_container">
+		<div id="hidden_widget_container" style="display:none">
                     <section class="widget_info">
                             <img src="img/widget_icons/qa_reports.png" alt="" />
                             <h1>Widget title</h1>
@@ -139,6 +123,47 @@ Important measurements of layout:
 
 </div>
 
+<div class="widget widget_top_blockers">
+    <div class="widget_header">
+    </div>
+
+    <div class="widget_content content_main">
+        <h1><span></span>Top Blockers: <strong class="hwproduct">N900</strong></h1>
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Summary</th>
+                <th>Testcases </th>
+            </tr>
+            <tr class="row-template">
+                <td class="bug_id"><a href="" class="content_link">5678</a></td>
+                <td class="bug_description"><a href="" class="content_link">A black screen displayed when running OpenGL-Blit case</a></td>
+                <td class="bug_blocker_count">25</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="widget_content content_small">
+        <h2><span></span>Top Blockers: <strong class="hwproduct">N900</strong></h2>
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Summary</th>
+                <th>Testcases </th>
+            </tr>
+            <tr class="row-template">
+                <td class="bug_id"><a href="" class="content_link">5678</a></td>
+                <td class="bug_description"><a href="" class="content_link">A black screen displayed when running OpenGL-Blit case</a></td>
+                <td class="bug_blocker_count">25</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="widget_content content_settings widget_edit_content">
+        <p>No settings implemented for this widgets</p>
+    </div>
+
+</div>
 
 <div class="widget widget_pass_rate">
     <div class="widget_header">
