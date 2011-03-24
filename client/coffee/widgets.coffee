@@ -100,7 +100,7 @@ class PassRateChart extends WidgetBase
 
     type: "pass_rate"
 
-    thumbnail: "img/widget_icons/qa_reports.png"
+    thumbnail: "img/widget_icons/qa_radar.png"
     title: "Pass Rates Summary"
     desc:  "Summary of latest pass rates in QA Reports"
 
