@@ -112,14 +112,17 @@ class RadarChart
         na_arc.attr
             fill: "#C7C6C6"
             "stroke-width": 0
+            stoke: undefined
 
         fail_arc.attr
             fill: "#E7A6AB"
             "stroke-width": 0
+            stroke: undefined
 
         pass_arc.attr
             fill: "#309937"
             "stroke-width": 0
+            stroke: undefined
 
         outline.attr
             fill: undefined,
