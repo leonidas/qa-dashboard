@@ -91,7 +91,7 @@ class RadarChart
             if dir == 1
                 txt.attr("text-anchor", "end")
             else
-                txt.attr("text-anchor", "begin")
+                txt.attr("text-anchor", "start")
 
             prevy = ty
 
