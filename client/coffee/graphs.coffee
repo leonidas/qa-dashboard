@@ -76,22 +76,25 @@ class RadarChart
             if ty > @height - 10
                 ty = @height - 10
             
-            txt = @paper.text(x, ty, title.title)
+            txt = @paper.text(x, ty-2, title.title)
             txt.attr
-                "stroke-opacity": 0.8
+                #"stroke-opacity": 0.8
+                "font-size": 10
+                "font-family": "verdana"
+                "stroke-width": 0.5
+                "stroke": "#909090"
                 href: title.href
 
-            w = txt.getBBox().width + 10
-            tx = x-dir*w
-            line = @paper.path "M".concat [[tx,ty],[ex,ty],[ex,ey]]
-            line.attr
-                stroke: "#a0a0a0"
-                "stroke-width": 1
-                "stroke-opacity": 0.5
             if dir == 1
                 txt.attr("text-anchor", "end")
             else
                 txt.attr("text-anchor", "start")
+
+            line = @paper.path "M".concat [[x,ty],[ex,ty],[ex,ey]]
+            line.attr
+                stroke: "#a0a0a0"
+                "stroke-width": 1
+                "stroke-opacity": 0.5
 
             prevy = ty
 
