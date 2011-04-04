@@ -1,4 +1,6 @@
 
+require.paths.unshift './node_modules'
+
 PORT   = 3030
 PUBLIC = __dirname + "/public"
 COFFEE = __dirname + "/client/coffee"
