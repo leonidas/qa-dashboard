@@ -43,7 +43,8 @@ targets_for_hw = (hw, cb) ->
 
 types_for_hw = (hw, target, cb) ->
     reports (err,col) ->
-        col.distinct "testtype", {version:"1.2", hwproduct: hw, target: target}, cb
+        col.distinct "testtype",
+            {version:"1.2", hwproduct: hw, target: target}, cb
 
 groups_for_hw = (hw, cb) ->
 
@@ -109,7 +110,9 @@ user_dashboard = (uname, cb) ->
 
 save_dashboard = (uname, dashb, cb) ->
     users (err,col) ->
-        col.update {username:uname}, {$set: {dashboard:dashb}}, {upsert:true}, cb
+        col.update {username:uname},
+                   {$set: {dashboard:dashb}},
+                   {upsert:true}, cb
 
 bug_counts = (hw, cb) ->
     reports (err,col) ->
