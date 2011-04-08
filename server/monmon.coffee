@@ -84,11 +84,17 @@ class MongoMonad
     runCursor: (callback) ->
         @_run callback, callback
 
-    _run: (cb, handle_cursor) ->
-        cfg    = cfg
+    _run: (cb, hc) ->
+        cfg    = @cfg
         env    = cfg.env ? process.env.NODE_ENV
         dbname = cfg.dbname ? "qadash"
         monad  = this
+
+        callback = (err, result) ->
+            cb err, result, monad
+
+        handle_cursor = (err, cur) ->
+            hc err, cur, monad
 
         commands =
             find: (err, c) ->
@@ -157,7 +163,7 @@ class MongoMonad
             cmd = cfg.cmd
 
             if cmd == "dropDatabase"
-                return db.dropDatabase callback
+                return db.dropDatabase(callback)
 
             collection = cfg.collection
             if not collection?
@@ -168,19 +174,22 @@ class MongoMonad
         return this    
 
 class DBConnection
-    initialize: (dbname) ->
+    constructor: (dbname) ->
         @db = new mongo.Db dbname, server, {native_parser:true}
         @db_is_open    = false
 
     connect: (callback) ->
-        callback @db if @db_is_open
+        if @db_is_open
+            return callback? null, @db
+
         if @open_event?
             @open_event.on "connected", =>
                 callback? null, @db
         else
             @open_event = new events.EventEmitter()
             @db.open (err, db) =>
-                callback? err if err?
+                return callback? err if err?
+
                 @db_is_open = true
                 @open_event.emit("connected")
                 callback? null, @db
