@@ -25,6 +25,4 @@ suite = vows.describe('The MongoMonad').addBatch
                 m.should.have.property('cfg')
                     .with.property('env', 'test-monmon')
                 
-
-suite.reporter = require('vows/reporters/spec')
-suite.run()
+suite.export(module)
