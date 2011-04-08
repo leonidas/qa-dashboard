@@ -1,18 +1,23 @@
 # Qa-Dashboard Database API
 
 mongo   = require('mongodb')
-process = require('process')
 events  = require('events')
 _       = require('underscore')
 async   = require('async')
 
 # TODO: read these from configuration file
-server = new Server("localhost", Connection.DEFAULT_PORT, {})
+server = new mongo.Server("localhost", mongo.Connection.DEFAULT_PORT, {})
 
 conn_pool = {}
+connect = (dbname, callback) ->
+    conn = conn_pool[dbname]
+    if not conn?
+        conn = new DBConnection(dbname)
+        conn_pool[dbname] = conn
+    conn.connect(callback)
 
 class MongoMonad
-    initialize: (cfg) ->
+    constructor: (cfg) ->
         @cfg = cfg ? {upsert: false, multi: false}
 
     _bind: (cfg) ->
@@ -162,13 +167,6 @@ class MongoMonad
         
         return this    
 
-connect (db, callback) ->
-    conn = conn_pool[dbname]
-    if not conn?
-        conn = new DBConnection(dbname)
-        conn_pool[dbname] = conn
-    conn.connect(callback)
-
 class DBConnection
     initialize: (dbname) ->
         @db = new mongo.Db dbname, server, {native_parser:true}
@@ -193,8 +191,5 @@ class DBConnection
     close: ->
         @db?.close()
 
-class DBCollection
-    initialize: (@conn, @name) ->
 
-    
 exports.monmon = new MongoMonad()
