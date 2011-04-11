@@ -16,8 +16,8 @@ exports["environments are separate"] = (test) ->
     db1 = mm.env("test1").use("test-monmon").collection("test")
     db2 = mm.env("test2").use("test-monmon").collection("test")
 
+
     db1.dropDatabase().run (err) ->
-        db2.dropDatabase().run (err) ->
             db1.insert({foo:"bar"}).run (err, arr) ->
                 connect "test-monmon-test1", (err, db) ->
                     db.collection "test", (err, coll) -> 
