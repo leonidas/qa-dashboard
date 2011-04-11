@@ -6,7 +6,7 @@ LESS   = __dirname + "/../client/less"
 express = require('express')
 app = express.createServer()
 
-db = require('./queries.coffee')
+db = require('queries')
 http = require('http')
 
 app.configure ->

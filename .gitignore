@@ -2,4 +2,6 @@
 *.swp
 node_modules
 .DS_Store
+vows-js
+test-js
 npm-debug.log
