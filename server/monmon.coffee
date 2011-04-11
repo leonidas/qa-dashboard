@@ -1,9 +1,10 @@
 # Qa-Dashboard Database API
 
 mongo   = require('mongodb')
-events  = require('events')
 _       = require('underscore')
 async   = require('async')
+
+EventEmitter = require('events').EventEmitter
 
 # TODO: read these from configuration file
 server = new mongo.Server("localhost", mongo.Connection.DEFAULT_PORT, {})
@@ -76,10 +77,12 @@ class MongoMonad
         @_bind {insert: doc, cmd:"insert"}
 
     run: (callback) ->
-        @_run callback, (err, cur) ->
+        toArray = (err, cur) ->
             return callback? err if err?
 
-            cur.toArray callback
+            cur.toArray callback           
+
+        @_run callback, toArray
 
     runCursor: (callback) ->
         @_run callback, callback
@@ -94,6 +97,7 @@ class MongoMonad
             cb err, result, monad
 
         handle_cursor = (err, cur) ->
+            console.log "handle_cursor"
             hc err, cur, monad
 
         commands =
@@ -106,8 +110,10 @@ class MongoMonad
                 opts.sort   = cfg.sort   if cfg.sort?
                 opts.fields = cfg.fields if cfg.fields?
                 if cfg.find?
+                    console.log "first #{handle_cursor}"
                     c.find cfg.find, opts, handle_cursor
                 else
+                    console.log "second"
                     c.find {}, opts, handle_cursor
 
             count: (err, c) ->
@@ -118,7 +124,7 @@ class MongoMonad
                 else
                     c.count callback
 
-            distinct: (err,c) ->
+            distinct: (err, c) ->
                 return callback? err if err?
 
                 query = cfg.find ? {}
@@ -175,30 +181,35 @@ class MongoMonad
 
 class DBConnection
     constructor: (dbname) ->
-        @db = new mongo.Db dbname, server, {native_parser:true}
-        @db_is_open    = false
+        console.log "new dbconnection #{dbname}"
+        @db         = new mongo.Db dbname, server, {native_parser:true}
+        @db_is_open = false
+        @open_event = new EventEmitter()
+        @opening    = false
 
     connect: (callback) ->
+        t = this
         if @db_is_open
-            return callback? null, @db
+            process.nextTick () ->
+                callback? null, t.db
+            return
 
-        if @open_event?
-            @open_event.on "connected", =>
-                callback? null, @db
+        if @opening
+            @open_event.once "connected", () ->
+                callback? t.err, t.db
         else
-            @open_event = new events.EventEmitter()
-            @db.open (err, db) =>
-                return callback? err if err?
-
-                @db_is_open = true
-                @open_event.emit("connected")
-                callback? null, @db
-
-    collection: (name) ->
-        new DBCollection(this, name)
+            @opening = true
+            @db.open (err, db) ->
+                t.err = err
+                if not err?
+                    t.db_is_open = true
+                t.open_event.emit("connected")
+                callback? err, db
+                t.opening = false
 
     close: ->
-        @db?.close()
+        @db?.close(->)
 
 
 exports.monmon = new MongoMonad()
+exports.connect = connect
