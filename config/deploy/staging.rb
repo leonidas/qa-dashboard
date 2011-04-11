@@ -4,8 +4,6 @@ set :rails_env, "staging"
 
 ssh_options[:port] = 31915
 
-set :public_children, %w(img css js)
-
 server "qa-dashboard.qa.leonidasoy.fi", :app, :web, :db, :primary => true
 
 namespace :db do
