@@ -86,3 +86,15 @@ exports["throws exception if callback is called multiple times"] = (test) ->
     process.once 'uncaughtException', (err) ->
         test.strictEqual err, "Future callback already called"
         test.done()
+
+exports["call shortcut"] = (test) ->
+    test.expect(1)
+    future = require('future')
+
+    async_func = (a, b, callback) ->
+        process.nextTick(-> callback null, a+b)
+
+    fu = future.call(async_func, 1, 2)
+    fu.get (err,value) ->
+        test.strictEqual value, 3
+        test.done()

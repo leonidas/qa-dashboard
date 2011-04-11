@@ -1,30 +1,34 @@
 # Asynchroniously promised value
 
 EventEmitter = require('events').EventEmitter
+async = require('async')
 
 class Promise
     constructor: ->
         @event = new EventEmitter()
 
     get: (callback) ->
-        return callback @error, @value if @error? or @value?
+        if @err? or @value?
+            process.nextTick =>
+                callback @err, @value
+            return
 
-        @event.once "fulfill", ->
+        @event.once "fulfil", =>
             callback null, @value
 
-        @event.once "error", ->
-            callback @error, null
+        @event.once "error", =>
+            callback @err, null
 
-    set: (value) ->
-        throw "promise value already set" if @error? or @value?
+    fulfil: (value) ->
+        throw "promise value already set" if @err? or @value?
 
         @value = value
-        @event.emit "fulfill"
+        @event.emit "fulfil"
 
     error: (msg) ->
-        throw "promise value already set" if @error? or @value?
+        throw "promise value already set" if @err? or @value?
 
-        @error = msg
+        @err = msg
         @event.emit "error"
 
 exports.Promise = Promise

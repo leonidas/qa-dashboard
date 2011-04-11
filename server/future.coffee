@@ -1,6 +1,7 @@
 # Asynchronous Future Value
 
 EventEmitter = require('events').EventEmitter
+async = require('async')
 
 class Future
     constructor: () ->
@@ -12,9 +13,26 @@ class Future
             @event.emit "ready"
 
     get: (callback) ->
-        return callback @error, @value if @error? or @value?
+        if @error? or @value?
+            async.nextTick =>
+               callback @error, @value 
+            return
 
         @event.once "ready", =>
             callback @error, @value
 
-exports.Future = Future
+call = (func) ->
+    Array::unshift.call arguments, null
+    callThis.apply null, arguments
+
+callThis = (ths, func) ->
+    args = Array::slice.call arguments, 2
+    fut = new Future()
+    args.push fut.callback
+    func.apply(null, args)
+    return fut
+
+exports.Future   = Future
+exports.call     = call
+exports.callThis = callThis
+    
