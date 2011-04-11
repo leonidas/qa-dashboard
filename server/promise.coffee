@@ -1,5 +1,7 @@
 # Asynchroniously promised value
 
+EventEmitter = require('events').EventEmitter
+
 class Promise
     constructor: ->
         @event = new EventEmitter()
@@ -7,17 +9,17 @@ class Promise
     get: (callback) ->
         return callback @error, @value if @error? or @value?
 
-        @event.on "fulfill", ->
+        @event.once "fulfill", ->
             callback null, @value
 
-        @event.on "error", ->
+        @event.once "error", ->
             callback @error, null
 
     set: (value) ->
         throw "promise value already set" if @error? or @value?
 
         @value = value
-        @event.emit "fullfill"
+        @event.emit "fulfill"
 
     error: (msg) ->
         throw "promise value already set" if @error? or @value?

@@ -1,18 +1,20 @@
 # Asynchronous Future Value
 
-class Future
-    constructor: ->
-        @event = new EventEmitter()
+EventEmitter = require('events').EventEmitter
 
-    callback: (err, value) ->
-        @error = err
-        @value = value
-        @evend.emit "ready"
+class Future
+    constructor: () ->
+        @event = new EventEmitter()
+        @callback = (error, value) =>
+            throw "Future callback already called" if @error? or @value?
+            @error = error
+            @value = value
+            @event.emit "ready"
 
     get: (callback) ->
         return callback @error, @value if @error? or @value?
 
-        @event.on "ready", ->
+        @event.once "ready", =>
             callback @error, @value
 
 exports.Future = Future
