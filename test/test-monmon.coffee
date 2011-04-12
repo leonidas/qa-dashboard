@@ -53,6 +53,22 @@ exports["multiple queued commands work correctly"] = (test) ->
           .find().do (err, arr) ->
               test.equal err, null
               test.equal arr.length, 2
+
     q.run (err, arr) ->
         test.equal err, null
+        test.done()
+
+exports["run callback can catch the result of last action"] = (test) ->
+    test.expect(2)
+
+    db = mm.env("test").use("test-monmon").collection("test")
+    
+    q = db.dropDatabase()
+          .insert({foo:"bar"})
+          .insert({foo:"asdf"})
+          .find()
+
+    q.run (err, arr) ->
+        test.equal err, null
+        test.equal arr.length, 2
         test.done()

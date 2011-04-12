@@ -19,7 +19,7 @@ connect = (dbname, callback) ->
 class Action
     constructor: (@monad) ->
 
-    clone: (new_callback, toArray) ->
+    set_callback: (new_callback, toArray) ->
         new_act = new Action(@monad)
         new_act.callback = new_callback
         new_act.toArray  = toArray
@@ -39,14 +39,14 @@ class MongoMonad
         action         = new Action(new_monad)
         acts           = _.clone(@acts)
         new_monad.acts = acts.concat [action]
-        return new_monad
+        return new_monad._bind {cmd:null}
 
     _bind_callback: (callback, toArray) ->
         acts = _.clone(@acts)
         last = acts[acts.length-1]
         if not last? or last.callback?
             throw "do() without any actions"
-        acts[acts.length-1] = last.clone(callback, toArray)
+        acts[acts.length-1] = last.set_callback(callback, toArray)
         new MongoMonad(@cfg, acts)
 
     env: (env) ->
@@ -118,20 +118,23 @@ class MongoMonad
         @_run_all(callback)
 
     _run_all: (callback) ->
+        if @cfg.cmd?
+            m = @_bind_action {}
+            m.acts[m.acts.length-1].toArray = true
+        else
+            m = this
+
+        last_result = null
         runAct = (act, cb) ->
-            #console.log "running action"
-            #console.log act
-            #console.log "with callbacks"
-            #console.log act.callbacks
             act.monad._run act.toArray, (err, result, monad) ->
-                #console.log "runAct"
+                last_result = result
                 act.callback?(err, result, monad)
                 cb err
 
-        async.forEachSeries @acts, runAct, (err) ->
-            #console.log "forEachSeries finished"
-            callback? err
-        
+        async.forEachSeries m.acts, runAct, (err) ->
+            callback? err, last_result, this
+
+        return
 
     _run: (toArray, cb) ->
         cfg    = @cfg
@@ -262,4 +265,3 @@ class DBConnection
 
 
 exports.monmon = new MongoMonad()
-exports.connect = connect
