@@ -40,7 +40,6 @@ exports["environments are separate"] = (test) ->
                         cb()        
 
                 async.parallel [test1, test2], ->
-                    console.log "async parallel finished"
                     test.done()
 
 exports["multiple queued commands work correctly"] = (test) ->
