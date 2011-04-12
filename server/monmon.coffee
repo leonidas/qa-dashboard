@@ -3,6 +3,7 @@
 mongo   = require('mongodb')
 _       = require('underscore')
 async   = require('async')
+future  = require('future')
 
 EventEmitter = require('events').EventEmitter
 
@@ -15,13 +16,38 @@ connect = (dbname, callback) ->
         conn_pool[dbname] = conn
     conn.connect(callback)
 
+class Action
+    constructor: (@monad) ->
+
+    clone: (new_callback, toArray) ->
+        new_act = new Action(@monad)
+        new_act.callback = new_callback
+        new_act.toArray  = toArray
+        return new_act
+
 class MongoMonad
-    constructor: (cfg) ->
-        @cfg = cfg ? {upsert: false, multi: false}
+    constructor: (cfg, acts) ->
+        @cfg  = cfg ? {upsert: false, multi: false}
+        @acts = acts ? []
 
     _bind: (cfg) ->
         new_cfg = _.extend(_.clone(@cfg), cfg)
-        new MongoMonad(new_cfg)
+        new MongoMonad(new_cfg, @acts)
+
+    _bind_action: (cfg) ->
+        new_monad      = @_bind(cfg)
+        action         = new Action(new_monad)
+        acts           = _.clone(@acts)
+        new_monad.acts = acts.concat [action]
+        return new_monad
+
+    _bind_callback: (callback, toArray) ->
+        acts = _.clone(@acts)
+        last = acts[acts.length-1]
+        if not last? or last.callback?
+            throw "do() without any actions"
+        acts[acts.length-1] = last.clone(callback, toArray)
+        new MongoMonad(@cfg, acts)
 
     env: (env) ->
         @_bind {env: env}
@@ -54,16 +80,16 @@ class MongoMonad
         @_bind {distinct: keys, cmd: "distinct"}
 
     update: (doc) ->
-        @_bind {update: doc, cmd:"update"}
+        @_bind_action {update: doc, cmd:"update"}
 
     remove: (query) ->
-        @_bind {remove: query, cmd: "remove"}
+        @_bind_action {remove: query, cmd: "remove"}
 
     drop: ->
-        @_bind {cmd: "drop"}
+        @_bind_action {cmd: "drop"}
 
     dropDatabase: ->
-        @_bind {cmd: "dropDatabase"}
+        @_bind_action {cmd: "dropDatabase"}
 
     upsert: (flag) ->
         @_bind {upsert: flag ? true}
@@ -72,30 +98,57 @@ class MongoMonad
         @_bind {multi: flag ? true}
 
     insert: (doc) ->
-        @_bind {insert: doc, cmd:"insert"}
+        @_bind_action {insert: doc, cmd:"insert"}
+
+    do: (callback) ->
+        if @cfg.cmd == 'find'
+            m = @_bind_action {}
+        else
+            m = this
+        m._bind_callback callback, true
+
+    doCursor: (callback) ->
+        if @cfg.cmd == 'find'
+            m = @_bind_action {}
+        else
+            m = this
+        m._bind_callback callback, false
 
     run: (callback) ->
-        toArray = (err, cur) ->
-            return callback? err if err?
+        @_run_all(callback)
 
-            cur.toArray callback           
+    _run_all: (callback) ->
+        runAct = (act, cb) ->
+            #console.log "running action"
+            #console.log act
+            #console.log "with callbacks"
+            #console.log act.callbacks
+            act.monad._run act.toArray, (err, result, monad) ->
+                #console.log "runAct"
+                act.callback?(err, result, monad)
+                cb err
 
-        @_run callback, toArray
+        async.forEachSeries @acts, runAct, (err) ->
+            #console.log "forEachSeries finished"
+            callback? err
+        
 
-    runCursor: (callback) ->
-        @_run callback, callback
-
-    _run: (cb, hc) ->
+    _run: (toArray, cb) ->
         cfg    = @cfg
         env    = cfg.env ? process.env.NODE_ENV
         dbname = cfg.dbname ? "qadash"
         monad  = this
 
         callback = (err, result) ->
-            cb err, result, monad
+            cb? err, result, monad
 
-        handle_cursor = (err, cur) ->
-            hc err, cur, monad
+        cursor_callback = (err, result) ->
+            if cb?
+                if toArray
+                    result.toArray (err, arr) ->
+                        cb err, arr, monad
+                else
+                    cb err, result, monad
 
         commands =
             find: (err, c) ->
@@ -107,9 +160,9 @@ class MongoMonad
                 opts.sort   = cfg.sort   if cfg.sort?
                 opts.fields = cfg.fields if cfg.fields?
                 if cfg.find?
-                    c.find cfg.find, opts, handle_cursor
+                    c.find cfg.find, opts, cursor_callback
                 else
-                    c.find {}, opts, handle_cursor
+                    c.find {}, opts, cursor_callback
 
             count: (err, c) ->
                 return callback? err if err?
