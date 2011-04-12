@@ -8,3 +8,4 @@ npm-debug.log
 qadash.js
 public/css/dashboard.css
 public/*.js
+server/js
