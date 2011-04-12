@@ -13,7 +13,8 @@
     "vows": "0.5.8",
     "nodeunit": "0.5.1",
     "should": "0.1.0",
-    "zombie": "0.9.4"
+    "zombie": "0.9.4",
+    "less": "1.0.41"
   },
   "private": "true"
 }

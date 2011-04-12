@@ -6,3 +6,5 @@ vows-js
 test-js
 npm-debug.log
 qadash.js
+public/css/dashboard.css
+public/*.js
