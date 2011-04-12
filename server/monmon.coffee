@@ -6,8 +6,6 @@ async   = require('async')
 
 EventEmitter = require('events').EventEmitter
 
-# TODO: read these from configuration file
-server = new mongo.Server("localhost", mongo.Connection.DEFAULT_PORT, {})
 
 conn_pool = {}
 connect = (dbname, callback) ->
@@ -97,7 +95,6 @@ class MongoMonad
             cb err, result, monad
 
         handle_cursor = (err, cur) ->
-            console.log "handle_cursor"
             hc err, cur, monad
 
         commands =
@@ -110,10 +107,8 @@ class MongoMonad
                 opts.sort   = cfg.sort   if cfg.sort?
                 opts.fields = cfg.fields if cfg.fields?
                 if cfg.find?
-                    console.log "first #{handle_cursor}"
                     c.find cfg.find, opts, handle_cursor
                 else
-                    console.log "second"
                     c.find {}, opts, handle_cursor
 
             count: (err, c) ->
@@ -181,7 +176,9 @@ class MongoMonad
 
 class DBConnection
     constructor: (dbname) ->
-        console.log "new dbconnection #{dbname}"
+        # TODO: read these from configuration file
+        server      = new mongo.Server("localhost",
+                          mongo.Connection.DEFAULT_PORT, {} )
         @db         = new mongo.Db dbname, server, {native_parser:true}
         @db_is_open = false
         @open_event = new EventEmitter()
