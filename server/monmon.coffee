@@ -97,8 +97,14 @@ class MongoMonad
     multi: (flag) ->
         @_bind {multi: flag ? true}
 
+    safe: (flag) ->
+        @_bind {safe: flag ? true}
+
     insert: (doc) ->
         @_bind_action {insert: doc, cmd:"insert"}
+
+    insertAll: (docs) ->
+        @_bind_action {insert:docs, cmd:"insertAll"}
 
     do: (callback) ->
         if @cfg.cmd == 'find'
@@ -108,7 +114,7 @@ class MongoMonad
         m._bind_callback callback, true
 
     doCursor: (callback) ->
-        if @cfg.cmd == 'find'
+        if @cfg.cmd == 'find' or @cfg.cmd == 'findOne'
             m = @_bind_action {}
         else
             m = this
@@ -167,6 +173,19 @@ class MongoMonad
                 else
                     c.find {}, opts, cursor_callback
 
+            findOne: (err, c) ->
+                return callback? err if err?
+
+                opts = {}
+                opts.skip   = cfg.skip   if cfg.skip?
+                opts.limit  = cfg.limit  if cfg.limit?
+                opts.sort   = cfg.sort   if cfg.sort?
+                opts.fields = cfg.fields if cfg.fields?
+                if cfg.find?
+                    c.findOne cfg.find, opts, callback
+                else
+                    c.findOne {}, opts, callback
+
             count: (err, c) ->
                 return callback? err if err?
 
@@ -189,17 +208,30 @@ class MongoMonad
                 return callback? err if err?
 
                 query  = cfg.find
-                sort   = cfg.sort ? []
                 update = cfg.update ? null
                 opts   = {}
                 opts.upsert = cfg.upsert if cfg.upsert?
-                c.update query, sort, update, opts, callback
+                opts.multi  = cfg.multi  if cfg.multi?
+                opts.safe   = cfg.safe   if cfg.safe?
+                c.update query, update, opts, callback
 
             insert: (err, c) ->
                 return callback? err if err?
 
+                opts   = {}
+                opts.safe   = cfg.safe   if cfg.safe?
+
                 doc = cfg.insert
-                c.insert doc, callback
+                c.insert doc, opts, callback
+
+            insertAll: (err, c) ->
+                return callback? err if err?
+
+                opts   = {}
+                opts.safe   = cfg.safe   if cfg.safe?
+
+                docs = cfg.insert
+                c.insertAll docs, opts, callback
 
             remove: (err, c) ->
                 return callback? err if err?
