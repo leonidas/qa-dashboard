@@ -82,10 +82,10 @@ class MongoMonad
     update: (doc) ->
         @_bind_action {update: doc, cmd:"update"}
 
-    remove: (query) ->
-        @_bind_action {remove: query, cmd: "remove"}
+    remove: () ->
+        @_bind_action {cmd: "remove"}
 
-    drop: ->
+    drop: () ->
         @_bind_action {cmd: "drop"}
 
     dropDatabase: ->
@@ -236,7 +236,7 @@ class MongoMonad
             remove: (err, c) ->
                 return callback? err if err?
 
-                query = cfg.query ? {}
+                query = cfg.find ? {}
 
                 c.remove query, callback
 

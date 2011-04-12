@@ -145,4 +145,13 @@ exports["basic features"] = testCase
                 test.equal arr.length, 1
                 test.equal arr[0].population, 250000
                 test.done()
-            
+
+    "test remove": (test) ->
+        test.expect(2)
+        db = @db
+        q = db.find({area:{$lt:400}}).remove()
+        q.run (err) ->
+            test.equal err, null
+            q = db.count().run (err, num) ->
+                test.equal num, 4
+                test.done()
