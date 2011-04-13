@@ -21,17 +21,17 @@ after "deploy:finalize_update", "deploy:install_node_packages"
 namespace :deploy do
   desc "Restart the app server"
   task :restart, :roles => :app do
-    #run "cd #{current_path} && echo 'restart command received at' >> cap_dummy.txt && date >> cap_dummy.txt"
+    #run "cd #{current_path} && run-server.sh --forever stop && run-server.sh --forever start"
   end
 
   desc "Start the app server"
   task :start, :roles => :app do
-    #run "cd #{current_path} && echo 'start command received at' >> cap_dummy.txt && date >> cap_dummy.txt"
+    #run "cd #{current_path} && run-server.sh --forever stop && run-server.sh --forever start"
   end
 
   desc "Stop the app server"
   task :stop, :roles => :app do
-    #run "cd #{current_path} && echo 'stop command received at' >> cap_dummy.txt && date >> cap_dummy.txt"
+    #run "cd #{current_path} && run-server.sh --forever stop"
   end
 
   desc "Install node packages"
