@@ -9,7 +9,6 @@ _     = require('underscore')
 testCase = require('nodeunit').testCase
 
 mm = require('monmon').monmon
-connect = require('monmon').connect
 
 exports["environments are separate"] = (test) ->
     test.expect(7)

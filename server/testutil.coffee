@@ -2,22 +2,50 @@
 
 app      = require('app')
 testCase = require('nodeunit').testCase
+http     = require('http')
+monmon   = require('monmon').monmon
+
+serverdir = __dirname + "/.."
 
 TEST_PORT = 3133
 
-test_server = (dir, dbm, tests) ->
+read_all = (res, callback) ->
+    data = ""
+
+    res.on "data", (chunk) ->
+        data += chunk
+
+    res.on "end", ->
+        res.body = data
+        callback? res
+
+test_server = (env, tests) ->
     orig_setUp    = tests.setUp
     orig_tearDown = tests.tearDown
 
+    dir = serverdir
+    dbm = monmon.env(env)
+
+    get = (url, callback) ->
+        opts =
+            host: 'localhost'
+            port: TEST_PORT
+            path: url
+            method: 'GET'
+
+        http.get opts, (res) ->
+            read_all res, callback
+        
     createApp = (callback) ->
         tests.app = app.create_app dir, dbm
         tests.app.listen TEST_PORT, callback
 
     closeApp = ->
-        tests.app = app.close()
+        tests.app.close()
 
     tests.setUp = (callback) ->
-        createApp ->
+        @get = get
+        createApp (err) ->
             if orig_setUp?
                 orig_setUp callback
             else
@@ -31,3 +59,5 @@ test_server = (dir, dbm, tests) ->
             callback()
 
     return testCase tests
+
+exports.test_server = test_server
