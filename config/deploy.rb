@@ -1,4 +1,4 @@
-# Must be set before requireing multisage
+# Must be set before requiring multistage
 set :default_stage, "staging"
 require 'capistrano/ext/multistage'
 require 'yaml'

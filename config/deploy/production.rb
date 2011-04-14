@@ -15,9 +15,9 @@ end
 namespace :db do
   desc "Dump and fetch production database"
   task :dump, :roles => :db, :only => {:primary => true} do
-    # TODO: fetch to mongodb
-    #  run "cd #{current_path} && RAILS_ENV='#{rails_env}' rake db:dump"
-    #  get "#{current_path}/qa_reports_production.sql.bz2", "./qa_reports_production.sql.bz2"
-    #  run "rm #{current_path}/qa_reports_production.sql.bz2"
+    # TODO: mongodump -> tar -> download -> extract
+    #  run "cd #{current_path} && mongodump"
+    #  get "#{current_path}/qadash_dbdump.tar", "./qadash_dbdump.tar"
+    #  run "rm #{current_path}/qadash_dbdump.tar"
   end
 end
