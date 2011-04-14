@@ -23,17 +23,17 @@ after "deploy:finalize_update", "deploy:install_node_packages"
 namespace :deploy do
   desc "Restart the app server"
   task :restart, :roles => :app do
-    run "cd #{current_path} && #{start_script} --forever stop && #{start_script} --forever start"
+    run "cd #{current_path} && NODE_ENV=#{node_env} #{start_script} --forever stop && NODE_ENV=#{node_env} #{start_script} --forever start"
   end
 
   desc "Start the app server"
   task :start, :roles => :app do
-    run "cd #{current_path} && #{start_script} --forever start"
+    run "cd #{current_path} && NODE_ENV=#{node_env} #{start_script} --forever start"
   end
 
   desc "Stop the app server"
   task :stop, :roles => :app do
-    run "cd #{current_path} && #{start_script} --forever stop"
+    run "cd #{current_path} && NODE_ENV=#{node_env} #{start_script} --forever stop"
   end
 
   desc "Install node packages"

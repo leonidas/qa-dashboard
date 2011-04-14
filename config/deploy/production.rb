@@ -1,6 +1,6 @@
 set :application, "qa-dashboard.leonidasoy.fi"
 set :deploy_to, "/home/#{user}/#{application}"
-set :rails_env, "production"
+set :node_env, "production"
 
 ssh_options[:port] = 43398
 
