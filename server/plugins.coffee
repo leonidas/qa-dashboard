@@ -15,3 +15,7 @@ find_plugins_in = (path, callback) ->
         files = _(files).filter (fn) -> fn.match rexp
         modules = _(files).map (fn) -> require "#{path}/#{fn}"
         _(modules).filter (m) -> m.register_plugin?
+
+init_routes = (app, method, root, paths) ->
+    m = app[method]
+    _(paths).each (f,p) -> m root+p, f
