@@ -258,7 +258,7 @@ aside {
 }
 
 .action {
-	width: 105px;
+	width: 140px;
 	height: 28px;
 	
 	position: absolute;
@@ -279,11 +279,17 @@ aside {
 		
 		&:hover {
 				background-position:center -20px;
+				cursor: pointer;
 		}	
+		
+		&.widget_move{
+			background-image: url('../img/widget_move.png');
+			&:hover {
+				cursor: move;
+			}
+		}
 	}
 }
-
-.widget_move{background-image: url('../img/widget_move.png');}
 
 .loading {
 	text-align: center;
@@ -309,6 +315,7 @@ aside {
 	}
 	
 .widget_close{background-image: url('../img/widget_close.png');}
+.widget_help{background-image: url('../img/widget_help.png');}
 
 /* widget headings */
 .widget h1 {
