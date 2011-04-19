@@ -1,0 +1,142 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+
+<!--
+
+ This file is part of Meego-QA-Dashboard
+
+ Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public License
+ version 2.1 as published by the Free Software Foundation.
+
+ This program is distributed in the hope that it will be useful, but
+ WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ Lesser General Public License for more details.
+
+ You should have received a copy of the GNU Lesser General Public
+ License along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ 02110-1301 USA
+
+-->
+
+<!--
+
+Important measurements of layout: 
+ - width:950 px
+ - left col: 630 px
+ - right col: 300 px
+ - column gutter: 20 px 
+ 
+ -->
+
+ <head>
+     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+     <meta name="description" content="" />
+     <meta name="keywords" content="" />
+
+     <title>Meego QA Dashboard</title>
+
+     <!-- stylesheets -->
+     <link rel="stylesheet/less" media="screen" href="/less/dashboard.less" />
+
+     <!-- script packages -->
+     <script type="text/javascript" src="js/jquery-1.4.4.min.js"></script>
+     <script type="text/javascript" src="js/jquery-ui-1.8.9.custom.min.js"></script>
+     <script type="text/javascript" src="js/less-1.0.41.min.js"></script>
+     <script type="text/javascript" src="centage/js/centage.js"></script>
+     <script type="text/javascript" src="js/equal.js"></script>
+     <script type="text/javascript" src="js/jquery.qtip-1.0.0-rc3.min.js"></script>
+     <script type="text/javascript" src="js/example.js"></script>
+     <script type="text/javascript" src="js/jquery.shiftcheckbox.js"></script>	
+     <script type="text/javascript" src="/js/raphael.js"></script>
+     <script type="text/javascript" src="/js/underscore.js"></script>
+     <script type="text/javascript" src="/js/async.min.js"></script>
+
+     <!-- custom scripts -->
+     <script type="text/javascript" src="js/widget-data.js"></script>
+     <script type="text/javascript" src="js/application.js"></script>
+     <script type="text/javascript" src="/cached.js"></script>
+     <script type="text/javascript" src="/graphs.js"></script>
+     <script type="text/javascript" src="/widgets.js"></script>
+
+     <script type="text/javascript">
+         $(document).ready(function() {
+                 init_widget_bar("#widget_bar");
+                 initialize_qa_dashboard();
+                 load_widgets();
+                 });
+    </script>
+
+</head>
+
+<body>
+	<div id="wrap">
+		<div id="header">
+			<!--<a href="#" class="ui_btn" id="add_widgets_btn">Add Widgets <span class="symbol">+</span></a>-->
+		</div>
+		
+		<!-- tabs -->
+<!--		<div id="version_navi">
+			<ul class="clearfix">
+				<li class="current"><a href="#">N900</a><a href="" class="close">x</a></li>
+				<li><a href="#">ICDK</a><a href="" class="close">x</a></li>
+			</ul>
+			<a href="" class="add">+</a>
+		</div>-->
+		
+		<!-- content columns -->
+		<div id="page_content" class="normal_page">
+			<section id="full_column">
+				<form accept-charset="UTF-8" id="user_new" method="post">
+					<h1>Login to QA MeeGo Dashboard</h1>
+					<div class="field bare">
+						<label for="user_email">Email</label>
+						<input class="text" id="user_email" name="user[email]" size="30" type="text" value="">
+					</div>
+					<div class="field bare">
+						<label for="user_password">Password</label>
+						<input class="text short" id="user_password" name="user[password]" size="30" type="password">
+					</div>
+					<div class="field bare no_label">
+						<input name="user[remember_me]" type="hidden" value="0">
+						<input id="user_remember_me" name="user[remember_me]" type="checkbox" value="1">
+						<label class="inline_label small" for="user_remember_me">Remember me for 2 weeks</label>
+					</div>
+					<div class="field no_label bare">
+						<input class="ui_btn big" id="user_submit" name="commit" type="submit" value="Login">
+					</div>
+				</form>
+			</section>
+		</div>
+		
+		<!-- DUMMY HTML FOR USER PROFILE -->
+		<div id="page_content" class="normal_page">
+			<section id="full_column">
+				<form accept-charset="UTF-8" id="user_new" method="post">
+					<h1>User profile</h1>
+					<div class="field bare">
+						<label>User Name</label>
+						<span class="static_text"><strong>jarnokesk</strong></span>				
+					</div>	
+					<div class="field bare">
+						<label>API token</label>
+						<span class="static_text"><strong>GHgKBKySFYnyM9b_0AtZ</strong></span>
+						<!-- <small>What is API token?</small>-->
+					</div>
+					<div class="field no_label bare">
+						<a href="">Back to Dashboard</a>
+					</div>
+				</form>
+			</section>
+		</div>
+		
+		<div id="footer"></div>
+
+
+
+</body>
+</html>
