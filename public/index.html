@@ -164,10 +164,10 @@ Important measurements of layout:
 
 <div class="widget widget_top_blockers">
     <div class="widget_header">
+    	<h1><span></span>Top Blockers: <strong class="hwproduct">N900</strong></h1>
     </div>
 
-    <div class="widget_content content_main">
-        <h1><span></span>Top Blockers: <strong class="hwproduct">N900</strong></h1>
+    <div class="widget_content content_main">        
         <table>
             <tr>
                 <th>ID</th>
@@ -183,7 +183,7 @@ Important measurements of layout:
     </div>
 
     <div class="widget_content content_small">
-        <h2><span></span>Top Blockers: <strong class="hwproduct">N900</strong></h2>
+        <!--<h2><span></span>Top Blockers: <strong class="hwproduct">N900</strong></h2>-->
         <table>
             <tr>
                 <th>ID</th>
@@ -199,9 +199,34 @@ Important measurements of layout:
     </div>
 
     <div class="widget_content content_settings widget_edit_content">
-        <p>No settings implemented for this widgets</p>
+        <div class="field">
+            <label for="">Widget title:</label>
+            <input class="hwproduct" type="text" class="fill_with_example" title="N900" size="27" />
+        </div>
+        <div class="field">
+            <label for="">Hardware:</label>
+            <input class="hwproduct" type="text" class="fill_with_example" title="N900" size="27" /><small><br/>eq. <a href="">N900</a>, <a href="">Aava</a></small>
+        </div>
+        
+        <div class="widget_edit_right_column">
+            <label for="">Test sets:</label>
+            <table class="multiple_select">
+                <tr>
+                    <th></th>
+                    <th colspan="2" style="text-align:right">Target pass rate</th>
+                </tr>
+                <tr class="row-template">
+                    <td><input type="checkbox" class="shiftcb" value="1" name="test_set" checked/></td>
+                    <td><span class="target">Handset</span> <strong class="testtype">Acceptance</strong></td>
+                    <td><input class="passtarget" type="text" value="90" /></td>
+                </tr>
+            </table>
+        </div>
+        <div class="widget_edit_actions">
+            <input type="submit" value="OK" class="ui_btn big dark"/>
+            <input type="button" class="ui_btn big inactive dark" value="Cancel" />
+        </div>        
     </div>
-
 </div>
 
 <div class="widget widget_pass_rate">
@@ -222,26 +247,20 @@ Important measurements of layout:
             <div class="widget_edit_columns_container">
                 <div class="widget_edit_left_column">
 
+										<div class="field">
+										    <label for="">Widget title:</label>
+										    <input class="hwproduct" type="text" class="fill_with_example" title="N900" size="27" />
+										</div>
 
                     <div class="field">
                         <label for="">Hardware:</label>
                         <input class="hwproduct" type="text" class="fill_with_example" title="N900" size="27" /><small><br/>eq. <a href="">N900</a>, <a href="">Aava</a></small>
                     </div>
 
-
-   <!--                 <div class="field">
-                        <label for="">Visualization type:</label>
-                        <ul class="h_navi selection_btns visualization_type_selection">
-                            <li class="radar active"><a id="radar_selection_btn" name="radar">Radar</a></li>
-                            <li class"bar"><a id="bar_chart_selection_btn" name="bar_chart">Bar Chart</a></li>
-                        </ul>
-                    </div>		-->
-
                     <div class="field">
                         <label for="">Alert marker threshold:</label>
                         <input class="alert" type="text" size="2" value="30"/> %
                     </div>
-
                 </div>
 
                 <div class="widget_edit_right_column">
@@ -258,19 +277,19 @@ Important measurements of layout:
                         </tr>
                     </table>
                 </div>
-                <div class="widget_edit_actions">
-                    <input type="submit" value="OK" class="ui_btn big dark"/>
-                    <input type="button" class="ui_btn big inactive dark" value="Cancel" />
-                </div>
             </div>
         </form>
+        <div class="widget_edit_actions">
+            <input type="submit" value="OK" class="ui_btn big dark"/>
+            <input type="button" class="ui_btn big inactive dark" value="Cancel" />
+        </div>		
     </div>
 </div>
 
 <!-- ******************************************************** -->
 
 		<section class="widget widget_top_blockers">
-			<h2>Top Blockers: <strong>N900</strong></h2>
+			<h1>Top Blockers: <strong>N900</strong></h1>
 			
 			<div class="widget_content">
 			<table>
