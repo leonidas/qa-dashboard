@@ -20,7 +20,7 @@
 
 _ = require('underscore')
 
-find_plugins_in = (path, callback) ->
+find_plugins = (path, callback) ->
     fs.readdir path, (err, files) ->
         return callback? err if err?
         
@@ -37,3 +37,4 @@ find_plugins_in = (path, callback) ->
 init_routes = (app, method, root, paths) ->
     m = app[method]
     _(paths).each (f,p) -> m root+p, f
+

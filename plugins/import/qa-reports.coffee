@@ -18,12 +18,17 @@
 # 02110-1301 USA
 #
 
-plugins = require('plugins')
+register_plugin = (db) ->
+    reports = db.collection('qa-reports')
 
-init_import_plugins = (root, app, db) ->
-    root = root + "/import"
-    plugins.find_plugins root, (err, modules) ->
-        for module in modules
-            plugin = module.register_plugin(db)
-            for method,funcs in plugin.http
-                plugins.init_routes(app, method, root, funcs)
+    http:
+        post: "/update": (req, res) ->
+            doc = req.body
+            if not doc.qa_id?
+                res.send {status:"error", error:"invalid document format"}
+            else
+                reports.find(doc.qa_id).upsert().insert(doc).run (err) ->
+                    if err?
+                        res.send {status:"error", error:err}
+                    else
+                        res.send {status:"ok"}
