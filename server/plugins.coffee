@@ -38,3 +38,9 @@ init_routes = (app, method, root, paths) ->
     m = app[method]
     _(paths).each (f,p) -> m root+p, f
 
+init_plugins = (plugindir, httproot, app, db) ->
+    plugins.find_plugins plugindir, (err, modules) ->
+        for module in modules
+            plugin = module.register_plugin(db)
+            for method,funcs in plugin.http
+                plugins.init_routes(app, method, httproot, funcs)

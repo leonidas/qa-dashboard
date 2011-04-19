@@ -20,10 +20,7 @@
 
 plugins = require('plugins')
 
-init_import_plugins = (root, app, db) ->
-    root = root + "/import"
-    plugins.find_plugins root, (err, modules) ->
-        for module in modules
-            plugin = module.register_plugin(db)
-            for method,funcs in plugin.http
-                plugins.init_routes(app, method, root, funcs)
+init_import_plugins = (rootdir, app, db) ->
+    plugindir = rootdir + "/plugins/import"
+    httproot  = "/import"
+    plugins.init_plugins plugindir, httproot, app ,db
