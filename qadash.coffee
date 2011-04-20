@@ -28,11 +28,8 @@ monmon = require('monmon').monmon
 
 approot = __dirname
 
-app = require('app').create_app approot
-
 db = monmon.use("qadash")
-
-require('import-api').init_import_plugins approot, app, db
+app = require('app').create_app approot, db
 
 app.listen(PORT)
 

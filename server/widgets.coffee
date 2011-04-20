@@ -22,9 +22,10 @@ fs     = require('fs')
 path   = require('path')
 async  = require('async')
 coffee = require('coffee-script')
+_      = require('underscore')
 
 
-exports.load_widget = (widgetpath, callback) ->
+load_widget = (widgetpath) -> (callback) ->
     load_widget_file = (filename) -> (callback) ->
         filename = widgetpath+"/"+filename
         path.exists filename, (exists) ->
@@ -34,7 +35,7 @@ exports.load_widget = (widgetpath, callback) ->
                 callback? null, ""
 
     load_widget_source = (callback) ->
-        filename = widgetpath+"/widget"
+        filename    = widgetpath+"/widget"
         filename_js = filename+".js"
         filename_cf = filename+".coffee"
 
@@ -50,7 +51,7 @@ exports.load_widget = (widgetpath, callback) ->
                             return callback? err if err?
                             callback? null, coffee.compile(src)
                     else
-                        callback? "widget sourcefile not found"
+                        callback? "widget sourcefile #{filename_cf} not found"
 
     tasks =
         html: load_widget_file "widget.html"
@@ -63,3 +64,13 @@ exports.load_widget = (widgetpath, callback) ->
             callback? "no valid widget template file found"
         else
             callback? null, result
+
+exports.load_all_widgets = (widgetroot, callback) ->
+    fs.readdir widgetroot, (err, files) ->
+        return callback? err if err?
+
+        widgets = {}
+        for fn in files
+            widgets[fn] = load_widget widgetroot+"/"+fn
+
+        async.parallel widgets, callback
