@@ -144,6 +144,44 @@ exports["basic features"] = testCase
                 test.equal arr[0].population, 250000
                 test.done()
 
+    "test upsert update": (test) ->
+        test.expect(4)
+        new_doc = 
+            city: "Tampere"
+            population: 250000
+            region:"Pirkanmaa"
+            area:689.59
+
+        db = @db
+        q = db.find({city:"Tampere"}).upsert().update new_doc
+        q.run (err) ->
+            test.equal err, null
+
+            q = db.find({city:"Tampere"}).run (err, arr) ->
+                test.equal err, null
+                test.equal arr.length, 1
+                test.equal arr[0].population, 250000
+                test.done()
+
+    "test upsert insert": (test) ->
+        test.expect(4)
+        new_doc = 
+            city: "Ikaalinen"
+            population: 7422
+            region:"Pirkanmaa"
+            area:843.46
+
+        db = @db
+        q = db.find({city:"Ikaalinen"}).upsert().update new_doc
+        q.run (err) ->
+            test.equal err, null
+
+            q = db.find({city:"Ikaalinen"}).run (err, arr) ->
+                test.equal err, null
+                test.equal arr.length, 1
+                test.equal arr[0].population, 7422
+                test.done()
+
     "test remove": (test) ->
         test.expect(2)
         db = @db

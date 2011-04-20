@@ -24,7 +24,15 @@ require.paths.unshift './node_modules'
 require.paths.push 'server'
 require.paths.push 'server/js'
 
-app = require('app').create_app __dirname
+monmon = require('monmon').monmon
+
+approot = __dirname
+
+app = require('app').create_app approot
+
+db = monmon.use("qadash")
+
+require('import-api').init_import_plugins approot, app, db
 
 app.listen(PORT)
 

@@ -164,7 +164,7 @@ class MongoMonad
 
     _run: (toArray, cb) ->
         cfg    = @cfg
-        env    = cfg.env ? process.env.NODE_ENV
+        env    = cfg.env ? process.env.NODE_ENV ? "development"
         dbname = cfg.dbname ? "qadash"
         monad  = this
 
@@ -227,8 +227,8 @@ class MongoMonad
             update: (err, c) ->
                 return callback? err if err?
 
-                query  = cfg.find
-                update = cfg.update ? null
+                query  = cfg.find ? null
+                update = cfg.update
                 opts   = {}
                 opts.upsert = cfg.upsert if cfg.upsert?
                 opts.multi  = cfg.multi  if cfg.multi?

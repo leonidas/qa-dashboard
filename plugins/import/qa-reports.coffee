@@ -18,16 +18,18 @@
 # 02110-1301 USA
 #
 
-register_plugin = (db) ->
+exports.register_plugin = (db) ->
     reports = db.collection('qa-reports')
 
+    name: "qa-reports"
     http:
         post: "/update": (req, res) ->
             doc = req.body
             if not doc.qa_id?
                 res.send {status:"error", error:"invalid document format"}
             else
-                reports.find(doc.qa_id).upsert().insert(doc).run (err) ->
+                q = reports.find({'qa_id':doc.qa_id}).upsert().update(doc)
+                q.run (err) ->
                     if err?
                         res.send {status:"error", error:err}
                     else

@@ -18,7 +18,8 @@
 # 02110-1301 USA
 #
 
-_ = require('underscore')
+fs = require('fs')
+_  = require('underscore')
 
 find_plugins = (path, callback) ->
     fs.readdir path, (err, files) ->
@@ -31,16 +32,26 @@ find_plugins = (path, callback) ->
         rexp = new RegExp "\.#{ext}$"
 
         files = _(files).filter (fn) -> fn.match rexp
+
+        for fn in files
+            console.log "PLUGIN:    loading file #{fn}"
+
         modules = _(files).map (fn) -> require "#{path}/#{fn}"
-        _(modules).filter (m) -> m.register_plugin?
+        
+        callback? err, _(modules).filter (m) -> m.register_plugin?
 
 init_routes = (app, method, root, paths) ->
     m = app[method]
-    _(paths).each (f,p) -> m root+p, f
+    _(paths).each (f,p) -> 
+        console.log "PLUGIN: initializing route for #{root+p}"
+        m.apply(app, [root+p, f])
 
 init_plugins = (plugindir, httproot, app, db) ->
-    plugins.find_plugins plugindir, (err, modules) ->
+    console.log "PLUGIN: initializing plugins in #{plugindir}"
+    find_plugins plugindir, (err, modules) ->
         for module in modules
             plugin = module.register_plugin(db)
-            for method,funcs in plugin.http
-                plugins.init_routes(app, method, httproot, funcs)
+            for method,funcs of plugin.http
+                init_routes(app, method, httproot+"/"+plugin.name, funcs)
+
+exports.init_plugins = init_plugins
