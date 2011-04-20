@@ -47,7 +47,6 @@ exports.load_widget = (widgetpath, callback) ->
                 path.exists filename_cf, (exists) ->
                     if exists
                         fs.readFile filename_cf, "utf-8", (err, src) ->
-                            console.log src
                             return callback? err if err?
                             callback? null, coffee.compile(src)
                     else
