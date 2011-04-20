@@ -21,7 +21,7 @@
 class WidgetBase
     width: 600
     side_width: 300
-    
+
     height: 200
     side_height: 150
 
@@ -29,7 +29,7 @@ class WidgetBase
     init_new: ->
         @dom = $ @create_dom()
         @dom
-    
+
     init_from: (cfg) ->
         @config = cfg
         @init_new()
@@ -46,7 +46,7 @@ class WidgetBase
         @dom.find(".content_main").replaceWith empty.find(".content_main")
         @dom.find(".content_small").replaceWith empty.find(".content_small")
         @dom.find(".content_settings").replaceWith empty.find(".content_settings")
-    
+
     get_config: (cb) ->
         if @config == undefined
             @get_default_config (cfg) =>
@@ -142,7 +142,7 @@ class InjectionMock extends MockWidget
     type: "injection"
     height: 352
     mock_image: "img/injection_chart_real_data.png"
-    
+
     thumbnail: "img/widget_icons/bug_injection.png"
     title: "Bug Injection Graph"
     desc: "Injection rate of new bugs vs executed test cases"
@@ -289,7 +289,7 @@ class PassRateChart extends WidgetBase
     process_save_settings: ($form, cb) ->
         @config.hwproduct = $form.find(".hwproduct").val()
         @config.alert = $form.find(".alert").val()
-       
+
         selected = []
         passtargets = {}
 
@@ -310,7 +310,7 @@ class PassRateChart extends WidgetBase
 
         if cb
             cb()
-           
+
 
     get_reports: (groups, cb) ->
         cached.get "/reports/latest/#{@config.hwproduct}", (data) =>
@@ -334,6 +334,13 @@ window.widgets.pass_rate = PassRateChart
 window.widgets.qa_bars = BarChartMock
 window.widgets.top_blockers = TopBlockers
 window.widgets.injection = InjectionMock
+
+update_dynamic_css = (src) ->
+    style = $('#widget-styles')
+    if style.size() == 0
+        style = $('<style/>')
+        $('head').append(style)
+    style.text(src)
 
 window.init_widget_bar = (elem) ->
     $elem = $(elem)
@@ -367,7 +374,7 @@ window.save_widgets = (cb) ->
         sidebar: find_configs $sb
 
     $.post "/user/dashboard/save", dashboard, cb
-    
+
 window.load_widgets = (cb) ->
     $.getJSON "/user/dashboard", (dashb) ->
         $lc = $('#left_column')
