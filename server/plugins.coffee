@@ -21,10 +21,12 @@
 fs = require('fs')
 _  = require('underscore')
 
+apis = {}
+
 find_plugins = (path, callback) ->
     fs.readdir path, (err, files) ->
         return callback? err if err?
-        
+
         ext = if process.env.NODE_ENV in ['production', 'staging']
             "js"
         else
@@ -34,15 +36,15 @@ find_plugins = (path, callback) ->
         files = _(files).filter (fn) -> fn.match rexp
 
         for fn in files
-            console.log "PLUGIN:    loading file #{fn}"
+            console.log "PLUGIN:    loading file #{path}/#{fn}"
 
         modules = _(files).map (fn) -> require "#{path}/#{fn}"
-        
+
         callback? err, _(modules).filter (m) -> m.register_plugin?
 
 init_routes = (app, method, root, paths) ->
     m = app[method]
-    _(paths).each (f,p) -> 
+    _(paths).each (f,p) ->
         console.log "PLUGIN: initializing route for #{root+p}"
         m.apply(app, [root+p, f])
 
@@ -51,7 +53,10 @@ init_plugins = (plugindir, httproot, app, db) ->
     find_plugins plugindir, (err, modules) ->
         for module in modules
             plugin = module.register_plugin(db)
-            for method,funcs of plugin.http
-                init_routes(app, method, httproot+"/"+plugin.name, funcs)
+            if plugin.http?
+                for method,funcs of plugin.http
+                    init_routes(app, method, httproot+"/"+plugin.name, funcs)
+            apis[plugin.name] = plugin.api if plugin.api?
 
 exports.init_plugins = init_plugins
+exports.get_api = (name) -> apis[name]

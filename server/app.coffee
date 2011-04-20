@@ -38,6 +38,7 @@ create_app = (basedir, db) ->
         app.use express.errorHandler()
 
     require('import-api').init_import_plugins basedir, app, db
+    require('query-api' ).init_query_plugins basedir, app, db
 
     widgetdir = basedir+"/plugins/widgets"
     require('widgets').load_all_widgets widgetdir, (err, widgets) ->
