@@ -39,8 +39,6 @@ load_widget = (widgetpath) -> (callback) ->
         filename_js = filename+".js"
         filename_cf = filename+".coffee"
 
-        console.log filename_cf
-
         path.exists filename_js, (exists) ->
             if exists
                 fs.readFile filename_js, "utf-8", callback

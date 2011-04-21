@@ -27,19 +27,18 @@ find_plugins = (path, callback) ->
     fs.readdir path, (err, files) ->
         return callback? err if err?
 
-        ext = if process.env.NODE_ENV in ['production', 'staging']
-            "js"
-        else
-            "coffee"
-        rexp = new RegExp "\.#{ext}$"
+        split_filename = (fn) ->
+            i = fn.lastIndexOf('.')
+            [fn.substr(0,i),fn.substr(i+1)]
 
-        files = _(files).filter (fn) -> fn.match rexp
-
+        available = {}
         for fn in files
-            console.log "PLUGIN:    loading file #{path}/#{fn}"
+            [basename,ext] = split_filename fn
+            if basename not in available or split_filename(available[basename])[1] != 'js'
+                    available[basename] = fn
 
+        files = _(available).values()
         modules = _(files).map (fn) -> require "#{path}/#{fn}"
-
         callback? err, _(modules).filter (m) -> m.register_plugin?
 
 init_routes = (app, method, root, paths) ->
