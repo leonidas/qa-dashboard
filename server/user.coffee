@@ -18,24 +18,26 @@
 # 02110-1301 USA
 #
 
-authenticate (username, password) -> (callback) ->
-    ok = username == "guest" and password == "guest"
-    callback? null, ok
 
-exports.init_authentication = (app, db) ->
-    app.post "/auth/login", (req,res) ->
-        login = req.body
-        authenticate(login.username, login.password) (err,ok) ->
-            if not err? and ok
-                req.session.username = login.username
-                res.send {status:"ok"}
-            else
-                res.send {status:"error"}
+exports.initialize_user = (app, db) ->
+    users = db.collection("users")
 
-    app.post "/auth/logout", (req,res) ->
-        req.session.destroy (err) ->
-            res.send {status:"ok"}
+    app.get "/user", (req, res) ->
+        username = req.session.username
+        if not username?
+            res.send {}
+        else
+            q = users.find({username:username}).one()
+            q.run (err, user) ->
+                console.log "ERROR: #{err}" if err?
+                res.send user
 
-    app.get "/auth/whoami", (req,res) ->
-        res.send {username:req.session.username}
-
+    app.get "/user/dashboard", (req,res) ->
+        username = req.session.username
+        if not username?
+            res.send {}
+        else
+            q = users.find({username:username}).fields({dashboard:1}).one()
+            q.run (err, user) ->
+                console.log "ERROR: #{err}" if err?
+                res.send user.dashboard

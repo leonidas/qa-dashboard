@@ -76,9 +76,4 @@ create_app = (basedir, db) ->
             else
                 res.send {status:"OK"}
 
-    app.get "/user/dashboard", (req, res) ->
-        uname = "dummy"
-        db.user_dashboard uname, (err, dashb) ->
-           res.send dashb
-
 exports.create_app = create_app
