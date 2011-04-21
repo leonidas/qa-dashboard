@@ -91,10 +91,12 @@ Important measurements of layout:
 		<!-- content columns -->
 		<div id="page_content">
 			<section id="left_column" class="two">
-				<!-- left column, append widgets here -->
+                <div class="widget_container">
+                </div>
 			</section>
 			<aside class="one last" id="sidebar">
-				<!-- sidebar, append widgets here -->
+                <div class="widget_container">
+                </div>
 			</aside>
 		</div>
 
@@ -110,11 +112,28 @@ Important measurements of layout:
 
 <div id="hidden_templates" style="display:none">
 
-<section class="widget_info">
+<div class="login_form">
+    <form accept-charset="UTF-8" id="user_new" method="post">
+        <h1>Login to QA MeeGo Dashboard</h1>
+        <div class="field bare">
+            <label for="user_email">Email</label>
+            <input class="text" id="user_email" name="username" size="30" type="text" value="">
+        </div>
+        <div class="field bare">
+            <label for="user_password">Password</label>
+            <input class="text short" id="user_password" name="password" size="30" type="password">
+        </div>
+        <div class="field no_label bare">
+            <input class="ui_btn big" id="user_submit" name="commit" type="submit" value="Login">
+        </div>
+    </form>
+</div>
+
+<div class="tmpl_widget_info">
     <img src="img/widget_icons/qa_reports.png" alt="" />
     <h1>Widget title</h1>
     <p>Widget desc</p>
-</section>
+</div>
 
 <div class="widget" id="widget-base-template">
 
