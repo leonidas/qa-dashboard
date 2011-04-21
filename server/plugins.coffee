@@ -18,6 +18,7 @@
 # 02110-1301 USA
 #
 
+coffee = require('coffee-script')
 fs = require('fs')
 _  = require('underscore')
 
@@ -47,15 +48,19 @@ init_routes = (app, method, root, paths) ->
         console.log "PLUGIN: initializing route for #{root+p}"
         m.apply(app, [root+p, f])
 
-init_plugins = (plugindir, httproot, app, db) ->
+init_plugins = (plugindir, httproot, app, db, callback) ->
     console.log "PLUGIN: initializing plugins in #{plugindir}"
     find_plugins plugindir, (err, modules) ->
+        if err?
+            console.log "ERROR: #{err}"
+            return callback? err
         for module in modules
             plugin = module.register_plugin(db)
             if plugin.http?
                 for method,funcs of plugin.http
                     init_routes(app, method, httproot+"/"+plugin.name, funcs)
             apis[plugin.name] = plugin.api if plugin.api?
+        callback? null, null
 
 exports.init_plugins = init_plugins
 exports.get_api = (name) -> apis[name]
