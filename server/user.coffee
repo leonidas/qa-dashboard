@@ -19,8 +19,15 @@
 #
 
 
-exports.initialize_user = (app, db) ->
+exports.init_user = (app, db) ->
     users = db.collection("users")
+
+    # initialize dummy user
+    dummy =
+        username:'guest'
+        dashboard: {}
+
+    users.find(username:'guest').upsert().update(dummy).run()
 
     app.get "/user", (req, res) ->
         username = req.session.username

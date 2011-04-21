@@ -57,26 +57,22 @@ Important measurements of layout:
      <script type="text/javascript" src="/js/async.min.js"></script>
 
      <!-- custom scripts -->
-     <script type="text/javascript" src="js/widget-data.js"></script>
-     <script type="text/javascript" src="js/application.js"></script>
+     <script type="text/javascript" src="/dashboard.js"></script>
      <script type="text/javascript" src="/cached.js"></script>
      <script type="text/javascript" src="/graphs.js"></script>
      <script type="text/javascript" src="/widgets.js"></script>
-
-     <script type="text/javascript">
-         $(document).ready(function() {
-                 init_widget_bar("#widget_bar");
-                 initialize_qa_dashboard();
-                 load_widgets();
-                 });
-    </script>
 
 </head>
 
 <body>
 	<div id="wrap">
 		<div id="header">
-			<a href="#" class="ui_btn" id="add_widgets_btn">Add Widgets <span class="symbol">+</span></a>
+            <div class="toolbar_container" style="display:none">
+                <a href="#" class="ui_btn" id="logout_btn">Logout</a>
+
+    			<a href="#" class="ui_btn" id="add_widgets_btn">Add Widgets <span class="symbol">+</span></a>
+
+            </div>
 		</div>
 
 		<!-- tabs -->
@@ -91,11 +87,13 @@ Important measurements of layout:
 		<!-- content columns -->
 		<div id="page_content">
 			<section id="left_column" class="two">
-                <div class="widget_container">
+                <div class="form_container" style="display:none">
+                </div>
+                <div class="widget_container" style="display:none">
                 </div>
 			</section>
 			<aside class="one last" id="sidebar">
-                <div class="widget_container">
+                <div class="widget_container" style="display:none">
                 </div>
 			</aside>
 		</div>
@@ -115,9 +113,12 @@ Important measurements of layout:
 <div class="login_form">
     <form accept-charset="UTF-8" id="user_new" method="post">
         <h1>Login to QA MeeGo Dashboard</h1>
+        <div class="error" style="display:none">
+            <p>Invalid username or password</p>
+        </div>
         <div class="field bare">
-            <label for="user_email">Email</label>
-            <input class="text" id="user_email" name="username" size="30" type="text" value="">
+            <label for="user_login">Login</label>
+            <input class="text" id="user_login" name="username" size="30" type="text" value="">
         </div>
         <div class="field bare">
             <label for="user_password">Password</label>

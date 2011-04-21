@@ -55,7 +55,7 @@ test_server = (env, tests) ->
 
         http.get opts, (res) ->
             read_all res, callback
-        
+
     createApp = (callback) ->
         tests.app = app.create_app dir, dbm
         tests.app.listen TEST_PORT, callback

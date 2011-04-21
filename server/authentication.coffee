@@ -18,7 +18,7 @@
 # 02110-1301 USA
 #
 
-authenticate (username, password) -> (callback) ->
+authenticate = (username, password) -> (callback) ->
     ok = username == "guest" and password == "guest"
     callback? null, ok
 
