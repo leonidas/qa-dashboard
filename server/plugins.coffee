@@ -19,10 +19,10 @@
 #
 
 coffee = require('coffee-script')
-fs = require('fs')
-_  = require('underscore')
+fs     = require('fs')
+_      = require('underscore')
 
-apis = {}
+apis   = {}
 
 find_plugins = (path, callback) ->
     fs.readdir path, (err, files) ->
