@@ -18,36 +18,7 @@
 # 02110-1301 USA
 #
 
-crypto = require('crypto')
-
-sha = (data) ->
-    s = crypto.createHash('sha1')
-    s.update(data)
-    return s.digest('hex')
-
-generate_new_token = (username) -> (callback) ->
-    seed = new Date().getTime() + Math.random()*1000
-    data = username + seed
-    callback? null, sha(data)
-
-get_token = (db) ->
-    users = db.collection("users")
-    (username) ->
-        user  = users.find({username:username})
-        token = user.fields({token:1}).one()
-        (callback) ->
-            token.run (err, result) ->
-                return callback? err if err?
-                if result.token?
-                    callback? null, result.token
-                else
-                    pw = result.password
-                    generate_new_token(username) (err, token) ->
-                        return callback? err if err?
-                        op = user.update
-                            $set: token: token
-                        op.run (err, result) ->
-                            callback? null, token
+auth = require('authentication')
 
 exports.init_user = (app, db) ->
     users = db.collection("users")
@@ -59,7 +30,7 @@ exports.init_user = (app, db) ->
 
     users.find(username:'guest').upsert().update(dummy).run()
 
-    token = get_token db
+    token = auth.get_token db
 
     app.get "/user", (req, res) ->
         username = req.session.username
