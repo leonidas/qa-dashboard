@@ -17,8 +17,11 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301 USA
 #
-
 crypto = require('crypto')
+ldap = require ('ldap_shellauth')
+
+USE_LDAP = true
+
 
 sha = (data) ->
     s = crypto.createHash('sha1')
@@ -31,8 +34,12 @@ generate_new_token = (username) -> (callback) ->
     callback? null, sha(data)
 
 authenticate = (username, password) -> (callback) ->
-    ok = username == "guest" and password == "guest"
-    callback? null, ok
+    if USE_LDAP
+        ldap.ldap_shellauth(username,password) (err, ok) ->
+            callback? err, ok
+    else
+        ok = username == "guest" and password == "guest"
+        callback? null, ok
 
 exports.get_token = (db) ->
     users = db.collection("users")
