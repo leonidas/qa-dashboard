@@ -22,11 +22,32 @@ authenticate = (username, password) -> (callback) ->
     ok = username == "guest" and password == "guest"
     callback? null, ok
 
-exports.secure = (handler) -> (req, res) ->
-    if req.session.username?
-        handler req, res
-    else
-        res.send 403
+exports.secure = (db) ->
+    users = db.collection("users")
+    verify_token = (username, token) -> (callback) ->
+        query = users.find({username:username}).fields({token:1}).first()
+        query.run (err,result) ->
+            return callback? err if err?
+            callback? result == token
+
+    (handler) -> (req, res) ->
+        if req.session.username?
+            handler req, res
+        else
+            body     = req.body
+            token    = body.token
+            username = body.username
+
+            if token? and username?
+                verify_token(username, token) (err,valid) ->
+                    if err?
+                        console.log "ERROR: #{err}"
+                    if valid
+                        handler req, res
+                    else
+                        res.send 403
+            else
+                res.send 403
 
 exports.init_authentication = (app, db) ->
     app.post "/auth/login", (req,res) ->

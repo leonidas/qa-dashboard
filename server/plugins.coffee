@@ -44,11 +44,12 @@ find_plugins = (path, callback) ->
         modules = _(files).map (fn) -> require "#{path}/#{fn}"
         callback? err, _(modules).filter (m) -> m.register_plugin?
 
-init_routes = (app, method, root, paths) ->
+init_routes = (app, db, method, root, paths) ->
     m = app[method]
+    secure = auth.secure db
     _(paths).each (f,p) ->
         console.log "PLUGIN: initializing route for #{root+p}"
-        f = auth.secure(f)
+        f = secure f
         m.apply(app, [root+p, f])
 
 init_plugins = (plugindir, httproot, app, db, callback) ->
@@ -61,7 +62,7 @@ init_plugins = (plugindir, httproot, app, db, callback) ->
             plugin = module.register_plugin(db)
             if plugin.http?
                 for method,funcs of plugin.http
-                    init_routes(app, method, httproot+"/"+plugin.name, funcs)
+                    init_routes(app, db, method, httproot+"/"+plugin.name, funcs)
             apis[plugin.name] = plugin.api if plugin.api?
         callback? null, null
 
