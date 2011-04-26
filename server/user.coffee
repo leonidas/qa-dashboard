@@ -18,21 +18,31 @@
 # 02110-1301 USA
 #
 
-generate_new_token = (callback) ->
-    "TODO"
+crypto = require('crypto')
+
+sha = (data) ->
+    s = crypto.createHash('sha1')
+    s.update(data)
+    return s.digest('hex')
+
+generate_new_token = (username, pw) -> (callback) ->
+    seed = new Date().getTime() + Math.random()*1000
+    data = username + seed + pw
+    return sha(data)
 
 exports.get_token = (db) ->
     users = db.collection("users")
     (username) ->
         user  = users.find({username:username})
-        token = user.fields({token:1}).first()
+        token = user.fields({token:1, password:1}).first()
         (callback) ->
             token.run (err, result) ->
                 return callback? err if err?
-                if result?
-                    callback? result
+                if result.token?
+                    callback? result.token
                 else
-                    generate_new_token (err, token) ->
+                    pw = result.password
+                    generate_new_token(username, pw) (err, token) ->
                         return callback? err if err?
                         op = user.update
                             $set: token: token
