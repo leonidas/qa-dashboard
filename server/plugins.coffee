@@ -22,6 +22,8 @@ coffee = require('coffee-script')
 fs     = require('fs')
 _      = require('underscore')
 
+auth   = require('authentication')
+
 apis   = {}
 
 find_plugins = (path, callback) ->
@@ -46,6 +48,7 @@ init_routes = (app, method, root, paths) ->
     m = app[method]
     _(paths).each (f,p) ->
         console.log "PLUGIN: initializing route for #{root+p}"
+        f = auth.secure(f)
         m.apply(app, [root+p, f])
 
 init_plugins = (plugindir, httproot, app, db, callback) ->

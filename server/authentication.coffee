@@ -22,6 +22,12 @@ authenticate = (username, password) -> (callback) ->
     ok = username == "guest" and password == "guest"
     callback? null, ok
 
+exports.secure = (handler) -> (req, res) ->
+    if req.session.username?
+        handler req, res
+    else
+        res.send 403
+
 exports.init_authentication = (app, db) ->
     app.post "/auth/login", (req,res) ->
         login = req.body
