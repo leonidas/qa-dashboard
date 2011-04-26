@@ -25,7 +25,7 @@ authenticate = (username, password) -> (callback) ->
 exports.secure = (db) ->
     users = db.collection("users")
     verify_token = (username, token) -> (callback) ->
-        query = users.find({username:username}).fields({token:1}).first()
+        query = users.find({username:username}).fields({token:1}).one()
         query.run (err,result) ->
             return callback? err if err?
             callback? result == token

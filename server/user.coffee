@@ -25,29 +25,29 @@ sha = (data) ->
     s.update(data)
     return s.digest('hex')
 
-generate_new_token = (username, pw) -> (callback) ->
+generate_new_token = (username) -> (callback) ->
     seed = new Date().getTime() + Math.random()*1000
-    data = username + seed + pw
-    return sha(data)
+    data = username + seed
+    callback? null, sha(data)
 
-exports.get_token = (db) ->
+get_token = (db) ->
     users = db.collection("users")
     (username) ->
         user  = users.find({username:username})
-        token = user.fields({token:1, password:1}).first()
+        token = user.fields({token:1}).one()
         (callback) ->
             token.run (err, result) ->
                 return callback? err if err?
                 if result.token?
-                    callback? result.token
+                    callback? null, result.token
                 else
                     pw = result.password
-                    generate_new_token(username, pw) (err, token) ->
+                    generate_new_token(username) (err, token) ->
                         return callback? err if err?
                         op = user.update
                             $set: token: token
                         op.run (err, result) ->
-                            callback? token
+                            callback? null, token
 
 exports.init_user = (app, db) ->
     users = db.collection("users")
@@ -56,9 +56,10 @@ exports.init_user = (app, db) ->
     dummy =
         username:'guest'
         dashboard: {}
-        token: "testing-token"
 
     users.find(username:'guest').upsert().update(dummy).run()
+
+    token = get_token db
 
     app.get "/user", (req, res) ->
         username = req.session.username
@@ -69,6 +70,17 @@ exports.init_user = (app, db) ->
             q.run (err, user) ->
                 console.log "ERROR: #{err}" if err?
                 res.send user
+
+    app.get "/user/token", (req, res) ->
+        username = req.session.username
+        if not username?
+            res.send 401
+        else
+            token(username) (err,token) ->
+                if err?
+                    res.send {status:"error", error:err}
+                else
+                    res.send {status:"ok", token:token}
 
     app.get "/user/dashboard", (req,res) ->
         username = req.session.username
