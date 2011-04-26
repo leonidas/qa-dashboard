@@ -20,27 +20,39 @@
 
 auth = require('authentication')
 
+get_user = (db) ->
+    users = db.collection("users")
+    (username) ->
+        query = users.find({username:username}).one()
+        (callback) ->
+            query.run (err, user) ->
+                return callback? err, user if err? or user?
+                doc =
+                    username: username
+                    dashboard: {}
+                users.insert(doc).run (err) ->
+                    return callback? err if err?
+                    callback? doc
+
 exports.init_user = (app, db) ->
     users = db.collection("users")
 
-    # initialize dummy user
-    dummy =
-        username:'guest'
-        dashboard: {}
-
-    users.find(username:'guest').upsert().update(dummy).run()
-
     token = auth.get_token db
+
+    user  = get_user db
 
     app.get "/user", (req, res) ->
         username = req.session.username
         if not username?
             res.send {}
         else
-            q = users.find({username:username}).one()
-            q.run (err, user) ->
+            user(username) (err, user) ->
                 console.log "ERROR: #{err}" if err?
-                res.send user
+                if user?
+                    delete user._id
+                    res.send user
+                else
+                    res.send {}
 
     app.get "/user/token", (req, res) ->
         username = req.session.username
