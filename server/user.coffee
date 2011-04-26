@@ -18,6 +18,26 @@
 # 02110-1301 USA
 #
 
+generate_new_token = (callback) ->
+    "TODO"
+
+exports.get_token = (db) ->
+    users = db.collection("users")
+    (username) ->
+        user  = users.find({username:username})
+        token = user.fields({token:1}).first()
+        (callback) ->
+            token.run (err, result) ->
+                return callback? err if err?
+                if result?
+                    callback? result
+                else
+                    generate_new_token (err, token) ->
+                        return callback? err if err?
+                        op = user.update
+                            $set: token: token
+                        op.run (err, result) ->
+                            callback? token
 
 exports.init_user = (app, db) ->
     users = db.collection("users")
@@ -26,6 +46,7 @@ exports.init_user = (app, db) ->
     dummy =
         username:'guest'
         dashboard: {}
+        token: "testing-token"
 
     users.find(username:'guest').upsert().update(dummy).run()
 
