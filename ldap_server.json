@@ -1,0 +1,5 @@
+{
+  "host": "my-ldap-server.example.com",
+  "port": "389",
+  "dn_base": "ou=people,dc=example,dc=com"
+}
