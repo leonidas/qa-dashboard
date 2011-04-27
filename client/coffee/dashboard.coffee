@@ -79,6 +79,7 @@ initialize_toolbar = (widgets, elem) ->
         $btn.find("img").attr("src", cfg.thumbnail)
         $btn.data "widget-name", name
         $btn.insertBefore $close
+        initialize_toolbar_draggable $btn
 
     $p.add_widget_btn.click ->
         $elem.slideDown(300)
@@ -113,8 +114,17 @@ get_widget_class = (name) -> (callback) ->
         cached.get "/widgets/#{name}", (data) ->
             code = data.code
             cls = eval code
+            cls.prototype.template = $(data.html)
             widgets[name] = cls
             callback? cls
+
+create_new_widget = (name) -> (callback) ->
+    dom = $("#widget-base-template").clone().removeAttr("id")
+    get_widget_class(name) (cls) ->
+        wgt = new cls()
+        wgt.dom = dom
+        callback? wgt
+    return dom
 
 
 initialize_sortable_columns = () ->
@@ -145,34 +155,17 @@ initialize_sortable_columns = () ->
             balance_columns()
         out: (event, ui) ->
             balance_columns()
+        receive: (event, ui) ->
+            balance_columns()
 
         placeholder: 'ui-widget-sortable-placeholder'
         tolerance:   'pointer'
 
     # Connect the sortable columns with each other
-    $('#left_column').sortable('option', 'connectWith', '#sidebar')
-    $('#sidebar').sortable('option', 'connectWith', '#left_column')
-
-initialize_toolbar_draggable = () ->
-    $('.widget_info').draggable
-        helper : () ->
-            helperSource = $(this).children('img')
-            helper = helperSource.clone()
-            helper.css('width', helperSource.css('width'))
-            helper.css('height', helperSource.css('height'))
-            return helper
-        scroll: false
-        revert: 'invalid'
-        revertDuration: 100
-        cursorAt:
-            top:32
-            left:32
-        connectToSortable: '#left_column, #sidebar'
-        scope : 'widget'
-        start : (event, ui) ->
-            cls = $(this).data("widgetClass")
-            dom = new cls().init_new()
-            newWidget = dom
+    lc = '#left_column .widget_container'
+    sb = '#sidebar .widget_container'
+    $(lc).sortable('option', 'connectWith', sb)
+    $(sb).sortable('option', 'connectWith', lc)
 
     # Enable columns to receive new widgets from toolbar
     $('#left_column, #sidebar').droppable
@@ -184,9 +177,39 @@ initialize_toolbar_draggable = () ->
             $('#left_column, #sidebar').sortable('refresh')
             balance_columns()
         drop: (event, ui) ->
-            $(ui.draggable).children().remove()
+            $this = $(this)
+            ud = $(ui.draggable)
+            name = ui.helper.data "widget-name"
+
+            #widget = $("<section class=\"widget\"><h1>foo</h1></section>")
+            widget = create_new_widget(name) (wgt) ->
+                if $this.attr("id") == "sidebar"
+                    wgt.render_small_view balance_columns
+                else
+                    wgt.render_main_view balance_columns
+
+            widget.insertBefore ud
+            ud.remove()
             balance_columns()
 
+initialize_toolbar_draggable = (elem) ->
+    $(elem).draggable
+        helper: () ->
+            $this = $(this)
+            helperSource = $this.children('img')
+            helper = helperSource.clone()
+            helper.css('width', helperSource.css('width'))
+            helper.css('height', helperSource.css('height'))
+            helper.data("widget-name", $this.data("widget-name"))
+            return helper
+        scroll: false
+        revert: 'invalid'
+        revertDuration: 100
+        cursorAt:
+            top:32
+            left:32
+        connectToSortable: '#left_column, #sidebar'
+        scope: 'widget'
 
 $ () ->
     $(window).load   balance_columns
@@ -207,6 +230,5 @@ $ () ->
     $('#logout_btn').click submit_user_logout
 
     initialize_sortable_columns()
-    initialize_toolbar_draggable()
 
     initialize_application()

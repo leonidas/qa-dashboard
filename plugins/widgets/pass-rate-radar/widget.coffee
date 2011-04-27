@@ -3,14 +3,6 @@ class PassRateChart extends WidgetBase
     height: 500
     side_height: 250
 
-    type: "pass_rate"
-
-    thumbnail: "img/widget_icons/qa_radar.png"
-    title: "Pass Rates Summary"
-    desc:  "Summary of latest pass rates in QA Reports"
-
-    template: ".widget_pass_rate"
-
     init_reports: (@reports) ->
 
     init_config: (@config) ->
