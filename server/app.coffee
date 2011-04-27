@@ -44,16 +44,7 @@ create_app = (basedir, db) ->
     require('ldap_shellauth').init_ldap_shellauth basedir
 
     widgetdir = basedir+"/plugins/widgets"
-    require('widgets').load_all_widgets widgetdir, (err, widgets) ->
-        if err?
-            console.log err
-            throw err
-
-        app.get "/widgets", (req,res) ->
-            res.send _.keys(widgets)
-
-        app.get "/widgets/:name", (req,res) ->
-            res.send widgets[req.params.name]
+    require('widgets').initialize_widgets widgetdir, app, db
 
     app.get "/reports/latest/:hw", (req,res) ->
        db.latest_reports req.params.hw, (err, arr) ->

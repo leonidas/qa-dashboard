@@ -18,11 +18,12 @@
 # 02110-1301 USA
 #
 
-fs     = require('fs')
-path   = require('path')
-async  = require('async')
-coffee = require('coffee-script')
-_      = require('underscore')
+fs      = require('fs')
+path    = require('path')
+async   = require('async')
+coffee  = require('coffee-script')
+express = require('express')
+_       = require('underscore')
 
 
 load_widget = (widgetpath) -> (callback) ->
@@ -51,10 +52,17 @@ load_widget = (widgetpath) -> (callback) ->
                     else
                         callback? "widget sourcefile #{filename_cf} not found"
 
+    load_widget_config = (callback) ->
+        filename = widgetpath + "/config.json"
+        fs.readFile filename, "utf-8", (err, data) ->
+            callback? err if err?
+            callback? null, JSON.parse data
+
     tasks =
-        html: load_widget_file "widget.html"
-        css:  load_widget_file "widget.css"
-        code: load_widget_source
+        html:   load_widget_file "widget.html"
+        css:    load_widget_file "widget.css"
+        code:   load_widget_source
+        config: load_widget_config
 
     async.parallel tasks, (err, result) ->
         return callback? err if err?
@@ -63,7 +71,7 @@ load_widget = (widgetpath) -> (callback) ->
         else
             callback? null, result
 
-exports.load_all_widgets = (widgetroot, callback) ->
+load_all_widgets = (widgetroot, callback) ->
     fs.readdir widgetroot, (err, files) ->
         return callback? err if err?
 
@@ -72,3 +80,27 @@ exports.load_all_widgets = (widgetroot, callback) ->
             widgets[fn] = load_widget widgetroot+"/"+fn
 
         async.parallel widgets, callback
+
+exports.initialize_widgets = (widgetdir, app, db) ->
+    load_all_widgets widgetdir, (err, widgets) ->
+        if err?
+            console.log err
+            throw err
+
+        widgetnames = _(widgets).keys()
+
+        configs = {}
+        for name,data of widgets
+            configs[name] = data.config
+
+        for name in widgetnames
+            widgetroot = widgetdir + "/#{name}/public"
+            console.log "WIDGET: sharing public files from #{widgetroot}"
+            app.use "/widgets/#{name}", express.static widgetroot
+
+        app.get "/widgets", (req,res) ->
+            res.send configs
+
+        app.get "/widgets/:name", (req,res) ->
+            res.send widgets[req.params.name]
+

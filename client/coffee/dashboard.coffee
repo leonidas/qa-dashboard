@@ -22,6 +22,8 @@ current_user = null
 
 $p = {}
 
+widgets = {}
+
 submit_login_form = () ->
     $form = $(this)
     field = (name) -> $form.find("input[name=\"#{name}\"]").val()
@@ -63,6 +65,8 @@ initialize_application = () ->
             # show login form
             $p.form_container.show()
             balance_columns()
+
+initialize_toolbar = (widgets) ->
 
 
 load_dashboard = (callback) ->
