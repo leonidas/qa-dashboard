@@ -73,7 +73,7 @@ initialize_toolbar = (widgets, elem) ->
     $tmpl  = $("#hidden_templates .widget_info")
 
     for name,cfg of widgets
-        $btn = $tmpl.clone()
+        $btn = $tmpl.clone(true)
         $btn.find("h1").text cfg.title
         $btn.find("p").text cfg.desc
         $btn.find("img").attr("src", cfg.thumbnail)
@@ -117,7 +117,6 @@ get_widget_class = (name) -> (callback) ->
 
 
 initialize_sortable_columns = () ->
-
     # Dragging existing widgets from one position to another
     $('#left_column, #sidebar').sortable
         items:   '.widget'
@@ -174,6 +173,19 @@ initialize_toolbar_draggable = () ->
             dom = new cls().init_new()
             newWidget = dom
 
+    # Enable columns to receive new widgets from toolbar
+    $('#left_column, #sidebar').droppable
+        accept: '.widget_info'
+        scope: 'widget'
+        greedy: true
+        tolerance: 'pointer'
+        over: (event, ui) ->
+            $('#left_column, #sidebar').sortable('refresh')
+            balance_columns()
+        drop: (event, ui) ->
+            $(ui.draggable).children().remove()
+            balance_columns()
+
 
 $ () ->
     $(window).load   balance_columns
@@ -192,5 +204,8 @@ $ () ->
     $p.login_form.find('form').submit submit_login_form
 
     $('#logout_btn').click submit_user_logout
+
+    initialize_sortable_columns()
+    initialize_toolbar_draggable()
 
     initialize_application()
