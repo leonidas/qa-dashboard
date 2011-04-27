@@ -66,8 +66,25 @@ initialize_application = () ->
             $p.form_container.show()
             balance_columns()
 
-initialize_toolbar = (widgets) ->
+initialize_toolbar = (widgets, elem) ->
+    $elem  = $(elem)
+    $close = $elem.find(".close_widget_bar")
+    $tmpl  = $("#hidden_templates .widget_info")
 
+    for name,cfg of widgets
+        $btn = $tmpl.clone()
+        $btn.find("h1").text cfg.title
+        $btn.find("p").text cfg.desc
+        $btn.find("img").attr("src", cfg.thumbnail)
+        $btn.insertBefore $close
+
+    $p.add_widget_btn.click ->
+        $elem.slideDown(300)
+        return false
+
+    $close.click ->
+        $elem.slideUp(300)
+        return false
 
 load_dashboard = (callback) ->
     $.getJSON "/user", (data) ->
@@ -77,19 +94,28 @@ init_user_dashboard = (dashboard) ->
     $p.form_container.hide()
     $p.widget_container.show()
     $p.toolbar_container.show()
+
+    cached.get "/widgets", (data) ->
+        initialize_toolbar data, $p.widget_bar
+
     balance_columns()
 
 balance_columns = () ->
     $('#page_content').equalHeights()
+
 
 $ () ->
     $(window).load   balance_columns
     $(window).resize balance_columns
 
     $p.login_form        = $('.login_form')
+
     $p.form_container    = $('.form_container')
     $p.widget_container  = $('.widget_container')
     $p.toolbar_container = $('.toolbar_container')
+
+    $p.widget_bar        = $('#widget_bar')
+    $p.add_widget_btn    = $('#add_widgets_btn')
 
     $p.login_form.appendTo('.form_container')
     $p.login_form.find('form').submit submit_login_form
