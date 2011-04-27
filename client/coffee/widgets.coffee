@@ -63,7 +63,7 @@ class WidgetBase
     format_settings_view: ($t, cb) -> cb $t
 
     render_header: (cb) ->
-        selector = "#hidden_widget_container "+@template+" .widget_header"
+        selector = @template.find ".widget_header"
         $t = $(selector).clone(true)
         @get_config (cfg) =>
             @format_header $t, (dom) =>
@@ -75,10 +75,9 @@ class WidgetBase
     render_view: (cls, formatfunc, cb) ->
         @get_config (cfg) =>
             @render_header =>
-                selector = "#hidden_widget_container "+@template+" ."+cls
-                $t = $(selector).clone(true)
+                $t = $(@template).find(cls).clone(true)
                 formatfunc.apply(this, [$t, (dom) =>
-                    @dom.find("."+cls).replaceWith(dom)
+                    @dom.find(cls).replaceWith(dom)
                     if cb
                         cb()
                 ])
@@ -90,7 +89,7 @@ class WidgetBase
             if cb
                 cb()
         else
-            @render_view "content_main", @format_main_view, cb
+            @render_view ".content_main", @format_main_view, cb
 
     render_small_view: (cb) ->
         @dom.find(".widget_content").hide()
@@ -99,7 +98,7 @@ class WidgetBase
             if cb
                 cb()
         else
-            @render_view "content_small", @format_small_view, cb
+            @render_view ".content_small", @format_small_view, cb
 
     render_settings_view: (cb) ->
         @dom.find(".widget_content").hide()
@@ -108,7 +107,7 @@ class WidgetBase
             if cb
                 cb()
         else
-            @render_view "content_settings", @format_settings_view, cb
+            @render_view ".content_settings", @format_settings_view, cb
 
     is_main_view_ready: ->
         @dom.find(".content_main .loading").length == 0

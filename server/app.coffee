@@ -1,6 +1,6 @@
 
 express = require('express')
-db      = require('queries')
+queries = require('queries')
 http    = require('http')
 _       = require('underscore')
 
@@ -47,19 +47,19 @@ create_app = (basedir, db) ->
     require('widgets').initialize_widgets widgetdir, app, db
 
     app.get "/reports/latest/:hw", (req,res) ->
-       db.latest_reports req.params.hw, (err, arr) ->
+       queries.latest_reports req.params.hw, (err, arr) ->
            res.send arr
 
     app.get "/reports/groups/:hw", (req,res) ->
-        db.groups_for_hw req.params.hw, (err, arr) ->
+        queries.groups_for_hw req.params.hw, (err, arr) ->
             res.send arr
 
     app.get "/widget/:widget/config", (req, res) ->
-        db.widget_config req.params.widget, (err, cfg) ->
+        queries.widget_config req.params.widget, (err, cfg) ->
             res.send cfg
 
     app.get "/bugs/:hw/top/:n", (req, res) ->
-        db.latest_bug_counts req.params.hw, (err,arr) ->
+        queries.latest_bug_counts req.params.hw, (err,arr) ->
             res.send arr[0..parseInt(req.params.n)]
 
     app.post "/user/dashboard/save", (req, res) ->
