@@ -1,5 +1,5 @@
 {
-  "host": "my-ldap-server.example.com",
-  "port": "389",
-  "dn_base": "ou=people,dc=example,dc=com"
+  "ldapuri": "ldap://example.com:389",
+  "dn_base": "ou=people,dc=example,dc=com",
+  "filters": "myProperty=value"
 }

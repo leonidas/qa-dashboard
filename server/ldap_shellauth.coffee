@@ -22,18 +22,22 @@ exec = require('child_process').exec
 
 LDAP_SERVER_FILE = "/ldap_server.json"
 
+
 ldap_server = ""
 exports.init_ldap_shellauth = (basedir) ->
     ldap_server = JSON.parse fs.readFileSync(basedir + LDAP_SERVER_FILE)
 
 exports.ldap_shellauth = (username, password) -> (callback) ->
-    ldapcmd = "ldapsearch -xLLL -h " + ldap_server.host + " -p " + ldap_server.port + " -D " + "uid=" + username + "," + ldap_server.dn_base + " -w " + password + " -b " + ldap_server.dn_base + " uid"
-    console.log(ldapcmd)
+
+    fulldn = "uid=" + username + "," + ldap_server.dn_base #full unique DN
+
+    ldapcmd = "ldapsearch -xLLL -H " + ldap_server.ldapuri + " -b " + fulldn + " -D " + fulldn + " -w " + password + " " + ldap_server.filters + " dn" 
+    #console.log(ldapcmd)
     exec ldapcmd, (error,stdout,stderr) ->
         #console.log("stdout: " + stdout)
         #console.log("stderr: " + stderr)
-        console.log(error)
-        callback? error, error == null
+        #console.log(error)
+        callback? error, (error == null && stdout != "")
 
 
 
