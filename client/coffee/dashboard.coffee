@@ -77,6 +77,7 @@ initialize_toolbar = (widgets, elem) ->
         $btn.find("h1").text cfg.title
         $btn.find("p").text cfg.desc
         $btn.find("img").attr("src", cfg.thumbnail)
+        $btn.data "widget-name", name
         $btn.insertBefore $close
 
     $p.add_widget_btn.click ->
