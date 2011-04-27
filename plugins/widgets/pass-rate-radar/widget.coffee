@@ -130,5 +130,4 @@ class PassRateChart extends WidgetBase
         @chart = new graphs.RadarChart @chart_elem, @side_width, @side_height
         @chart.render_reports(@reports, @config.passtargets, {labels:false})
 
-
-return PassRateWidget
+return PassRateChart

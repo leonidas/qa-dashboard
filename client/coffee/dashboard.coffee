@@ -18,11 +18,12 @@
 # 02110-1301 USA
 #
 
+
+## Module Globals
 current_user = null
-
 $p = {}
-
 widgets = {}
+
 
 submit_login_form = () ->
     $form = $(this)
@@ -102,6 +103,76 @@ init_user_dashboard = (dashboard) ->
 
 balance_columns = () ->
     $('#page_content').equalHeights()
+
+get_widget_class = (name) -> (callback) ->
+    cls = widgets[name]
+    if cls?
+        callback? null, cls
+    else
+        cached.get "/widgets/#{name}", (data) ->
+            code = data.code
+            cls = eval code
+            widgets[name] = cls
+            callback? cls
+
+
+initialize_sortable_columns = () ->
+
+    # Dragging existing widgets from one position to another
+    $('#left_column, #sidebar').sortable
+        items:   '.widget'
+        handle:  '.widget_move'
+        opacity: 0.9
+        revert:  false
+
+        start: (event, ui) ->
+            $('.ui-widget-sortable-placeholder').height($(ui.item).height());
+            balance_columns()
+        stop: (event, ui) ->
+            $item = $(ui.item)
+            $item.removeClass 'move_mode'
+            obj = $item.data "widgetObj"
+            if obj?
+                $parent = $item.parent()
+                if $parent.attr("id") == "sidebar"
+                    obj.render_small_view balance_columns
+                else
+                    obj.render_main_view balance_columns
+                save_widgets()
+                balance_columns()
+        over: (event, ui) ->
+            $(this).sortable('refresh')
+            balance_columns()
+        out: (event, ui) ->
+            balance_columns()
+
+        placeholder: 'ui-widget-sortable-placeholder'
+        tolerance:   'pointer'
+
+    # Connect the sortable columns with each other
+    $('#left_column').sortable('option', 'connectWith', '#sidebar')
+    $('#sidebar').sortable('option', 'connectWith', '#left_column')
+
+initialize_toolbar_draggable = () ->
+    $('.widget_info').draggable
+        helper : () ->
+            helperSource = $(this).children('img')
+            helper = helperSource.clone()
+            helper.css('width', helperSource.css('width'))
+            helper.css('height', helperSource.css('height'))
+            return helper
+        scroll: false
+        revert: 'invalid'
+        revertDuration: 100
+        cursorAt:
+            top:32
+            left:32
+        connectToSortable: '#left_column, #sidebar'
+        scope : 'widget'
+        start : (event, ui) ->
+            cls = $(this).data("widgetClass")
+            dom = new cls().init_new()
+            newWidget = dom
 
 
 $ () ->
