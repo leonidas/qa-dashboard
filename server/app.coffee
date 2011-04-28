@@ -54,10 +54,6 @@ create_app = (basedir, db) ->
         queries.groups_for_hw req.params.hw, (err, arr) ->
             res.send arr
 
-    app.get "/widget/:widget/config", (req, res) ->
-        queries.widget_config req.params.widget, (err, cfg) ->
-            res.send cfg
-
     app.get "/bugs/:hw/top/:n", (req, res) ->
         queries.latest_bug_counts req.params.hw, (err,arr) ->
             res.send arr[0..parseInt(req.params.n)]

@@ -18,10 +18,9 @@
 # 02110-1301 USA
 #
 
-plugins = require('plugins')
+api = {}
 
-init_query_plugins = (rootdir, app, db) ->
-    httproot  = "/query"
-    plugins.init_plugins "query", rootdir, httproot, app, db
+exports.register_plugin = (db) ->
+    reports = db.collection('qa-reports')
 
-exports.init_query_plugins = init_query_plugins
+    name: "qa-reports"

@@ -52,7 +52,8 @@ init_routes = (app, db, method, root, paths) ->
         f = secure f
         m.apply(app, [root+p, f])
 
-init_plugins = (plugindir, httproot, app, db, callback) ->
+init_plugins = (plugintype, basedir, httproot, app, db, callback) ->
+    plugindir = "#{basedir}/plugins/#{plugintype}"
     console.log "PLUGIN: initializing plugins in #{plugindir}"
     find_plugins plugindir, (err, modules) ->
         if err?
@@ -63,7 +64,8 @@ init_plugins = (plugindir, httproot, app, db, callback) ->
             if plugin.http?
                 for method,funcs of plugin.http
                     init_routes(app, db, method, httproot+"/"+plugin.name, funcs)
-            apis[plugin.name] = plugin.api if plugin.api?
+            apis[plugintype] ?= {}
+            apis[plugintype][plugin.name] = plugin.api if plugin.api?
         callback? null, null
 
 exports.init_plugins = init_plugins
