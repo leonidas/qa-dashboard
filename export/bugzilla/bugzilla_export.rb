@@ -24,7 +24,7 @@ DAEMONIZE_OPTIONS = {
 def daemonize
     Daemons.run_proc('bugzilla_exportd', DAEMONIZE_OPTIONS) do
         loop do
-            puts "--- Polling round started: " + Time.now.to_s + "---"
+            puts "--- Polling round started: " + Time.now.to_s + " ---"
 
             # get bugzilla data
             fromdate = (Date.today-EXPORT_RANGE).to_s
@@ -79,7 +79,13 @@ end
 
 def parse_bugzilla_csv(content)
     data_array = []    
-    FasterCSV.parse(content, :headers => true) { |row| data_array.push(row.to_hash) }
+    FasterCSV.parse(content, :headers => true) do |row|
+        row = row.to_hash
+        #customize data
+        row["weeknum"]  = Date.parse(row["opendate"]).cweek
+        row["opendate"] = Time.parse(row["opendate"]).utc
+        data_array.push(row)
+    end
     data_array
 end
 
