@@ -62,12 +62,4 @@ create_app = (basedir, db) ->
         queries.latest_bug_counts req.params.hw, (err,arr) ->
             res.send arr[0..parseInt(req.params.n)]
 
-    app.post "/user/dashboard/save", (req, res) ->
-        uname = "dummy"
-        queries.save_dashboard uname, req.body, (err) ->
-            if err
-                res.send {status:"error", error:err}
-            else
-                res.send {status:"OK"}
-
 exports.create_app = create_app

@@ -74,3 +74,12 @@ exports.init_user = (app, db) ->
             q.run (err, user) ->
                 console.log "ERROR: #{err}" if err?
                 res.send user.dashboard
+
+    app.post "/user/dashboard/save", (req, res) ->
+        username = req.session.username
+        q = users.find({username:username}).update $set: dashboard: req.body
+        q.run (err) ->
+            if err
+                res.send {status:"error", error:err}
+            else
+                res.send {status:"OK"}

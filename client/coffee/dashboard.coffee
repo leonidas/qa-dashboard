@@ -101,6 +101,8 @@ init_user_dashboard = (dashboard) ->
     cached.get "/widgets", (data) ->
         initialize_toolbar data, $p.widget_bar
 
+    load_widgets()
+
     balance_columns()
 
 balance_columns = () ->
@@ -109,7 +111,8 @@ balance_columns = () ->
 get_widget_class = (name) -> (callback) ->
     cls = widgets[name]
     if cls?
-        callback? cls
+        if callback?
+            setTimeout (-> callback cls), 0
     else
         cached.get "/widgets/#{name}", (data) ->
             code = data.code
@@ -120,9 +123,12 @@ get_widget_class = (name) -> (callback) ->
 
 create_new_widget = (name) -> (callback) ->
     dom = $("#widget-base-template").clone().removeAttr("id")
+    dom.find('.widget_content').hide()
+    dom.find('.content_main').show()
     init_widget_dom_events(dom)
     get_widget_class(name) (cls) ->
         wgt = new cls()
+        wgt.type = name
         dom.data("widgetObj", wgt)
         wgt.dom = dom
         callback? wgt
@@ -171,6 +177,7 @@ initialize_sortable_columns = () ->
                     obj.render_small_view balance_columns
                 else
                     obj.render_main_view balance_columns
+                #console.log "save_widgets sortable stop"
                 save_widgets()
             balance_columns()
         over: (event, ui) ->
@@ -198,6 +205,7 @@ initialize_sortable_columns = () ->
             $('#left_column, #sidebar').sortable('refresh')
             balance_columns()
         drop: (event, ui) ->
+            #console.log "droppable drop"
             $this = $(this)
             ud = $(ui.draggable)
             name = ui.helper.data "widget-name"
@@ -207,6 +215,7 @@ initialize_sortable_columns = () ->
                     wgt.render_small_view balance_columns
                 else
                     wgt.render_main_view balance_columns
+                #console.log "save_widgets after create_new_widget"
                 save_widgets()
 
             widget.insertBefore ud
@@ -231,6 +240,54 @@ initialize_toolbar_draggable = (elem) ->
             left:32
         connectToSortable: '#left_column, #sidebar'
         scope: 'widget'
+
+load_widgets = (cb) ->
+    $.getJSON "/user/dashboard", (dashb) ->
+        $lc = $('#left_column')
+        $sb = $('#sidebar')
+
+        $lc.empty()
+        $sb.empty()
+
+        add_widgets = (arr, $elem) ->
+            _(arr).each (w) ->
+                wt = create_new_widget(w.type) (obj) ->
+                    obj.config = w.cfg
+                    dom = obj.dom
+                    $elem.append(dom)
+                    if $elem == $lc
+                        obj.render_main_view ->
+                            balance_columns()
+                    else
+                        obj.render_small_view ->
+                            balance_columns()
+
+        add_widgets dashb.column, $lc
+        add_widgets dashb.sidebar, $sb
+
+        cb? dashb
+
+save_widgets = (cb) ->
+    $lc = $('#left_column')
+    $sb = $('#sidebar')
+
+    find_configs = ($elem) ->
+        result = []
+        $elem.find('.widget').each (idx, sub) ->
+            #console.log sub
+            obj = $(sub).data("widgetObj")
+            if obj?
+                cfg = obj.config
+                result.push {type:obj.type, config:cfg}
+        result
+
+    dashboard =
+        column:  find_configs $lc
+        sidebar: find_configs $sb
+
+    #console.log dashboard
+
+    $.post "/user/dashboard/save", dashboard, cb
 
 $ () ->
     $(window).load   balance_columns
