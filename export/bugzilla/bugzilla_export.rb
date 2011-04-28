@@ -39,8 +39,8 @@ def daemonize
             if not delta.empty?
                 puts delta.size.to_s + " bug reports to update" 
                 #response = RestClient.post POST_API_CONFIG['uri'], delta.to_json, :content_type => :json, :accept => :json
-                puts response.to_str
-                puts delta.to_json unless fromdate == "" #debug
+                #puts response.to_str
+                #puts delta.to_json unless fromdate == "" #debug
                 dump_array_to_file(LAST_EXPORT_DUMP, data_array)
             else
                 puts "nothing to update"
