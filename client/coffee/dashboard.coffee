@@ -159,11 +159,9 @@ initialize_sortable_columns = () ->
         revert:  false
 
         start: (event, ui) ->
-            console.log "sortable start"
             $('.ui-widget-sortable-placeholder').height($(ui.item).height());
             balance_columns()
         stop: (event, ui) ->
-            console.log "sortable stop"
             $item = $(ui.item)
             $item.removeClass 'move_mode'
             obj = $item.data "widgetObj"
@@ -174,14 +172,11 @@ initialize_sortable_columns = () ->
                 else
                     obj.render_main_view balance_columns
                 save_widgets()
-                balance_columns()
+            balance_columns()
         over: (event, ui) ->
             $(this).sortable('refresh')
             balance_columns()
         out: (event, ui) ->
-            balance_columns()
-        receive: (event, ui) ->
-            console.log "sortable receive"
             balance_columns()
 
         placeholder: 'ui-widget-sortable-placeholder'
@@ -203,7 +198,6 @@ initialize_sortable_columns = () ->
             $('#left_column, #sidebar').sortable('refresh')
             balance_columns()
         drop: (event, ui) ->
-            console.log "droppable drop"
             $this = $(this)
             ud = $(ui.draggable)
             name = ui.helper.data "widget-name"
@@ -213,6 +207,7 @@ initialize_sortable_columns = () ->
                     wgt.render_small_view balance_columns
                 else
                     wgt.render_main_view balance_columns
+                save_widgets()
 
             widget.insertBefore ud
             ud.remove()
