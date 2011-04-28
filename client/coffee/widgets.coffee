@@ -35,7 +35,7 @@ class WidgetBase
         @init_new()
 
     create_dom: ->
-        $t = @template.clone()
+        $t = $('#widget-base-template').clone()
         $t.find(".widget_content").hide()
         $t.data("widgetObj", this)
         return $t

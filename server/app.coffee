@@ -64,7 +64,7 @@ create_app = (basedir, db) ->
 
     app.post "/user/dashboard/save", (req, res) ->
         uname = "dummy"
-        db.save_dashboard uname, req.body, (err) ->
+        queries.save_dashboard uname, req.body, (err) ->
             if err
                 res.send {status:"error", error:err}
             else

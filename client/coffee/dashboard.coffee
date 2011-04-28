@@ -109,7 +109,7 @@ balance_columns = () ->
 get_widget_class = (name) -> (callback) ->
     cls = widgets[name]
     if cls?
-        callback? null, cls
+        callback? cls
     else
         cached.get "/widgets/#{name}", (data) ->
             code = data.code
@@ -120,12 +120,35 @@ get_widget_class = (name) -> (callback) ->
 
 create_new_widget = (name) -> (callback) ->
     dom = $("#widget-base-template").clone().removeAttr("id")
+    init_widget_dom_events(dom)
     get_widget_class(name) (cls) ->
         wgt = new cls()
+        dom.data("widgetObj", wgt)
         wgt.dom = dom
         callback? wgt
     return dom
 
+init_widget_dom_events = (dom) ->
+    $dom = $(dom)
+    $dom.find('.widget_edit').click ->
+        $this = $(this)
+        # TODO: toggle settings view
+
+        $this.toggleClass 'active'
+        balanceColumns()
+
+        return false
+
+    $m = $dom.find('.widget_move')
+    $m.bind 'mouseover', -> $dom.addClass('move_mode')
+    $m.bind 'mouseout',  -> $dom.removeClass('move_mode')
+
+    $dom.find('.widget_close').click ->
+        $dom.slideUp 200, ->
+            $dom.remove()
+            save_widgets()
+            balance_columns()
+        return false
 
 initialize_sortable_columns = () ->
     # Dragging existing widgets from one position to another
@@ -136,9 +159,11 @@ initialize_sortable_columns = () ->
         revert:  false
 
         start: (event, ui) ->
+            console.log "sortable start"
             $('.ui-widget-sortable-placeholder').height($(ui.item).height());
             balance_columns()
         stop: (event, ui) ->
+            console.log "sortable stop"
             $item = $(ui.item)
             $item.removeClass 'move_mode'
             obj = $item.data "widgetObj"
@@ -156,14 +181,15 @@ initialize_sortable_columns = () ->
         out: (event, ui) ->
             balance_columns()
         receive: (event, ui) ->
+            console.log "sortable receive"
             balance_columns()
 
         placeholder: 'ui-widget-sortable-placeholder'
         tolerance:   'pointer'
 
     # Connect the sortable columns with each other
-    lc = '#left_column .widget_container'
-    sb = '#sidebar .widget_container'
+    lc = '#left_column'
+    sb = '#sidebar'
     $(lc).sortable('option', 'connectWith', sb)
     $(sb).sortable('option', 'connectWith', lc)
 
@@ -177,11 +203,11 @@ initialize_sortable_columns = () ->
             $('#left_column, #sidebar').sortable('refresh')
             balance_columns()
         drop: (event, ui) ->
+            console.log "droppable drop"
             $this = $(this)
             ud = $(ui.draggable)
             name = ui.helper.data "widget-name"
 
-            #widget = $("<section class=\"widget\"><h1>foo</h1></section>")
             widget = create_new_widget(name) (wgt) ->
                 if $this.attr("id") == "sidebar"
                     wgt.render_small_view balance_columns
