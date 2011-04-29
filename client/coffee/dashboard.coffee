@@ -138,10 +138,15 @@ init_widget_dom_events = (dom) ->
     $dom = $(dom)
     $dom.find('.widget_edit').click ->
         $this = $(this)
-        # TODO: toggle settings view
+        $settings = $dom.find('.content_settings');
+        if $this.hasClass "active"
+           updateWidgetElement $dom
+        else
+            obj = $dom.data("widgetObj");
+            obj.render_settings_view balance_columns
 
         $this.toggleClass 'active'
-        balanceColumns()
+        balance_columns()
 
         return false
 
@@ -155,6 +160,29 @@ init_widget_dom_events = (dom) ->
             save_widgets()
             balance_columns()
         return false
+
+    $('.widget_edit_content form').submit ->
+        $form   = $(this)
+        $widget = $form.closest(".widget")
+        obj     = $widget.data("widgetObj")
+
+        $widget.find(".action .widget_edit").toggleClass("active")
+
+        obj.process_save_settings $form, ->
+            obj.reset_dom()
+            save_widgets()
+            updateWidgetElement $widget
+        return false
+
+updateWidgetElement = (elem) ->
+    $e = $(elem)
+    obj = $e.data("widgetObj")
+    $parent = $e.parent()
+    if $parent.attr("id") == "sidebar"
+        obj.render_small_view balance_columns
+    else
+        obj.render_main_view balance_columns
+
 
 initialize_sortable_columns = () ->
     # Dragging existing widgets from one position to another
