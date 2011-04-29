@@ -43,7 +43,6 @@ exports.register_plugin = (db) ->
                                     cb err, null
                                 else
                                     cb null, null
-                # run the db queries
                 (err, q_arr) ->
                     if err?
                         res.send {status: "error", error: err} #parse error
