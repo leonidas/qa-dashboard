@@ -25,30 +25,29 @@ exports.register_plugin = (db) ->
     http:
         post: "/update": (req, res) ->
             doc = req.body
-            #console.log(doc) #debug
             async.map doc.bugs,
                 # parse bugreport and return the db query function
                 (bug, cb) ->
                     # do parsing and format checking here
                     if not bug.bug_id?
                         err = "invalid document format"
-                        cb err, bug
+                        cb err, null
                     else
-                        cb null, (cb) ->
+                        cb null, (callback) ->
                             # define db query function for the bugreport
                             #console.log "building db upsert function for bug id: " + bug.bug_id #debug
                             q = bugreports.find({'bug_id':bug.bug_id}).upsert().update(bug)
                             q.run (err) ->
                                 if err?
-                                    cb err, null
+                                    callback err, null
                                 else
-                                    cb null, null
+                                    callback null, null
                 (err, q_arr) ->
                     if err?
                         res.send {status: "error", error: err} #parse error
                     else
                         # run database queries
-                        async.series q_arr, (err, result) ->
+                        async.series q_arr, (err) ->
                             if err?
                                 res.send {status: "error", error: err } #error in db query
                             else
