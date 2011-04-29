@@ -36,7 +36,7 @@ exports.register_plugin = (db) ->
                     else
                         cb null, (cb) ->
                             # define db query function for the bugreport
-                            console.log "building db upsert function for bug id: " + bug.bug_id #debug
+                            #console.log "building db upsert function for bug id: " + bug.bug_id #debug
                             q = bugreports.find({'bug_id':bug.bug_id}).upsert().update(bug)
                             q.run (err) ->
                                 if err?
