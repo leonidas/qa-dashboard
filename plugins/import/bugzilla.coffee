@@ -17,7 +17,7 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301 USA
 #
-_  = require('underscore')
+async = require('async')
 
 exports.register_plugin = (db) ->
     bugreports = db.collection('bugs')
@@ -26,18 +26,35 @@ exports.register_plugin = (db) ->
         post: "/update": (req, res) ->
             doc = req.body
             #console.log(doc) #debug
-            _.each doc.bugs, (bug) ->
-                if not bug.bug_id?
-                    #res.send {status:"error", error:"invalid document format"}
-                    #TODO: needs a break statement or some other way
-                else
-                    #console.log "bug received with id: " + bug.bug_id #debug
-                    q = bugreports.find({'bug_id':bug.bug_id}).upsert().update(bug)
-                    q.run (err) ->
-                        if err?
-                            error = {status:"error", error:err}
-            if error?
-                res.send error
-            else
-                res.send {status:"ok"}
+            async.map doc.bugs,
+                # parse bugreport and return the db query function
+                (bug, cb) ->
+                    # do parsing and format checking here
+                    if not bug.bug_id?
+                        err = "invalid document format"
+                        cb err, bug
+                    else
+                        cb null, (cb) ->
+                            # define db query function for the bugreport
+                            console.log "building db upsert function for bug id: " + bug.bug_id #debug
+                            q = bugreports.find({'bug_id':bug.bug_id}).upsert().update(bug)
+                            q.run (err) ->
+                                if err?
+                                    cb err, null
+                                else
+                                    cb null, null
+                # run the db queries
+                (err, q_arr) ->
+                    if err?
+                        res.send {status: "error", error: err} #parse error
+                    else
+                        # run database queries
+                        async.series q_arr, (err, result) ->
+                            if err?
+                                res.send {status: "error", error: err } #error in db query
+                            else
+                                res.send {status: "ok"}
+
+
+
 

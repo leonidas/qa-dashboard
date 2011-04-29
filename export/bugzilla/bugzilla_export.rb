@@ -7,7 +7,7 @@ require 'bundler'
 require 'yaml'
 Bundler.require(:default)
 
-POLLING_PERIOD = 30 #in secs
+POLLING_PERIOD = 60 #in secs
 EXPORT_RANGE   = 3  #in days
 
 LAST_EXPORT_DUMP = Dir.pwd + "/bugzilla_last_export_array.yml"
