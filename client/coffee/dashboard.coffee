@@ -143,7 +143,21 @@ init_widget_dom_events = (dom) ->
            updateWidgetElement $dom
         else
             obj = $dom.data("widgetObj");
-            obj.render_settings_view balance_columns
+            obj.render_settings_view ->
+                balance_columns()
+                $dom.find('.widget_edit_content form').submit ->
+                    $form   = $(this)
+                    $widget = $form.closest(".widget")
+                    obj     = $widget.data("widgetObj")
+
+                    $widget.find(".action .widget_edit").toggleClass("active")
+
+                    obj.process_save_settings $form, ->
+                        obj.reset_dom()
+                        save_widgets()
+                        updateWidgetElement $widget
+                    return false
+
 
         $this.toggleClass 'active'
         balance_columns()
@@ -161,18 +175,6 @@ init_widget_dom_events = (dom) ->
             balance_columns()
         return false
 
-    $('.widget_edit_content form').submit ->
-        $form   = $(this)
-        $widget = $form.closest(".widget")
-        obj     = $widget.data("widgetObj")
-
-        $widget.find(".action .widget_edit").toggleClass("active")
-
-        obj.process_save_settings $form, ->
-            obj.reset_dom()
-            save_widgets()
-            updateWidgetElement $widget
-        return false
 
 updateWidgetElement = (elem) ->
     $e = $(elem)
