@@ -73,6 +73,9 @@ exports.secure = (db) ->
             handler req, res
         else
             body     = req.body
+            if not body?
+                return res.send 403
+
             token    = body.token
             username = body.username
 

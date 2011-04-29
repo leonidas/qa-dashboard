@@ -282,7 +282,7 @@ load_widgets = (cb) ->
         add_widgets = (arr, $elem) ->
             _(arr).each (w) ->
                 wt = create_new_widget(w.type) (obj) ->
-                    obj.config = w.cfg
+                    obj.config = w.config
                     dom = obj.dom
                     $elem.append(dom)
                     if $elem == $lc

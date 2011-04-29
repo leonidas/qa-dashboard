@@ -15,7 +15,7 @@ class PassRateChart extends WidgetBase
 
     get_default_config: (cb) ->
         hw = "N900"
-        cached.get "/reports/groups/#{hw}", (data) =>
+        cached.get "/query/qa-reports/groups/#{hw}", (data) =>
             targets = {}
             _(data).each (grp) =>
                 targets[@group_key(grp)] = 90
@@ -42,7 +42,7 @@ class PassRateChart extends WidgetBase
 
     format_settings_view: ($t, cb) ->
         hw = @config.hwproduct
-        cached.get "/reports/groups/#{hw}", (data) =>
+        cached.get "/query/qa-reports/groups/#{hw}", (data) =>
             # set hardware
             $t.find("form .hwproduct").val(hw)
 
@@ -107,7 +107,7 @@ class PassRateChart extends WidgetBase
 
 
     get_reports: (groups, cb) ->
-        cached.get "/reports/latest/#{@config.hwproduct}", (data) =>
+        cached.get "/query/qa-reports/latest/#{@config.hwproduct}", (data) =>
             reports  = _ data
             selected = _ groups
             cb reports.filter (r) ->

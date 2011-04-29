@@ -204,6 +204,7 @@ class MongoMonad
                 opts.limit  = cfg.limit  if cfg.limit?
                 opts.sort   = cfg.sort   if cfg.sort?
                 opts.fields = cfg.fields if cfg.fields?
+
                 if cfg.find?
                     c.findOne cfg.find, opts, callback
                 else

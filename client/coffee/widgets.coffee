@@ -48,7 +48,7 @@ class WidgetBase
         @dom.find(".content_settings").replaceWith empty.find(".content_settings")
 
     get_config: (cb) ->
-        if @config == undefined
+        if not @config?
             @get_default_config (cfg) =>
                 @config = cfg
                 cb cfg
