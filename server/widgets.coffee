@@ -82,25 +82,49 @@ load_all_widgets = (widgetroot, callback) ->
         async.parallel widgets, callback
 
 exports.initialize_widgets = (widgetdir, app, db) ->
-    load_all_widgets widgetdir, (err, widgets) ->
-        if err?
-            console.log err
-            throw err
+    env = process.env.NODE_ENV
 
-        widgetnames = _(widgets).keys()
+    if env in ['production', 'staging']
+        load_all_widgets widgetdir, (err, widgets) ->
+            if err?
+                console.log err
+                throw err
 
-        configs = {}
-        for name,data of widgets
-            configs[name] = data.config
+            widgetnames = _(widgets).keys()
 
-        for name in widgetnames
-            widgetroot = widgetdir + "/#{name}/public"
-            console.log "WIDGET: sharing public files from #{widgetroot}"
-            app.use "/widgets/#{name}", express.static widgetroot
+            configs = {}
+            for name,data of widgets
+                configs[name] = data.config
 
+            for name in widgetnames
+                widgetroot = widgetdir + "/#{name}/public"
+                console.log "WIDGET: sharing public files from #{widgetroot}"
+                app.use "/widgets/#{name}", express.static widgetroot
+
+            app.get "/widgets", (req,res) ->
+                res.send configs
+
+            app.get "/widgets/:name", (req,res) ->
+                res.send widgets[req.params.name]
+    else
         app.get "/widgets", (req,res) ->
+            load_all_widgets widgetdir, (err, widgets) ->
+                if err?
+                    console.log err
+                    throw err
+
+                widgetnames = _(widgets).keys()
+
+                configs = {}
+                for name,data of widgets
+                    configs[name] = data.config
+
             res.send configs
 
         app.get "/widgets/:name", (req,res) ->
-            res.send widgets[req.params.name]
+            load_all_widgets widgetdir, (err, widgets) ->
+                if err?
+                    console.log err
+                    throw err
 
+                res.send widgets[req.params.name]
