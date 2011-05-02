@@ -19,10 +19,16 @@ class PassRateChart extends WidgetBase
             targets = {}
             _(data).each (grp) =>
                 targets[@group_key(grp)] = 90
-            cb {type:"radar", hwproduct:hw, groups: data, alert:30, passtargets: targets}
+            cb
+                type:"radar"
+                hwproduct:hw
+                groups: data
+                alert:30
+                passtargets: targets
+                title: "Pass rate: #{hw}"
 
     format_header: ($t, cb) ->
-        $t.find(".hwproduct").text @config.hwproduct
+        $t.find("h1").text @config.title
         if cb
             cb $t
 
@@ -45,6 +51,9 @@ class PassRateChart extends WidgetBase
         cached.get "/query/qa-reports/groups/#{hw}", (data) =>
             # set hardware
             $t.find("form .hwproduct").val(hw)
+
+            # set title
+            $t.find("form .title").val @config.title
 
             # set alert limit
             $t.find("form .alert").val(""+@config.alert)
@@ -83,6 +92,7 @@ class PassRateChart extends WidgetBase
     process_save_settings: ($form, cb) ->
         @config.hwproduct = $form.find(".hwproduct").val()
         @config.alert = $form.find(".alert").val()
+        @config.title = $form.find(".title").val()
 
         selected = []
         passtargets = {}
