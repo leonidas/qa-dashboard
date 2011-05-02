@@ -110,28 +110,6 @@ latest_reports = (hw, fields, cb) ->
             async.map groups, f, cb
 
 
-widget_config = (wgt, cb) ->
-    widgets (err,col) ->
-        col.find {widget:wgt}, (err, cur) ->
-            if err
-                cb err, {}
-            else
-                cur.nextObject(cb)
-
-user_dashboard = (uname, cb) ->
-    users (err,col) ->
-        col.find {username:uname}, {dashboard:1}, (err, cur) ->
-            cur.nextObject (err, obj) ->
-                if err || obj == null
-                    cb err, {column:[], sidebar:[]}
-                else
-                    cb null, obj.dashboard
-
-save_dashboard = (uname, dashb, cb) ->
-    users (err,col) ->
-        col.update {username:uname},
-                   {$set: {dashboard:dashb}},
-                   {upsert:true}, cb
 
 bug_counts = (hw, cb) ->
     reports (err,col) ->
@@ -186,10 +164,5 @@ exports.types_for_hw = types_for_hw
 exports.groups_for_hw = groups_for_hw
 exports.latest_for_group = latest_for_group
 exports.latest_reports = latest_reports
-
-exports.widget_config = widget_config
-
-exports.user_dashboard = user_dashboard
-exports.save_dashboard = save_dashboard
 
 exports.latest_bug_counts = latest_bug_counts

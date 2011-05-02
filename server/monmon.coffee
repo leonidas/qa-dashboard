@@ -81,6 +81,9 @@ class MongoMonad
     find: (query) ->
         @_bind {find: query, cmd:"find"}
 
+    one: () ->
+        @_bind {cmd:"findOne"}
+
     skip: (num) ->
         @_bind {skip: num}
 
@@ -93,7 +96,7 @@ class MongoMonad
     sort: (keys) ->
         @_bind {sort: keys}
 
-    count: ->
+    count: () ->
         @_bind {cmd: "count"}
 
     distinct: (keys) ->
@@ -201,6 +204,7 @@ class MongoMonad
                 opts.limit  = cfg.limit  if cfg.limit?
                 opts.sort   = cfg.sort   if cfg.sort?
                 opts.fields = cfg.fields if cfg.fields?
+
                 if cfg.find?
                     c.findOne cfg.find, opts, callback
                 else
@@ -279,8 +283,8 @@ class MongoMonad
                 callback? "no collection defined for monmon operation"
             else
                 db.collection collection, commands[cmd]
-        
-        return this    
+
+        return this
 
 class DBConnection
     constructor: (dbname) ->

@@ -1,6 +1,6 @@
 
 express = require('express')
-db      = require('queries')
+queries = require('queries')
 http    = require('http')
 _       = require('underscore')
 
@@ -39,46 +39,23 @@ create_app = (basedir, db) ->
 
     require('import-api').init_import_plugins basedir, app, db
     require('query-api' ).init_query_plugins basedir, app, db
+    require('user').init_user app, db
+    require('authentication').init_authentication app, db
+    require('ldap_shellauth').init_ldap_shellauth basedir
 
     widgetdir = basedir+"/plugins/widgets"
-    require('widgets').load_all_widgets widgetdir, (err, widgets) ->
-        if err?
-            console.log err
-            throw err
-
-        app.get "/widgets", (req,res) ->
-            res.send _.keys(widgets)
-
-        app.get "/widgets/:name", (req,res) ->
-            res.send widgets[req.params.name]
+    require('widgets').initialize_widgets widgetdir, app, db
 
     app.get "/reports/latest/:hw", (req,res) ->
-       db.latest_reports req.params.hw, (err, arr) ->
+       queries.latest_reports req.params.hw, (err, arr) ->
            res.send arr
 
     app.get "/reports/groups/:hw", (req,res) ->
-        db.groups_for_hw req.params.hw, (err, arr) ->
+        queries.groups_for_hw req.params.hw, (err, arr) ->
             res.send arr
 
-    app.get "/widget/:widget/config", (req, res) ->
-        db.widget_config req.params.widget, (err, cfg) ->
-            res.send cfg
-
     app.get "/bugs/:hw/top/:n", (req, res) ->
-        db.latest_bug_counts req.params.hw, (err,arr) ->
+        queries.latest_bug_counts req.params.hw, (err,arr) ->
             res.send arr[0..parseInt(req.params.n)]
-
-    app.post "/user/dashboard/save", (req, res) ->
-        uname = "dummy"
-        db.save_dashboard uname, req.body, (err) ->
-            if err
-                res.send {status:"error", error:err}
-            else
-                res.send {status:"OK"}
-
-    app.get "/user/dashboard", (req, res) ->
-        uname = "dummy"
-        db.user_dashboard uname, (err, dashb) ->
-           res.send dashb
 
 exports.create_app = create_app

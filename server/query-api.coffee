@@ -21,8 +21,7 @@
 plugins = require('plugins')
 
 init_query_plugins = (rootdir, app, db) ->
-    plugindir = rootdir + "/plugins/query"
     httproot  = "/query"
-    plugins.init_plugins plugindir, httproot, app, db
+    plugins.init_plugins "query", rootdir, httproot, app, db
 
 exports.init_query_plugins = init_query_plugins

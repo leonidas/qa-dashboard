@@ -17,20 +17,30 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301 USA
 #
+fs   = require('fs')
+exec = require('child_process').exec
 
-exports.register_plugin = (db) ->
-    reports = db.collection('qa-reports')
+LDAP_SERVER_FILE = "/ldap_server.json"
 
-    name: "qa-reports"
-    http:
-        post: "/update": (req, res) ->
-            doc = req.body.report
-            if not doc.qa_id?
-                res.send {status:"error", error:"invalid document format"}
-            else
-                q = reports.find({'qa_id':doc.qa_id}).upsert().update(doc)
-                q.run (err) ->
-                    if err?
-                        res.send {status:"error", error:err}
-                    else
-                        res.send {status:"ok"}
+
+ldap_server = ""
+exports.init_ldap_shellauth = (basedir) ->
+    ldap_server = JSON.parse fs.readFileSync(basedir + LDAP_SERVER_FILE)
+
+exports.ldap_shellauth = (username, password) -> (callback) ->
+
+    fulldn = "uid=" + username + "," + ldap_server.dn_base #full unique DN
+
+    ldapcmd = "ldapsearch -xLLL -H " + ldap_server.ldapuri + " -b " + fulldn + " -D " + fulldn + " -w " + password + " " + ldap_server.filters + " dn" 
+    #console.log(ldapcmd)
+    exec ldapcmd, (error,stdout,stderr) ->
+        #console.log("stdout: " + stdout)
+        #console.log("stderr: " + stderr)
+        #console.log(error)
+        callback? error, (error == null && stdout != "")
+
+
+
+
+
+

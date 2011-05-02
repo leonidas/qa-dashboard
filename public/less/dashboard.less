@@ -1,4 +1,4 @@
-/* 
+/*
  This file is part of Meego-QA-Dashboard
 
  Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
@@ -24,7 +24,9 @@
 /**** LESS FUNCTIONS *****/
 
 
-	
+/**** GENERAL COLORS ****/
+@border:#ccc;
+
 /**** BODY STYLES ****/
 body{
 	color: #444;
@@ -42,11 +44,15 @@ a.content_link {
 a.content_link:hover {
 	color:#3aa8c9;}
 
+h1 {
+	font-size: 2em;
+	margin-bottom:.75em;}
+
 
 /**** TABLES ****/
 table {
 	width: 100%;}
-	
+
 th {
 	color: #999999;
 	font-size: 11px;
@@ -56,10 +62,10 @@ th {
 	text-align:left;
 	padding:0 10px 3px;}
 
-td {	
-	padding: 3px 10px;	 
+td {
+	padding: 3px 10px;
 	border-bottom: 1px solid #dbdbdb;
-	text-align: lef	t;	
+	text-align: lef	t;
 	}
 
 tr:last-child td {
@@ -68,33 +74,96 @@ tr:last-child td {
 
 td.bug_id {
 	font-weight: bold; }
-	
+
 td.bug_status {
 		font-size:11px;
 }
 
 td.bug_status,
 td.bug_blocker_count {
-	width: 60px; 
+	width: 60px;
 	font-weight:bold;}
 
 label {
-	font-weight: bold;
+	/*	font-weight: bold;*/
 	display: block;
 	font-size: 14px;
 	margin-bottom: 5px;
 }
 
 /**** FORMS *****/
-.field {
-	margin-bottom: @line*1.3;
+
+form h1 {
+	margin-left: 132px;
+	margin-bottom: 0;
 }
 
-input[type="text"] {
+.field {
+	padding: @line 0;
+	line-height: 2;
+	border-bottom: 1px solid #dadada;
+
+	&.bare {
+	    border-bottom: none;
+	    padding-bottom: 0;}
+
+	&.no_label {
+	    margin-left: 132px;}
+
+	label {
+		width: 120px;
+		float:left;
+		text-align:right;
+		margin-right:12px;
+		display:block;
+
+		&.small  {
+		    font-size: 0.8333em;}
+
+		&.inline_label {
+			float: none;
+			width: auto;
+			text-align: inherit;
+			margin: 0 0.75em 0 0;
+			display: inline;}
+		}
+
+	small {
+    float: left;
+    padding-top: 0.6666em;
+    margin-left: 1em;
+    width: auto;}
+
+  .static_text {
+  	font-size: 1.1666em;
+  	}
+	}
+
+input[type="text"],
+input[type="password"], {
 	border: 1px solid #bbb;
-	padding: 3px;
-}
-	 
+	padding: 3px;}
+
+
+
+fieldset {
+    padding:1.4em;
+    margin:0 0 1.5em 0;
+    border:1px solid #ccc;}
+
+
+input.date, input.text, input.title, textarea, input.title_field {
+    border:1px solid #bbb;
+    background-color: #fff8de;
+    font-size: 1.1666em;
+    padding:5px;}
+
+input.text:focus, input.title:focus, textarea:focus, select:focus {border:1px solid #666;}
+input.text, input.title {width: 250px;}
+input.date, input.text.short {width:10em;}
+input.title {font-size:1.5em;}
+
+
 
 /**** PAGE STRUCTURE ****/
 #wrap {
@@ -113,13 +182,21 @@ input[type="text"] {
 	clear: both;
 }
 
+#page_content {
+	&.normal_page {
+		padding-top: @line*2;
+		padding-bottom:@line*2;}
+}
+
 #left_column {
+	min-height: 250px;
 	padding-top: @line;
 	/*position: relative;*/
 	}
 
 aside {
 	padding-top:23px !important;
+	min-height: 250px;
 	background-color: #f0f0f0;
 	background-image: -webkit-gradient(linear,left top,left 80, color-stop(0, #eee),
 	    color-stop(0.1, #F0F0F0));
@@ -130,10 +207,11 @@ aside {
 /* one third width */
 .one{
 	.col(4);}
-	
+
 /* two thirds width */
 .two{
 	.col(8);}
+
 
 /* widget bar */
 
@@ -201,17 +279,17 @@ aside {
 	border: 1px solid transparent;
 	.rounded(10px);
 	position: relative;
-	
+
 	.action a{
 		visibility:hidden;}
-	
+
 	img {
 		max-width: 100%;}
-	
+
 	&:hover {
 		.action a {
 			visibility:visible;}
-		}	
+		}
 	}
 
 .widget.move_mode {
@@ -237,12 +315,12 @@ aside {
 	padding-top: 35px;
 	padding-bottom: 20px;
 	overflow:hidden;
-	
+
 	a {
 		color: #1c5c89;
 		}
 	}
-	
+
 .widget_edit_right_column {
 	.sub-col(8, 3.9);
 	.last;}
@@ -260,12 +338,12 @@ aside {
 .action {
 	width: 105px;
 	height: 28px;
-	
+
 	position: absolute;
 	right: @gut;
 	top: @line/2;
 	text-indent: -9999px;
-	
+
 	a {
 		width: 30px;
 		height: 20px;
@@ -276,10 +354,10 @@ aside {
 		background-color: none;
 		background-repeat: no-repeat;
 		background-position: top center;
-		
+
 		&:hover {
 				background-position:center -20px;
-		}	
+		}
 	}
 }
 
@@ -295,30 +373,30 @@ aside {
 
 .widget_edit{
 	background-image: url('../img/widget_edit.png');
-	
+
 	&.active {
 		visibility:visible !important;
 		margin-top: 0;
 		background-image: url('../img/widget_edit_active.png');
 		height: 40px;
-		
+
 		&:hover {
 			background-position:center 0;
-	 		}		
+	 		}
 		}
 	}
-	
+
 .widget_close{background-image: url('../img/widget_close.png');}
 
 /* widget headings */
 .widget h1 {
 	font-size: 1.666em;
 	background: transparent no-repeat 7px bottom url('../img/header_line.png');
-	padding-left: 0.7em;	
+	padding-left: 0.7em;
 	padding-bottom: 5px;
 	padding-top: 20px;
 	margin-bottom: 0;
-	
+
 	span {
 		float:left;
 		background-color: #ffc501;
@@ -341,7 +419,7 @@ aside {
 .widget h2 strong {
 	color:#000;}
 
-	
+
 /**** TAB VERSION NAVIGATION ****/
 /* stolen from qa reports */
 #version_navi {
@@ -386,7 +464,7 @@ aside {
     color: #4fc3e6;
     height: 1.0833em;
     margin-right: -1px;}
- 
+
  a.add {
  	display: block;
  	float: left;
@@ -397,7 +475,7 @@ aside {
  	margin-top: 10px;
  	background: transparent no-repeat left top url(../img/tab_add.png);
  }
- 
+
  ul li a.close {
  	background: transparent no-repeat left top url(../img/tab_close.png);
  	border: 0 !important;
@@ -412,7 +490,7 @@ aside {
 	z-index: 100;
 	text-indent: -9999px;
  }
- 
+
   ul li:hover a.close {
   	display:block !important;}
 }
@@ -425,7 +503,7 @@ a.close:hover {
 .ui_btn {
 	background-color: #FFFFFF;
 	background-image: url("../img/ui_btn_bg.png");
-	
+
 	background-image: -webkit-gradient(linear, center bottom,
 	    color-stop(0.15, #ddd),
 	    color-stop(0.50, #fefefe)
@@ -434,7 +512,7 @@ a.close:hover {
 	    #ddd 15%,
 	    #fefefe 50%
 	);
-	
+
 	background-position: center bottom;
 	background-repeat: repeat-x;
 	border: 1px solid #CFCECE;
@@ -447,35 +525,35 @@ a.close:hover {
 	text-decoration: none;
 	vertical-align: middle;
 
-	
+
 	&:hover {
 		-webkit-box-shadow: #aaa 0px 0px 2px;
 		-moz-box-shadow: #aaa 0px 0px 2px;
 		box-shadow: 0px 0px 2px #aaa;
 		filter: e("progid:DXImageTransform.Microsoft.Shadow(color='#969696', Direction=135, Strength=3)");
 	}
-	
+
 	&:active {
 		background-image: url(../img/ui_btn_bg_active.png);
 		background-position: top;
 	}
-	
+
 	&.inactive {
 		color: #999;
 		cursor:default;
 	}
-	
+
 	&.inactive:hover {
 		-webkit-box-shadow: none;
 		-moz-box-shadow: none;
 		box-shadow: none;
 		filter: none;
 	}
-	
+
 	&.big {
 		font-size:16px;
 	}
-	
+
 	&.dark {
 		border-color:#777;
 		background-image: -webkit-gradient(linear, center bottom,
@@ -487,7 +565,7 @@ a.close:hover {
 		    #fefefe 50%
 		);
 	}
-	
+
 }
 
 /* selection btns */
@@ -504,9 +582,9 @@ a.close:hover {
 
 .selection_btns li.active {
 /*	background-color: #faecb4;*/
-	
+
 	a {
-			border: 2px solid #fcc91c;} 
+			border: 2px solid #fcc91c;}
 }
 
 .selection_btns li:hover {
@@ -527,13 +605,13 @@ background: #faecb4;
 	background-repeat: no-repeat;
 	background-position: center 3px;
 	cursor: pointer;
-	
-	
+
+
 	&#radar_selection_btn {
 		background-image: url(../img/radar.png);}
-		
+
 	&#bar_chart_selection_btn {
-		background-image: url(../img/bars.png);}	
+		background-image: url(../img/bars.png);}
 }
 
 #add_widgets_btn {
@@ -552,7 +630,7 @@ background: #faecb4;
 }
 
 
-#close_widget_bar {
+.close_widget_bar {
 	position: absolute;
 	top: 10px;
 	right: 10px;
@@ -596,11 +674,11 @@ background: #faecb4;
 table.multiple_select {
 	width: 100%;
 	margin-bottom: @line;
-	
+
 	td {
 	background-color: #dfdfdf;
 	border-bottom:1px solid #ccc;}
-	
+
 	td:first-child {
 		width: 10px;
 		padding-right: 0;
@@ -608,8 +686,8 @@ table.multiple_select {
 
 	input[type="text"] {
 		width: 2em;
-	} 
-	
+	}
+
 }
 
 /* RADAR CHART */
@@ -626,7 +704,7 @@ table.bar_chart td{
 	  padding-top: 0 !important;
 	  vertical-align: middle;
 	  border-color: #e9e9e9;
-		
+
 		em {
 			color: #888;
 			font-style: normal;
@@ -651,7 +729,7 @@ th.alert_marker {
 
 .regression {
 	color: #aa1717;}
-	
+
 span.alert {
 	display: inline-block;
 	width: 6px;

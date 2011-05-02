@@ -21,8 +21,7 @@
 plugins = require('plugins')
 
 init_import_plugins = (rootdir, app, db) ->
-    plugindir = rootdir + "/plugins/import"
     httproot  = "/import"
-    plugins.init_plugins plugindir, httproot, app, db
+    plugins.init_plugins "import", rootdir, httproot, app, db
 
 exports.init_import_plugins = init_import_plugins
