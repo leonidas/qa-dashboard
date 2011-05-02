@@ -24,9 +24,9 @@ exports.register_plugin = (db) ->
     name: "qa-reports"
     http:
         post: "/update": (req, res) ->
-            doc = req.body
-            if not doc.qa_id?
-                res.send {status:"error", error:"invalid document format"}
+            doc = req.body.report
+            if not doc? or not doc.qa_id?
+                res.send {status:"error", error:"invalid request format"}
             else
                 q = reports.find({'qa_id':doc.qa_id}).upsert().update(doc)
                 q.run (err) ->

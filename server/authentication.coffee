@@ -62,11 +62,10 @@ exports.get_token = (db) ->
 
 exports.secure = (db) ->
     users = db.collection("users")
-    verify_token = (username, token) -> (callback) ->
-        query = users.find({username:username}).fields({token:1}).one()
+    verify_token = (token) -> (callback) ->
+        query = users.find({token:token}).fields({}).one()
         query.run (err,result) ->
-            return callback? err if err?
-            callback? result == token
+            callback? err, result?
 
     (handler) -> (req, res) ->
         if req.session.username?
@@ -77,16 +76,16 @@ exports.secure = (db) ->
                 return res.send 403
 
             token    = body.token
-            username = body.username
 
-            if token? and username?
-                verify_token(username, token) (err,valid) ->
+            if token?
+                verify_token(token) (err,valid) ->
                     if err?
                         console.log "ERROR: #{err}"
-                    if valid
-                        handler req, res
                     else
-                        res.send 403
+                        if valid
+                            handler req, res
+                        else
+                            res.send 403
             else
                 res.send 403
 
