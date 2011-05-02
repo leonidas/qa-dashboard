@@ -83,10 +83,11 @@ exports.secure = (db) ->
                 verify_token(username, token) (err,valid) ->
                     if err?
                         console.log "ERROR: #{err}"
-                    if valid
-                        handler req, res
                     else
-                        res.send 403
+                        if valid
+                            handler req, res
+                        else
+                            res.send 403
             else
                 res.send 403
 

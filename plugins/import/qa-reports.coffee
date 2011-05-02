@@ -24,7 +24,7 @@ exports.register_plugin = (db) ->
     name: "qa-reports"
     http:
         post: "/update": (req, res) ->
-            doc = req.body
+            doc = req.body.report
             if not doc.qa_id?
                 res.send {status:"error", error:"invalid document format"}
             else
