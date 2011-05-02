@@ -119,7 +119,7 @@ exports.initialize_widgets = (widgetdir, app, db) ->
                 for name,data of widgets
                     configs[name] = data.config
 
-            res.send configs
+                res.send configs
 
         app.get "/widgets/:name", (req,res) ->
             load_all_widgets widgetdir, (err, widgets) ->
