@@ -1,0 +1,6 @@
+# Configuration for QA Dashboard post
+
+uri: http://localhost:3030/import/bugs/update
+apitoken: 1234567890abcdef0
+
+

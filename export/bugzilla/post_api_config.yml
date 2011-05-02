@@ -1,6 +1,0 @@
-# Configuration for POST API
-
-uri: http://localhost:3030/import/bugs/update
-apitoken: asdfasdf
-
-

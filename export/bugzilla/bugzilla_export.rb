@@ -13,7 +13,7 @@ EXPORT_RANGE   = 3  #in days
 LAST_EXPORT_DUMP = Dir.pwd + "/bugzilla_last_export_array.yml"
             
 BUGZILLA_CONFIG  = YAML.load_file("bugzilla_config.yml")
-POST_API_CONFIG  = YAML.load_file("post_api_config.yml")
+POST_API_CONFIG  = YAML.load_file("qa-dashboard_config.yml")
 
 DAEMONIZE_OPTIONS = {
     :log_output => true,
@@ -54,7 +54,7 @@ def daemonize
 end
 
 
-def export_bugzilla_csv(fromdate="", todate="Now")
+def export_bugzilla_csv(fromdate, todate="Now")
 
     # Include export range in uri
     todate   = "&chfieldto=" + todate
