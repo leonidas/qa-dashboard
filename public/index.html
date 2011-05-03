@@ -79,9 +79,16 @@ Important measurements of layout:
 
 <body>
 	<div id="wrap">
+        <div id="upper_header" style="display:none">
+            <ul class="h-navi">
+                <li><a class="plain mailto" href="mailto:meego-qa@lists.meego.com">Give Feedback</a></li>
+                <li><a class="plain external" href="#" target="_blank">Documentation</a></li>
+                <li><a class="plain external" href="#" target="_blank">Submit an Idea</a></li>
+                <li><a href="#" class="ui_btn" id="logout_btn">Logout</a></li>
+            </ul>
+        </div>
 		<div id="header">
             <div class="toolbar_container" style="display:none">
-                <a href="#" class="ui_btn" id="logout_btn">Logout</a>
 
     			<a href="#" class="ui_btn" id="add_widgets_btn">Add Widgets <span class="symbol">+</span></a>
 
@@ -99,17 +106,17 @@ Important measurements of layout:
 
 		<!-- content columns -->
 		<div id="page_content">
-            <div class="form_container" style="display:none">
-            </div>
 			<section id="left_column" class="two">
 			</section>
 			<aside class="one last" id="sidebar">
 			</aside>
+            <div class="form_container" style="display:none">
+            </div>
 		</div>
 
 		<!-- widget bar for adding widgets -->
 		<div id="widget_bar" style="display:none">
-			<a href="#" class="close_widget_bar">X</a>
+			<a href="#" class="close_widget_bar">Close</a>
 		</div>
 
 		<div id="footer"></div>
@@ -120,8 +127,8 @@ Important measurements of layout:
 <div id="hidden_templates" style="display:none">
 
 <div class="login_form">
-    <form accept-charset="UTF-8" id="user_new" method="post">
-        <h3>Login to QA MeeGo Dashboard</h3>
+    <form accept-charset="UTF-8" method="post">
+        <h3>Login to MeeGo QA Dashboard</h3>
         <div class="error" style="display:none">
             <p>Invalid username or password</p>
         </div>

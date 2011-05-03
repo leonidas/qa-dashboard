@@ -97,6 +97,7 @@ init_user_dashboard = (dashboard) ->
     $p.form_container.hide()
     $p.widget_container.show()
     $p.toolbar_container.show()
+    $p.upper_header.show()
 
     cached.get "/widgets", (data) ->
         initialize_toolbar data, $p.widget_bar
@@ -343,7 +344,8 @@ $ () ->
     $p.form_container    = $('.form_container')
     $p.widget_container  = $('.widget_container')
     $p.toolbar_container = $('.toolbar_container')
-
+    $p.upper_header      = $('#upper_header')
+    
     $p.widget_bar        = $('#widget_bar')
     $p.add_widget_btn    = $('#add_widgets_btn')
 

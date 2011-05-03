@@ -105,6 +105,38 @@ input[type="text"] {
 	position: relative;
 }
 
+#upper_header {
+	border-bottom: 1px solid #EEE;
+	height: 26px;
+	text-align: right;
+
+	.h-navi {
+		float: right;
+		list-style: none;
+		li {
+			float: left;
+			a.plain {
+				display: block;
+				float: left;
+				padding: 4px 15px;
+				color: #515151;
+				text-decoration: none;
+				border-right: 1px solid #eee;
+				font-weight: bold;
+				font-size: 11px;
+			}
+
+			a.ui_btn {
+				margin-top: 3px;
+				display: inline-block;
+				padding: 0 7px;
+				margin-left: 15px;
+			}
+		}
+	}
+
+}
+
 #header {
 	height: 88px;
 	background: transparent no-repeat bottom left url('../img/header.png');
@@ -147,7 +179,7 @@ aside {
 	left: @gut*2;
 	z-index: 1000;
 	background: #000 url('../img/widgetbar.png') repeat-x center center;
-	height: 98px;
+	height: 115px;
 	border: 1px solid #000;
 	width: 100% - @gut*4;
 	color: #fff;
@@ -160,9 +192,9 @@ aside {
 	-webkit-box-shadow: 0px 0px 5px #aaa;
 	section.widget_info {
 		float: left;
-		padding: 10px;
+		padding: 18px;
 		width: 170px;
-		height: 78px;
+		height: 79px;
 		overflow: hidden;
 		background: transparent url('../img/widgetbar_border.png') no-repeat right center;
 		color: #ccc;
@@ -214,7 +246,8 @@ aside {
 
 	&:hover {
 		.action a {
-			visibility:visible;}
+			visibility:visible;
+			cursor: pointer;}
 		}
 	}
 
@@ -575,14 +608,19 @@ background: #faecb4;
 
 .close_widget_bar {
 	position: absolute;
-	top: 10px;
+	bottom: 10px;
 	right: 10px;
 	display: block;
-	width: 16px;
 	height: 16px;
-	background-image: url(../img/close_widget_bar.png);
-	text-indent: -9999px;
+	background: transparent url(../img/close_widget_bar.png) no-repeat right center;
+	padding-right: 25px;
+	color: #fff;
 	outline: none;
+	text-decoration: none;
+	font-size: 14px;
+	line-height: 14px;
+	font-weight: bold;
+	text-transform: uppercase;
 }
 
 /* draggable, droppable & sortable helpers etc */
@@ -682,3 +720,47 @@ span.alert {
 	border-radius: 3px;
 	background: #d60909;
 }
+
+
+/* LOGIN FORM */
+
+.login_form {
+	padding: 10px 0 60px 0px;
+	h3 {
+		color: #bbb;
+		font-size: 36px;
+		margin-bottom: 40px;
+		font-weight: normal;
+	}
+	form {
+		.field {
+			width: 510px;
+			height: 30px;
+			margin-bottom: 10px;
+
+			label {
+				float: left;
+				width: 180px;
+				font-size: 24px;
+				line-height: 30px;
+			}
+
+			input {
+				float: right;
+				width: 280px;
+				padding: 5px;
+				border: 1px solid #bbb;
+				height: 20px;
+				line-height: 20px;
+				font-size: 20px;
+			}
+
+			input[type=submit] {
+				margin-top: 20px;
+				height: 45px;
+				width: 292px;
+			}
+		}
+	}
+}
+
