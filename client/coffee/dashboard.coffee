@@ -332,6 +332,8 @@ save_widgets = (cb) ->
     $.post "/user/dashboard/save", dashboard, cb
 
 $ () ->
+    CFInstall.check()
+
     $(window).load   balance_columns
     $(window).resize balance_columns
 
