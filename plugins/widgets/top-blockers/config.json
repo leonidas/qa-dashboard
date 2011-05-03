@@ -1,0 +1,5 @@
+{
+    "thumbnail":    "img/widget_icons/top_bugs.png",
+    "title":        "Top Blocker Bugs",
+    "desc":         "List of bugs that are linked from most testcases"
+}
