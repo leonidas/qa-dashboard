@@ -19,6 +19,7 @@
 #
 
 _cache = {}
+_post_cache = {}
 
 window.cached = {}
 window.cached.get = (url, cb) ->
@@ -30,3 +31,20 @@ window.cached.get = (url, cb) ->
     else
         cb data
 
+window.cached.post = (url, data, cb) ->
+    key = url + "##" + data
+    cached = _cache[key]
+    if cached?
+        cb? cached
+    else
+        config =
+            url: url
+            type: "POST"
+            data: if data? then JSON.stringify(data) else null
+            dataType: "json"
+            contentType: "application/json; charset=utf-8"
+            success: (response) ->
+                _cache[key] = response
+                cb? response
+
+        $.ajax config

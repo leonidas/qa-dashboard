@@ -60,10 +60,11 @@ class TopBlockers extends WidgetBase
         @get_top_bugs (bugs) ->
             $table = $t.find("table")
             $trow = $table.find("tr.row-template")
+            console.log bugs
             _(bugs).each (bug) ->
                 [count,bug_id,obj] = bug
                 url = "https://bugs.meego.com/show_bug.cgi?id=" + bug_id
-                title = obj.short_desc
+                title = if obj? then obj.short_desc else ""
                 $row = $trow.clone()
                 $row.find("td.bug_id a").attr("href", url).text(bug_id)
                 $row.find("td.bug_description a").attr("href", url).text(title)
@@ -76,6 +77,9 @@ class TopBlockers extends WidgetBase
     get_top_bugs: (cb) ->
         hw = @config.hwproduct or "N900"
         num = @config.num or 5
-        cached.get "/bugs/#{hw}/top/#{num}", cb
+        data =
+            num: @config.num or 5
+            groups: @config.groups
+        cached.post "/query/bugzilla/top_for_groups", data, cb
 
 return TopBlockers

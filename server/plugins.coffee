@@ -69,4 +69,4 @@ init_plugins = (plugintype, basedir, httproot, app, db, callback) ->
         callback? null, null
 
 exports.init_plugins = init_plugins
-exports.get_api = (name) -> apis[name]
+exports.api = apis

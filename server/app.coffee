@@ -1,6 +1,5 @@
 
 express = require('express')
-queries = require('queries')
 http    = require('http')
 _       = require('underscore')
 
@@ -45,17 +44,5 @@ create_app = (basedir, db) ->
 
     widgetdir = basedir+"/plugins/widgets"
     require('widgets').initialize_widgets widgetdir, app, db
-
-    app.get "/reports/latest/:hw", (req,res) ->
-       queries.latest_reports req.params.hw, (err, arr) ->
-           res.send arr
-
-    app.get "/reports/groups/:hw", (req,res) ->
-        queries.groups_for_hw req.params.hw, (err, arr) ->
-            res.send arr
-
-    app.get "/bugs/:hw/top/:n", (req, res) ->
-        queries.latest_bug_counts req.params.hw, (err,arr) ->
-            res.send arr[0..parseInt(req.params.n)]
 
 exports.create_app = create_app
