@@ -1,5 +1,8 @@
 
 class PassRateChart extends WidgetBase
+    width: 600
+    side_width: 300
+
     height: 500
     side_height: 250
 
@@ -84,7 +87,7 @@ class PassRateChart extends WidgetBase
                 cb $t
 
     same_group: (g1, g2) ->
-        g1.hwproduct == g2.hwproduct && g1.testtype == g2.testtype && g1.target == g2.target
+        g1.hardware == g2.hardware && g1.testtype == g2.testtype && g1.profile == g2.profile
 
     contains_group: (arr, grp) -> _(arr).any (g) => @same_group(g,grp)
 
@@ -110,6 +113,8 @@ class PassRateChart extends WidgetBase
         @config.groups = selected
         @config.passtargets = passtargets
 
+        console.log selected
+
         cb?()
 
     get_reports: (groups, cb) ->
@@ -118,7 +123,7 @@ class PassRateChart extends WidgetBase
             selected = _ groups
             cb reports.filter (r) ->
                 selected.any (s) ->
-                    s.hwproduct == r.hwproduct && s.testtype ==  r.testtype && s.target == r.target
+                    s.hardware == r.hardware && s.testtype ==  r.testtype && s.profile == r.profile
 
     render_chart: (@chart_elem) ->
         @chart = new graphs.RadarChart @chart_elem, @width, @height

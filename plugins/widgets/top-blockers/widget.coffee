@@ -10,7 +10,7 @@ class TopBlockers extends WidgetBase
                 num: 5
 
     same_group: (g1, g2) ->
-        g1.hwproduct == g2.hwproduct && g1.testtype == g2.testtype && g1.target == g2.target
+        g1.hardware == g2.hardware && g1.testtype == g2.testtype && g1.profile == g2.profile
 
     contains_group: (arr, grp) -> _(arr).any (g) => @same_group(g,grp)
 
@@ -46,7 +46,7 @@ class TopBlockers extends WidgetBase
                 checked = @contains_group(@config.groups, grp)
 
                 $row = $trow.clone()
-                $row.find(".target").text(grp.target)
+                $row.find(".target").text(grp.profile)
                 $row.find(".testtype").text(grp.testtype)
                 $row.find(".shiftcb").attr("checked", checked)
                 $row.data("groupData", grp)

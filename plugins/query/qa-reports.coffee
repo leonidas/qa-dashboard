@@ -27,11 +27,11 @@ exports.register_plugin = (db) ->
     api = {}
 
     api.targets_for_hw = (hw, callback) ->
-        q = reports.find({hardware:hw}).distinct "profile"
+        q = reports.find(release:"1.2",hardware:hw).distinct "profile"
         q.run callback
 
     api.types_for_hw = (hw) -> (profile, callback) ->
-        q = reports.find({hardware:hw,profile:profile})
+        q = reports.find(release:"1.2",hardware:hw,profile:profile)
         q = q.distinct "testtype"
         q.run callback
 
@@ -45,6 +45,7 @@ exports.register_plugin = (db) ->
                 for [target,typs] in _.zip(targets,types)
                     for type in typs
                         result.push
+                            release:"1.2"
                             profile:target
                             testtype:type
                             hardware:hw
