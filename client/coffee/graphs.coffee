@@ -49,7 +49,7 @@ class RadarChart
             arch = maxsize * 50/target #r.pass_target
             apex = obj.group_arc a, arcw, arch, r.total_pass, r.total_fail, r.total_na
             a += arcw
-            url   = "http://qa-reports.meego.com/#{r.release}/#{r.profile}/#{r.testtype}/#{r.hardware}/#{r.report_id}"
+            url   = "http://qa-reports.meego.com/#{r.release}/#{r.profile}/#{r.testtype}/#{r.hardware}/#{r.qa_id}"
             return {title:title, apex:apex, mid:a-arcw/2, arcw:arcw, href:url}
 
         @render_target_circle()
