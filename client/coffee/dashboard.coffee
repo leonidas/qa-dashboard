@@ -76,7 +76,7 @@ initialize_toolbar = (widgets, elem) ->
         $btn = $tmpl.clone(true)
         $btn.find("h1").text cfg.title
         $btn.find("p").text cfg.desc
-        $btn.find("img").attr("src", cfg.thumbnail)
+        $btn.find("img").attr("src", "/widgets/#{name}/#{cfg.thumbnail}")
         $btn.data "widget-name", name
         $btn.insertBefore $close
         initialize_toolbar_draggable $btn
