@@ -51,7 +51,7 @@ namespace :deploy do
 
     desc "Link LDAP server config from shared dir to current path."
     task :symlink do
-      run "rm -f #{current_path}/ldap_server.json && ln -s #{shared_path}/ldap_server.json #{current_path}/ldap_server.json"
+      run "rm -f #{current_path}/ldap_server.json && ln -nfs #{shared_path}/ldap_server.json #{current_path}/ldap_server.json"
     end
   end
 
