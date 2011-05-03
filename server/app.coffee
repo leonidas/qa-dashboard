@@ -45,4 +45,6 @@ create_app = (basedir, db) ->
     widgetdir = basedir+"/plugins/widgets"
     require('widgets').initialize_widgets widgetdir, app, db
 
+    return app
+
 exports.create_app = create_app
