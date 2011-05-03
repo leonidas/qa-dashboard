@@ -138,10 +138,13 @@ init_widget_dom_events = (dom) ->
     $dom = $(dom)
     $dom.find('.widget_edit').click ->
         $this = $(this)
+
         $settings = $dom.find('.content_settings');
         if $this.hasClass "active"
-           updateWidgetElement $dom
+            $this.toggleClass 'active'
+            updateWidgetElement $dom
         else
+            $this.toggleClass 'active'
             obj = $dom.data("widgetObj");
             obj.render_settings_view ->
                 balance_columns()
@@ -164,8 +167,6 @@ init_widget_dom_events = (dom) ->
                         updateWidgetElement $widget
                     return false
 
-
-        $this.toggleClass 'active'
         balance_columns()
 
         return false
