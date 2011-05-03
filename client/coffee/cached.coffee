@@ -34,7 +34,6 @@ window.cached.get = (url, cb) ->
 window.cached.post = (url, data, cb) ->
     json = if data? then JSON.stringify(data) else null
     key = url + "##" + json
-    console.log key
     cached = _cache[key]
     if cached?
         cb? cached
