@@ -214,7 +214,7 @@ initialize_sortable_columns = () ->
                     obj.render_small_view balance_columns
                 else
                     obj.render_main_view balance_columns
-                console.log "save_widgets sortable stop"
+                #console.log "save_widgets sortable stop"
                 save_widgets()
             balance_columns()
         over: (event, ui) ->
