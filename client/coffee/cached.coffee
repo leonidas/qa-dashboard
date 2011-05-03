@@ -32,7 +32,9 @@ window.cached.get = (url, cb) ->
         cb data
 
 window.cached.post = (url, data, cb) ->
-    key = url + "##" + data
+    json = if data? then JSON.stringify(data) else null
+    key = url + "##" + json
+    console.log key
     cached = _cache[key]
     if cached?
         cb? cached
@@ -40,7 +42,7 @@ window.cached.post = (url, data, cb) ->
         config =
             url: url
             type: "POST"
-            data: if data? then JSON.stringify(data) else null
+            data: json
             dataType: "json"
             contentType: "application/json; charset=utf-8"
             success: (response) ->

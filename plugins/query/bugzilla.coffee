@@ -63,7 +63,6 @@ exports.register_plugin = (db) ->
         bugs.find({"bug_id":{$in:ids}}).run (err,arr) ->
             return cb err if err?
             bugobjs = {}
-            console.log arr
             for item in arr
                 bugobjs[item.bug_id] = item
             cb null, bugobjs

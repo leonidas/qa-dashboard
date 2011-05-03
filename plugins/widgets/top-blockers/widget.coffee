@@ -55,12 +55,27 @@ class TopBlockers extends WidgetBase
             if cb
                 cb $t
 
+    process_save_settings: ($form, cb) ->
+        @config.hwproduct = $form.find(".hwproduct").val()
+        @config.title = $form.find(".title").val()
+
+        selected = []
+
+        $rows = $form.find("table.multiple_select").find(".graph-target")
+        $rows.each (idx, tr) =>
+            $tr = $(tr)
+            grp = $tr.data("groupData")
+            checked = $tr.find(".shiftcb").attr("checked")
+            if checked
+                selected.push(grp)
+        @config.groups = selected
+
+        cb?()
 
     format_bug_table: ($t, cb) ->
         @get_top_bugs (bugs) ->
             $table = $t.find("table")
             $trow = $table.find("tr.row-template")
-            console.log bugs
             _(bugs).each (bug) ->
                 [count,bug_id,obj] = bug
                 url = "https://bugs.meego.com/show_bug.cgi?id=" + bug_id
