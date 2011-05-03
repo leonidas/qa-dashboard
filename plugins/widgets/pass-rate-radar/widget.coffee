@@ -28,9 +28,8 @@ class PassRateChart extends WidgetBase
                 title: "Pass rate: #{hw}"
 
     format_header: ($t, cb) ->
-        $t.find("h1").text @config.title
-        if cb
-            cb $t
+        $t.find("h1 span.title").text @config.title
+        cb? $t
 
     format_main_view: ($t, cb) ->
         @get_reports @config.groups, (reports) =>

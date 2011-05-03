@@ -14,12 +14,14 @@ class TopBlockers extends WidgetBase
 
     contains_group: (arr, grp) -> _(arr).any (g) => @same_group(g,grp)
 
+    format_header: ($t, cb) ->
+        $t.find("h1 span.title").text @config.title
+        cb? $t
+
     format_main_view: ($t, cb) ->
-        $t.find("h1 .hwproduct").text(@config.hwproduct)
         @format_bug_table $t, cb
 
     format_small_view: ($t, cb) ->
-        $t.find("h2 .hwproduct").text(@config.hwproduct)
         @format_bug_table $t, cb
 
     format_settings_view: ($t, cb) ->
