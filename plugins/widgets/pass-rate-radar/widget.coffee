@@ -1,5 +1,8 @@
 
 class PassRateChart extends WidgetBase
+    width: 600
+    side_width: 300
+
     height: 500
     side_height: 250
 

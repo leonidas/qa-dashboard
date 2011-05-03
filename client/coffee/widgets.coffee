@@ -19,12 +19,6 @@
 #
 
 class WidgetBase
-    width: 600
-    side_width: 300
-
-    height: 200
-    side_height: 150
-
 
     init_new: ->
         @dom = $ @create_dom()

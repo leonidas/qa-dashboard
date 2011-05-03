@@ -112,7 +112,7 @@ get_widget_class = (name) -> (callback) ->
     cls = widgets[name]
     if cls?
         if callback?
-            setTimeout (-> callback cls), 0
+            setTimeout (-> callback cls), 1
     else
         cached.get "/widgets/#{name}", (data) ->
             code = data.code
@@ -214,7 +214,7 @@ initialize_sortable_columns = () ->
                     obj.render_small_view balance_columns
                 else
                     obj.render_main_view balance_columns
-                #console.log "save_widgets sortable stop"
+                console.log "save_widgets sortable stop"
                 save_widgets()
             balance_columns()
         over: (event, ui) ->
@@ -239,15 +239,12 @@ initialize_sortable_columns = () ->
         greedy: true
         tolerance: 'pointer'
         over: (event, ui) ->
-            console.log "droppable over"
             $('#left_column, #sidebar').sortable('refresh')
             balance_columns()
         drop: (event, ui) ->
-            console.log "droppable drop"
             $this = $(this)
-            ud = $(ui.draggable)
-            console.log "ui.draggable"
-            console.log ud
+            #ud = $(ui.draggable)
+            ud = $('#page_content .ui-draggable')
             name = ui.helper.data "widget-name"
 
             widget = create_new_widget(name) (wgt) ->
@@ -256,14 +253,21 @@ initialize_sortable_columns = () ->
                 else
                     wgt.render_main_view balance_columns
                 #console.log "save_widgets after create_new_widget"
-                save_widgets()
+                g = () ->
+                    if widget.parent()?
+                        save_widgets()
+                    else
+                        setTimeout g, 0
+                setTimeout g, 0
 
-            console.log "widget"
-            console.log widget
-            widget.insertBefore ud
-            ud.remove()
-            console.log "ud removed"
-            balance_columns()
+            #widget.insertBefore ud
+            #ud.remove()
+            ud.hide()
+            f = () ->
+                widget.insertBefore ud
+                ud.remove()
+                balance_columns()
+            setTimeout f, 0
 
 initialize_toolbar_draggable = (elem) ->
     $(elem).draggable
@@ -293,17 +297,20 @@ load_widgets = (cb) ->
         $sb.empty()
 
         add_widgets = (arr, $elem) ->
-            _(arr).each (w) ->
+            arr = _(arr).map (w) -> (callback) ->
                 wt = create_new_widget(w.type) (obj) ->
                     obj.config = w.config
                     dom = obj.dom
                     $elem.append(dom)
+                    balance_columns()
                     if $elem == $lc
                         obj.render_main_view ->
                             balance_columns()
                     else
                         obj.render_small_view ->
                             balance_columns()
+                    callback?()
+            async.series arr
 
         add_widgets dashb.column, $lc
         add_widgets dashb.sidebar, $sb
