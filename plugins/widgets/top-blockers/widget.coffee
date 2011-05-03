@@ -46,7 +46,7 @@ class TopBlockers extends WidgetBase
                 checked = @contains_group(@config.groups, grp)
 
                 $row = $trow.clone()
-                $row.find(".target").text(grp.target)
+                $row.find(".target").text(grp.profile)
                 $row.find(".testtype").text(grp.testtype)
                 $row.find(".shiftcb").attr("checked", checked)
                 $row.data("groupData", grp)
