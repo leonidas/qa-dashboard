@@ -63,7 +63,7 @@ exports.register_plugin = (db) ->
                 total_pass:1
                 total_fail:1
                 total_na:1
-                report_id:1
+                qa_id:1
         q = reports.find(grp).fields(fields).sort({tested_at:-1}).limit(1)
         q.run (err, arr) ->
             if err?
