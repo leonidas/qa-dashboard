@@ -24,7 +24,6 @@ exports.register_plugin = (db) ->
     _       = require('underscore')
     plugins = require('plugins')
 
-    reports_api = plugins.api.query['qa-reports']
 
     reports = db.collection('qa-reports')
     bugs    = db.collection('bugs')
@@ -41,6 +40,7 @@ exports.register_plugin = (db) ->
 
 
     api.bug_counts_for_group = (grp) -> (cb) ->
+        reports_api = plugins.api.query['qa-reports']
         reports_api.latest_for_group grp, {"features.cases.bugs":1}, (err, r) ->
             return cb? err if err?
 
