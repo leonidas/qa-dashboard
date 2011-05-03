@@ -1,6 +1,18 @@
 class TopBlockers extends WidgetBase
 
-    get_default_config: (cb) -> cb {hwproduct:"N900", num:5}
+    get_default_config: (cb) ->
+        hw = "N900"
+        cached.get "/query/qa-reports/groups/#{hw}", (data) =>
+            cb
+                groups: data
+                hwproduct: "N900"
+                title: "Top Blockers: N900"
+                num: 5
+
+    same_group: (g1, g2) ->
+        g1.hwproduct == g2.hwproduct && g1.testtype == g2.testtype && g1.target == g2.target
+
+    contains_group: (arr, grp) -> _(arr).any (g) => @same_group(g,grp)
 
     format_main_view: ($t, cb) ->
         $t.find("h1 .hwproduct").text(@config.hwproduct)
@@ -9,6 +21,40 @@ class TopBlockers extends WidgetBase
     format_small_view: ($t, cb) ->
         $t.find("h2 .hwproduct").text(@config.hwproduct)
         @format_bug_table $t, cb
+
+    format_settings_view: ($t, cb) ->
+        hw = @config.hwproduct
+        cached.get "/query/qa-reports/groups/#{hw}", (data) =>
+            # set hardware
+            $t.find("form .hwproduct").val(hw)
+
+            # set title
+            $t.find("form .title").val @config.title
+
+            # set selected groups
+            # generate a new row for each item in "data"
+            #   select example row as template
+            #   set check box according to selected groups in config
+            #   set pass rate target
+            $table = $t.find("table.multiple_select")
+            $trow = $table.find("tr.row-template").removeClass("row-template").addClass("graph-target")
+
+            #$trow.detach()
+            _(data).each (grp) =>
+                checked = @contains_group(@config.groups, grp)
+
+                $row = $trow.clone()
+                $row.find(".target").text(grp.target)
+                $row.find(".testtype").text(grp.testtype)
+                $row.find(".shiftcb").attr("checked", checked)
+                $row.data("groupData", grp)
+
+                $row.insertBefore $trow
+
+            $trow.remove()
+            if cb
+                cb $t
+
 
     format_bug_table: ($t, cb) ->
         @get_top_bugs (bugs) ->
@@ -31,3 +77,5 @@ class TopBlockers extends WidgetBase
         hw = @config.hwproduct or "N900"
         num = @config.num or 5
         cached.get "/bugs/#{hw}/top/#{num}", cb
+
+return TopBlockers
