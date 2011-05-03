@@ -27,11 +27,11 @@ exports.register_plugin = (db) ->
     api = {}
 
     api.targets_for_hw = (hw, callback) ->
-        q = reports.find({version:"1.2", hwproduct:hw}).distinct "target"
+        q = reports.find({hardware:hw}).distinct "profile"
         q.run callback
 
-    api.types_for_hw = (hw) -> (target, callback) ->
-        q = reports.find({version:"1.2",hwproduct:hw,target:target})
+    api.types_for_hw = (hw) -> (profile, callback) ->
+        q = reports.find({hardware:hw,profile:profile})
         q = q.distinct "testtype"
         q.run callback
 
@@ -45,10 +45,9 @@ exports.register_plugin = (db) ->
                 for [target,typs] in _.zip(targets,types)
                     for type in typs
                         result.push
-                            version:"1.2"
-                            target:target
+                            profile:target
                             testtype:type
-                            hwproduct:hw
+                            hardware:hw
 
                 callback? null, result
 
@@ -56,17 +55,21 @@ exports.register_plugin = (db) ->
         if not callback?
             callback = fields
             fields =
-                hwproduct:1
-                target:1
+                hardware:1
+                profile:1
                 testtype:1
-                version:1
+                release:1
                 total_cases:1
                 total_pass:1
                 total_fail:1
                 total_na:1
-                qa_id:1
-        q = reports.find(grp).fields(fields).sort({tested_at:-1}).one()
-        q.run callback
+                report_id:1
+        q = reports.find(grp).fields(fields).sort({tested_at:-1}).limit(1)
+        q.run (err, arr) ->
+            if err?
+                callback? err
+            else
+                callback? null, arr[0]
 
     api.latest_reports = (hw, fields, callback) ->
         api.groups_for_hw hw, (err, groups) ->

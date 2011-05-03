@@ -41,7 +41,7 @@ class RadarChart
         maxsize = @maxsize
 
         titles = _(rs).map (r) ->
-            title = "#{r.target} #{r.testtype}"
+            title = "#{r.profile} #{r.testtype}"
             arcw = 360 * r.total_cases/grand_total
             target = targets[title]
             if target == undefined || target < 50
@@ -49,7 +49,7 @@ class RadarChart
             arch = maxsize * 50/target #r.pass_target
             apex = obj.group_arc a, arcw, arch, r.total_pass, r.total_fail, r.total_na
             a += arcw
-            url   = "http://qa-reports.meego.com/#{r.version}/#{r.target}/#{r.testtype}/#{r.hwproduct}/#{r.qa_id}"
+            url   = "http://qa-reports.meego.com/#{r.release}/#{r.profile}/#{r.testtype}/#{r.hardware}/#{r.report_id}"
             return {title:title, apex:apex, mid:a-arcw/2, arcw:arcw, href:url}
 
         @render_target_circle()
@@ -86,15 +86,15 @@ class RadarChart
             ey = ay-c*5
 
             ty = ey
-            
+
             if Math.abs(ty-prevy) < 10 || (dir*ty < dir*prevy) || (Math.abs(c) > 0.5)
                 ty = tay-c*5
-            
+
             if ty < 10
                 ty = 10
             if ty > @height - 10
                 ty = @height - 10
-            
+
             txt = @paper.text(x, ty-2, title.title)
             txt.attr
                 #"stroke-opacity": 0.8

@@ -8,10 +8,10 @@ class PassRateChart extends WidgetBase
     init_config: (@config) ->
 
     group_key: (grp) ->
-        "#{grp.target} #{grp.testtype}"
+        "#{grp.profile} #{grp.testtype}"
 
     group_title: (grp) ->
-        "#{grp.target} #{grp.testtype}"
+        "#{grp.profile} #{grp.testtype}"
 
     get_default_config: (cb) ->
         hw = "N900"
@@ -72,7 +72,7 @@ class PassRateChart extends WidgetBase
                 checked = @contains_group(@config.groups, grp)
 
                 $row = $trow.clone()
-                $row.find(".target").text(grp.target)
+                $row.find(".target").text(grp.profile)
                 $row.find(".testtype").text(grp.testtype)
                 $row.find(".passtarget").val(""+targets[@group_key(grp)])
                 $row.find(".shiftcb").attr("checked", checked)
@@ -111,10 +111,7 @@ class PassRateChart extends WidgetBase
         @config.groups = selected
         @config.passtargets = passtargets
 
-
-        if cb
-            cb()
-
+        cb?()
 
     get_reports: (groups, cb) ->
         cached.get "/query/qa-reports/latest/#{@config.hwproduct}", (data) =>

@@ -75,12 +75,8 @@ exports.register_plugin = (db) ->
                 api.bugs_by_ids ids, (err, bugs) ->
                     step = (memo,v,k) ->
                         b = bugs[k]
-                        if b == undefined
+                        if not b? or not b.resolution? or b.resolution == '---'
                             memo.push [v,k,b]
-                            return memo
-                        if b.resolution == null
-                            memo.push [v,k,b]
-                            return memo
                         return memo
                     bugcount = _.reduce counts, step, []
                     bugcount = _(bugcount).sortBy (x) -> x[0]
