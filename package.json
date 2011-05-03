@@ -17,7 +17,8 @@
     "less": "1.0.41",
     "supervisor": "0.1.2",
     "forever": "0.4.0",
-    "eyes": "0.1.6"
+    "eyes": "0.1.6",
+    "connect-mongo": "0.1.1"
   },
   "private": "true"
 }
