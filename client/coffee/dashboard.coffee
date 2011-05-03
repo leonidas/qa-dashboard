@@ -238,12 +238,15 @@ initialize_sortable_columns = () ->
         greedy: true
         tolerance: 'pointer'
         over: (event, ui) ->
+            console.log "droppable over"
             $('#left_column, #sidebar').sortable('refresh')
             balance_columns()
         drop: (event, ui) ->
-            #console.log "droppable drop"
+            console.log "droppable drop"
             $this = $(this)
             ud = $(ui.draggable)
+            console.log "ui.draggable"
+            console.log ud
             name = ui.helper.data "widget-name"
 
             widget = create_new_widget(name) (wgt) ->
@@ -254,8 +257,11 @@ initialize_sortable_columns = () ->
                 #console.log "save_widgets after create_new_widget"
                 save_widgets()
 
+            console.log "widget"
+            console.log widget
             widget.insertBefore ud
             ud.remove()
+            console.log "ud removed"
             balance_columns()
 
 initialize_toolbar_draggable = (elem) ->

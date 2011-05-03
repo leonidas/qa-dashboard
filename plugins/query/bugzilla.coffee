@@ -56,7 +56,7 @@ exports.register_plugin = (db) ->
         queries = _(grps).map api.bug_counts_for_group
         async.parallel queries, (err, res) ->
             return cb? err if err?
-            cb? null, _(res).reduce merge_counts
+            cb? null, _(res).reduce merge_counts, {}
 
 
     api.bugs_by_ids = (ids, cb) ->

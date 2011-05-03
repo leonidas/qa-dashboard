@@ -87,8 +87,16 @@ exports.register_plugin = (db) ->
     http: get:
         "/latest/:hw": (req,res) ->
             api.latest_reports req.params.hw, (err,arr) ->
-                res.send arr
+                if err?
+                    console.log err
+                    res.send 500
+                else
+                    res.send arr
 
         "/groups/:hw": (req,res) ->
             api.groups_for_hw req.params.hw, (err,arr) ->
-                res.send arr
+                if err?
+                    console.log err
+                    res.send 500
+                else
+                    res.send arr

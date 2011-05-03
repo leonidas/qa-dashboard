@@ -32,6 +32,12 @@ create_app = (basedir, db) ->
             dumpExceptions: true
             showStack: true
 
+    app.configure "staging", ->
+        app.use express.logger()
+        app.use express.errorHandler
+            dumpExceptions: true
+            showStack: true
+
     app.configure "production", ->
         app.use express.logger()
         app.use express.errorHandler()
