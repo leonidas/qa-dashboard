@@ -85,6 +85,7 @@ class WidgetBase
     render_main_view: (cb) ->
         @dom.find(".widget_content").hide()
         @dom.find(".content_main").show()
+        @dom.find(".widget_edit").removeClass "active"
         if @is_main_view_ready()
             if cb
                 cb()
@@ -94,6 +95,7 @@ class WidgetBase
     render_small_view: (cb) ->
         @dom.find(".widget_content").hide()
         @dom.find(".content_small").show()
+        @dom.find(".widget_edit").removeClass "active"
         if @is_small_view_ready()
             if cb
                 cb()
