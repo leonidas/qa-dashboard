@@ -3,6 +3,8 @@ express = require('express')
 http    = require('http')
 _       = require('underscore')
 
+MongoStore = require('connect-mongo')
+
 create_app = (basedir, db) ->
 
     PUBLIC = basedir + "/public"
@@ -10,6 +12,8 @@ create_app = (basedir, db) ->
     LESS   = basedir + "/client/less"
 
     app = express.createServer()
+
+    store = new MongoStore(db:"qadash-sessions")
 
     app.configure ->
         app.use express.compiler
@@ -23,7 +27,7 @@ create_app = (basedir, db) ->
 
         app.use express.cookieParser()
         app.use express.bodyParser()
-        app.use express.session {secret: "TODO"}
+        app.use express.session {secret: "TODO", store:store}
         app.use express.static PUBLIC
 
     app.configure "development", ->
