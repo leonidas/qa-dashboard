@@ -53,7 +53,6 @@ exports.register_plugin = (db) ->
                 return num
 
             format_feature = (fea) ->
-                console.log fea
                 doc = {}
                 doc.name = fea.name
                 doc.cases = count_cases(fea.cases)
