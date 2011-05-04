@@ -28,7 +28,7 @@ exports.init_ldap_shellauth = (basedir) ->
     ldap_server = JSON.parse fs.readFileSync(basedir + LDAP_SERVER_FILE)
 
 exports.ldap_shellauth = (username, password) -> (callback) ->
-    USERNAME_REGEX = /^[a-zA-Z0-9]+([a-zA-Z0-9](_|-| |.)[a-zA-Z0-9])*[a-zA-Z0-9]+$/
+    USERNAME_REGEX = /^[a-zA-Z0-9]+([a-zA-Z0-9](_|-| |\.)[a-zA-Z0-9])*[a-zA-Z0-9]+$/
     PASSWORD_REGEX = /^[a-zA-Z0-9]+([a-zA-Z0-9](_|-| )[a-zA-Z0-9])*[a-zA-Z0-9]+$/
 
     if !USERNAME_REGEX.test(username)
