@@ -203,7 +203,7 @@ initialize_sortable_columns = () ->
         revert:  false
 
         start: (event, ui) ->
-            $('.ui-widget-sortable-placeholder').height($(ui.item).height());
+            $('.ui-widget-sortable-placeholder').height($(ui.item).height())
             balance_columns()
         stop: (event, ui) ->
             $item = $(ui.item)
@@ -341,7 +341,7 @@ save_widgets = (cb) ->
     $.post "/user/dashboard/save", dashboard, cb
 
 $ () ->
-    CFInstall.check()
+    CFInstall?.check()
 
     $(window).load   balance_columns
     $(window).resize balance_columns
