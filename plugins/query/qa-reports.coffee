@@ -46,16 +46,24 @@ exports.register_plugin = (db) ->
                 return false
 
             count_cases = (cases) ->
-                num = 0
+                fail_num = 0
+                na_num = 0
                 for c in cases
                     if id in c.bugs
-                        num += 1
-                return num
+                        if c.result == -1
+                            fail_num += 1
+                        if c.result == 0
+                            na_num += 1
+
+                fail_count: fail_num
+                na_count: na_num
 
             format_feature = (fea) ->
                 doc = {}
                 doc.name = fea.name
-                doc.cases = count_cases(fea.cases)
+                cases = count_cases(fea.cases)
+                doc.fail_cases = cases.fail_count
+                doc.na_cases   = cases.na_count
                 return doc
 
             reformat = (r) ->
@@ -63,7 +71,7 @@ exports.register_plugin = (db) ->
                 doc.url = "http://qa-reports.meego.com/#{r.release}/#{r.profile}/#{r.testtype}/#{r.hardware}/#{r.qa_id}"
                 doc.title = r.title
                 features = _(r.features).map format_feature
-                doc.features =_(features).filter (f) -> f.cases > 0
+                doc.features =_(features).filter (f) -> f.fail_cases > 0 or f.na_cases > 0
                 return doc
 
             arr = _(arr).filter has_bug
