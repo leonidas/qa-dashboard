@@ -26,6 +26,50 @@ exports.register_plugin = (db) ->
 
     api = {}
 
+    api.reports_for_bug = (hw, id, cb) ->
+        id = parseInt id
+        fields =
+            qa_id:1
+            title:1
+            profile:1
+            hardware:1
+            testtype:1
+            release:1
+            features:1
+        api.latest_reports hw, fields, (err, arr) ->
+            return cb? err if err?
+            has_bug = (r) ->
+                for f in r.features
+                    for c in f.cases
+                        if id in c.bugs
+                            return true
+                return false
+
+            count_cases = (cases) ->
+                num = 0
+                for c in cases
+                    if id in c.bugs
+                        num += 1
+                return num
+
+            format_feature = (fea) ->
+                console.log fea
+                doc = {}
+                doc.name = fea.name
+                doc.cases = count_cases(fea.cases)
+                return doc
+
+            reformat = (r) ->
+                doc = {}
+                doc.url = "http://qa-reports.meego.com/#{r.release}/#{r.profile}/#{r.testtype}/#{r.hardware}/#{r.qa_id}"
+                doc.title = r.title
+                features = _(r.features).map format_feature
+                doc.features =_(features).filter (f) -> f.cases > 0
+                return doc
+
+            arr = _(arr).filter has_bug
+            cb? null,_(arr).map reformat
+
     api.targets_for_hw = (hw, callback) ->
         q = reports.find(release:"1.2",hardware:hw).distinct "profile"
         q.run callback
@@ -86,6 +130,16 @@ exports.register_plugin = (db) ->
     name: "qa-reports"
     api: api
     http: get:
+        "/reports_for_bug/:hw/:id": (req,res) ->
+            filter =
+                release:  req.params.release
+                profile:  req.params.profile
+                hardware: req.params.hardware
+                testtype: req.params.testtype
+
+            api.reports_for_bug req.params.hw, req.params.id, (err, arr) ->
+                res.send arr
+
         "/latest/:hw": (req,res) ->
             api.latest_reports req.params.hw, (err,arr) ->
                 if err?
