@@ -130,14 +130,14 @@ exports.register_plugin = (db) ->
     name: "qa-reports"
     api: api
     http: get:
-        "/reports_for_bug/:hw/:id": (req,res) ->
+        "/for_bug/:id": (req,res) ->
             filter =
-                release:  req.params.release
-                profile:  req.params.profile
-                hardware: req.params.hardware
-                testtype: req.params.testtype
+                release:  req.param("release")
+                profile:  req.param("profile")
+                hardware: req.param("hw")
+                testtype: req.param("testtype")
 
-            api.reports_for_bug req.params.hw, req.params.id, (err, arr) ->
+            api.reports_for_bug filter.hardware, req.params.id, (err, arr) ->
                 res.send arr
 
         "/latest/:hw": (req,res) ->
