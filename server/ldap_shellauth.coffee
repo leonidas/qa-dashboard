@@ -44,8 +44,5 @@ exports.ldap_shellauth = (username, password) -> (callback) ->
         #console.log(error)
         callback? error, (error == null && stdout != "")
 
-
-
-
-
-
+exports.in_use = () ->
+    ldap_server.useldap

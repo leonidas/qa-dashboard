@@ -20,9 +20,6 @@
 crypto = require('crypto')
 ldap = require ('ldap_shellauth')
 
-USE_LDAP = true
-
-
 sha = (data) ->
     s = crypto.createHash('sha1')
     s.update(data)
@@ -34,7 +31,7 @@ generate_new_token = (username) -> (callback) ->
     callback? null, sha(data)
 
 authenticate = (username, password) -> (callback) ->
-    if USE_LDAP
+    if ldap.in_use()
         ldap.ldap_shellauth(username,password) (err, ok) ->
             callback? err, ok
     else
