@@ -110,7 +110,7 @@ class PassRateChart extends WidgetBase
                 selected.push(grp)
             target = parseInt($tr.find(".passtarget").val())
             if not target > 0
-                target = 90
+                target = 0
             passtargets[@group_key(grp)] = parseInt(target)
         @config.groups = selected
         @config.passtargets = passtargets
@@ -184,12 +184,14 @@ class RadarChart
             if not target?
                 target = 0
 
+            arch = maxsize
+
             target_sectors.push
                 start: a
                 end: a + arcw
-                radius: maxsize*target/100
+                radius: arch*target/100
 
-            apex = obj.group_arc a, arcw, maxsize, r.total_pass, r.total_fail, r.total_na
+            apex = obj.group_arc a, arcw, arch, r.total_pass, r.total_fail, r.total_na
             a += arcw
             ## TODO: hardcoded url to qa-reports
             url  = "http://qa-reports.meego.com/#{r.release}/#{r.profile}/#{r.testtype}/#{r.hardware}/#{r.qa_id}"
@@ -201,20 +203,21 @@ class RadarChart
                 arcw:arcw
                 href:url
 
-        obj.render_target_circle target_sectors
+        obj.render_alternative_target_circle target_sectors
 
         if opts.labels
             @render_titles titles
 
 
-    render_target_circle: (sectors) ->
+    render_alternative_target_circle: (sectors) ->
         p = drawSectorPath @paper, @cx, @cy, sectors
         p.attr
-            "stroke-width": 3
+            "stroke-width": 2
             "stroke-color": "black"
             "stroke-opacity": 0.8
             fill: undefined
-        ###
+
+    render_target_circle: ->
         size = @maxsize*0.5
         e = @paper.ellipse @cx, @cy, size, size
         e.attr
@@ -222,7 +225,6 @@ class RadarChart
             "stroke-color": "black"
             "stroke-opacity": 0.8
             fill: undefined
-        ###
 
     render_titles: (titles) ->
         y = 10
