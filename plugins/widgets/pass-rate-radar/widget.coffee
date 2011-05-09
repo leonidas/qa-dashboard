@@ -1,10 +1,10 @@
 
 class PassRateChart extends WidgetBase
-    width: 600
-    side_width: 300
+    width: 585
+    side_width: 318
 
     height: 500
-    side_height: 250
+    side_height: 318
 
     init_reports: (@reports) ->
 
@@ -157,6 +157,8 @@ class RadarChart
 
         obj = this
         maxsize = @maxsize
+        if not opts.labels
+            maxsize = maxsize*1.3
 
         ###
         titles = _(rs).map (r) ->
@@ -212,8 +214,8 @@ class RadarChart
     render_alternative_target_circle: (sectors) ->
         p = drawSectorPath @paper, @cx, @cy, sectors
         p.attr
-            "stroke-width": 2
-            "stroke-color": "black"
+            "stroke-width": 2.5
+            "stroke": "#004000"
             "stroke-opacity": 0.8
             fill: undefined
 
