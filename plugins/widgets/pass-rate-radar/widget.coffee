@@ -185,6 +185,8 @@ class RadarChart
             "stroke-opacity": 0.8
             fill: undefined
 
+    render_alternative_circle: (reports, targets) ->
+
     render_titles: (titles) ->
         y = 10
         x = @width
@@ -244,9 +246,9 @@ class RadarChart
         pass_len = pass*length/total
         fail_len = (pass+fail)*length/total
 
-        na_arc   = drawArc(@paper, cx, cy, start, start+width, na_len)
-        fail_arc = drawArc(@paper, cx, cy, start, start+width, fail_len)
-        pass_arc = drawArc(@paper, cx, cy, start, start+width, pass_len)
+        na_arc   = drawSector(@paper, cx, cy, start, start+width, na_len)
+        fail_arc = drawSector(@paper, cx, cy, start, start+width, fail_len)
+        pass_arc = drawSector(@paper, cx, cy, start, start+width, pass_len)
         outline  = na_arc.clone()
 
         na_arc.attr

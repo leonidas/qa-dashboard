@@ -18,16 +18,36 @@
 # 02110-1301 USA
 #
 
-
-window.drawArc = (paper, cx, cy, start, end, radius) ->
+arcPoints = (cx, cy, start, end, radius) ->
     start = start*Math.PI/180.0
     end = end*Math.PI/180.0
-    sx = Math.sin(start)*radius + cx
-    sy = -Math.cos(start)*radius + cy
-    ex = Math.sin(end)*radius + cx
-    ey = -Math.cos(end)*radius + cy
+
+    sx: Math.sin(start)*radius + cx
+    sy: -Math.cos(start)*radius + cy
+    ex: Math.sin(end)*radius + cx
+    ey: -Math.cos(end)*radius + cy
+
+sectorPath = (cx, cy, start, end, radius) ->
+    mid = (start + end)/2
+    pa = arcPoints(cx, cy, start, mid, radius)
+    pb = arcPoints(cx, cy, mid, end, radius)
     s = "".concat "M",[cx,cy]
-    s = s.concat  "L",[sx,sy]
-    #s = s.concat  "L",[ex,ey],"Z"
-    s = s.concat  "A",[radius,radius,0,0,1,ex,ey], "Z"
+    s = s.concat  "L",[pa.sx,pa.sy]
+    s = s.concat  "A",[radius,radius,0,0,1,pa.ex,pa.ey]
+    s = s.concat  "A",[radius,radius,0,0,1,pb.ex,pb.ey], "Z"
+
+arcPath = (cx, cy, start, end, radius) ->
+    p = arcPoints(cx, cy, start, end, radius)
+    s = "".concat "M",[p.sx,p.sy]
+    s = s.concat  "A",[radius,radius,0,0,1,p.ex,p.ey]
+
+window.arcPoints = arcPoints
+
+window.drawSector = (paper, cx, cy, start, end, radius) ->
+    s = sectorPath(cx,cy,start,end,radius)
     paper.path(s)
+
+window.drawArc = (paper, cx, cy, start, end, radius) ->
+    s = arcPath(cx,cy,start,end,radius)
+    paper.path(s)
+
