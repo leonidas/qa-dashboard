@@ -24,7 +24,6 @@ current_user = null
 $p = {}
 widgets = {}
 
-
 submit_login_form = () ->
     $form = $(this)
     field = (name) -> $form.find("input[name=\"#{name}\"]").val()
@@ -60,6 +59,7 @@ initialize_application = () ->
     load_dashboard (data) ->
         if data.username?
             current_user = data
+            data.dashboard ?= {}
             # render dashboard
             init_user_dashboard(data.dashboard)
         else
@@ -179,11 +179,19 @@ init_widget_dom_events = (dom) ->
 
     $dom.find('.widget_close').click ->
         $dom.slideUp 200, ->
+            obj = $dom.data("widgetObj")
+            update_undo_buffer(obj)
             $dom.remove()
             save_widgets()
             balance_columns()
         return false
 
+update_undo_buffer = (obj) ->
+    buf = current_user?.dashboard?.undo ?= {}
+    typ = obj.type
+    ## TODO: obj.config needs to be deep-cloned to avoid widget
+    ##       implementations from modifying the undo buffer
+    buf[typ] = _.clone(obj.config)
 
 updateWidgetElement = (elem) ->
     $e = $(elem)
@@ -250,6 +258,10 @@ initialize_sortable_columns = () ->
             name = ui.helper.data "widget-name"
 
             widget = create_new_widget(name) (wgt) ->
+                undo = current_user.dashboard?.undo
+                if undo?
+                    wgt.config = undo[name]
+                    delete undo[name]
                 if $this.attr("id") == "sidebar"
                     wgt.render_small_view balance_columns
                 else
@@ -320,6 +332,9 @@ load_widgets = (cb) ->
         cb? dashb
 
 save_widgets = (cb) ->
+    ## TODO: save requests need to be synchronized via a queued so that we
+    ##       don't accidentally overwrite newer state with older state if
+    ##       asynchronious save requests get processed in different order
     $lc = $('#left_column')
     $sb = $('#sidebar')
 
@@ -336,6 +351,7 @@ save_widgets = (cb) ->
     dashboard =
         column:  find_configs $lc
         sidebar: find_configs $sb
+        undo: current_user.dashboard.undo
 
     #console.log dashboard
 
@@ -354,7 +370,7 @@ $ () ->
     $p.toolbar_container = $('.toolbar_container')
     $p.upper_header      = $('#upper_header')
     $p.logged_user       = $('#logged_user')
-    
+
     $p.widget_bar        = $('#widget_bar')
     $p.add_widget_btn    = $('#add_widgets_btn')
 

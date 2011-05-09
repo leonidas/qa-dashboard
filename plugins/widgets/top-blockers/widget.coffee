@@ -58,6 +58,7 @@ class TopBlockers extends WidgetBase
                 cb $t
 
     process_save_settings: ($form, cb) ->
+        @config = {}
         @config.hwproduct = $form.find(".hwproduct").val()
         @config.title = $form.find(".title").val()
 

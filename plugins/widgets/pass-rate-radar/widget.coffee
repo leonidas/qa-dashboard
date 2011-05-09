@@ -92,6 +92,8 @@ class PassRateChart extends WidgetBase
     contains_group: (arr, grp) -> _(arr).any (g) => @same_group(g,grp)
 
     process_save_settings: ($form, cb) ->
+        @config = {}
+
         @config.hwproduct = $form.find(".hwproduct").val()
         @config.alert = $form.find(".alert").val()
         @config.title = $form.find(".title").val()
