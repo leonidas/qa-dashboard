@@ -52,3 +52,12 @@ window.drawArc = (paper, cx, cy, start, end, radius) ->
     s = arcPath(cx,cy,start,end,radius)
     paper.path(s)
 
+window.drawSectorPath = (paper, cx, cy, sectors) ->
+    pts = _(sectors).map (s) -> arcPoints cx,cy,s.start,s.end,s.radius
+    fst = pts[0]
+    s = "".concat "M",[fst.sx,fst.sy]
+
+    for p in pts
+        s = s.concat " ",[p.sx,p.sy]," ",[p.ex,p.ey]
+    s = s.concat " ",[fst.sx,fst.sy]
+    paper.path(s)

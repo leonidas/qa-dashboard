@@ -174,23 +174,47 @@ class RadarChart
 
         @render_target_circle()
         ###
-        titles = _(rs).map (r) ->
+        titles = []
+        target_sectors = []
+
+        for r in rs
             title = "#{r.profile} #{r.testtype}"
             arcw = 360 * r.total_cases/grand_total
             target = targets[title]
             if not target?
                 target = 0
+
+            target_sectors.push
+                start: a
+                end: a + arcw
+                radius: maxsize*target/100
+
             apex = obj.group_arc a, arcw, maxsize, r.total_pass, r.total_fail, r.total_na
-            obj.target_arc a, arcw, maxsize*target/100
             a += arcw
+            ## TODO: hardcoded url to qa-reports
             url  = "http://qa-reports.meego.com/#{r.release}/#{r.profile}/#{r.testtype}/#{r.hardware}/#{r.qa_id}"
-            return {title:title, apex:apex, mid:a-arcw/2, arcw:arcw, href:url}
+
+            titles.push
+                title:title
+                apex:apex
+                mid:a-arcw/2
+                arcw:arcw
+                href:url
+
+        obj.render_target_circle target_sectors
 
         if opts.labels
             @render_titles titles
 
 
-    render_target_circle: ->
+    render_target_circle: (sectors) ->
+        p = drawSectorPath @paper, @cx, @cy, sectors
+        p.attr
+            "stroke-width": 3
+            "stroke-color": "black"
+            "stroke-opacity": 0.8
+            fill: undefined
+        ###
         size = @maxsize*0.5
         e = @paper.ellipse @cx, @cy, size, size
         e.attr
@@ -198,6 +222,7 @@ class RadarChart
             "stroke-color": "black"
             "stroke-opacity": 0.8
             fill: undefined
+        ###
 
     render_titles: (titles) ->
         y = 10
