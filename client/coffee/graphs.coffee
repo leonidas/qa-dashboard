@@ -28,18 +28,19 @@ arcPoints = (cx, cy, start, end, radius) ->
     ey: -Math.cos(end)*radius + cy
 
 sectorPath = (cx, cy, start, end, radius) ->
-    mid = (start + end)/2
-    pa = arcPoints(cx, cy, start, mid, radius)
-    pb = arcPoints(cx, cy, mid, end, radius)
+    l = end - start
+    large_arc = if l>180 then 1 else 0
+    p = arcPoints(cx, cy, start, end, radius)
     s = "".concat "M",[cx,cy]
-    s = s.concat  "L",[pa.sx,pa.sy]
-    s = s.concat  "A",[radius,radius,0,0,1,pa.ex,pa.ey]
-    s = s.concat  "A",[radius,radius,0,0,1,pb.ex,pb.ey], "Z"
+    s = s.concat  "L",[p.sx,p.sy]
+    s = s.concat  "A",[radius,radius,0,large_arc,1,p.ex,p.ey], "Z"
 
 arcPath = (cx, cy, start, end, radius) ->
+    l = end - start
+    large_arc = if l>180 then 1 else 0
     p = arcPoints(cx, cy, start, end, radius)
     s = "".concat "M",[p.sx,p.sy]
-    s = s.concat  "A",[radius,radius,0,0,1,p.ex,p.ey]
+    s = s.concat  "A",[radius,radius,0,large_arc,1,p.ex,p.ey], "Z"
 
 window.arcPoints = arcPoints
 
