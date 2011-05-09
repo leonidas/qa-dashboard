@@ -21,20 +21,34 @@
 exports.register_plugin = (db) ->
     reports = db.collection('qa-reports')
 
+    valid_request_format = (doc,res) ->
+        if not doc? or not doc.qa_id?
+            res.send {status:"error", error:"invalid request format"}
+            false
+        else
+            true
+
+    run_db_query = (q,res) ->
+        q.run (err) ->
+            if err?
+                res.send {status:"error", error:err}
+            else
+                res.send {status:"ok"}
+
     name: "qa-reports"
     http:
         post:
             "/delete": (req, res) ->
-                rid = req.body.qa_id
-                reports.find('qa_id':rid)
+                doc = req.body.report
+                return if not valid_request_format(doc,res)
+
+                q = reports.find({'qa_id':doc.qa_id}).remove()
+                run_db_query q, res
+
             "/update": (req, res) ->
                 doc = req.body.report
-                if not doc? or not doc.qa_id?
-                    res.send {status:"error", error:"invalid request format"}
-                else
-                    q = reports.find({'qa_id':doc.qa_id}).upsert().update(doc)
-                    q.run (err) ->
-                        if err?
-                            res.send {status:"error", error:err}
-                        else
-                            res.send {status:"ok"}
+                return if not valid_request_format(doc,res)
+
+                q = reports.find({'qa_id':doc.qa_id}).upsert().update(doc)
+                run_db_query q, res
+
