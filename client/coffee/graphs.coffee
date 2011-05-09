@@ -53,11 +53,18 @@ window.drawArc = (paper, cx, cy, start, end, radius) ->
     paper.path(s)
 
 window.drawSectorPath = (paper, cx, cy, sectors) ->
-    pts = _(sectors).map (s) -> arcPoints cx,cy,s.start,s.end,s.radius
-    fst = pts[0]
-    s = "".concat "M",[fst.sx,fst.sy]
+    d = ""
 
-    for p in pts
-        s = s.concat " ",[p.sx,p.sy]," ",[p.ex,p.ey]
-    s = s.concat " ",[fst.sx,fst.sy]
-    paper.path(s)
+    for s in sectors
+        p = arcPoints cx,cy,s.start,s.end,s.radius
+        if fst?
+            d = d.concat "L", [p.sx, p.sy]
+        else
+            d = d.concat "M", [p.sx, p.sy]
+            fst = p
+
+        l = s.end - s.start
+        large_arc = if l>180 then 1 else 0
+        d = d.concat "A", [s.radius,s.radius,0,large_arc,1,p.ex,p.ey]
+    d = d.concat "L",[fst.sx,fst.sy]
+    paper.path(d)
