@@ -142,7 +142,7 @@ class RadarChart
 
         @cx = @width * 0.5
         @cy = @height * 0.5
-        @maxsize = @height * 0.45
+        @maxsize = @height * 0.35
 
     render_reports: (rs, targets, opts) ->
         if opts == undefined
@@ -158,19 +158,33 @@ class RadarChart
         obj = this
         maxsize = @maxsize
 
+        ###
         titles = _(rs).map (r) ->
             title = "#{r.profile} #{r.testtype}"
             arcw = 360 * r.total_cases/grand_total
             target = targets[title]
             if target == undefined || target < 50
                 target = 50
-            arch = maxsize * 50/target #r.pass_target
+            arch = maxsize * 50/target
             apex = obj.group_arc a, arcw, arch, r.total_pass, r.total_fail, r.total_na
+            obj.target_arc a, arcw,
             a += arcw
-            url   = "http://qa-reports.meego.com/#{r.release}/#{r.profile}/#{r.testtype}/#{r.hardware}/#{r.qa_id}"
+            url  = "http://qa-reports.meego.com/#{r.release}/#{r.profile}/#{r.testtype}/#{r.hardware}/#{r.qa_id}"
             return {title:title, apex:apex, mid:a-arcw/2, arcw:arcw, href:url}
 
         @render_target_circle()
+        ###
+        titles = _(rs).map (r) ->
+            title = "#{r.profile} #{r.testtype}"
+            arcw = 360 * r.total_cases/grand_total
+            target = targets[title]
+            if not target?
+                target = 0
+            apex = obj.group_arc a, arcw, maxsize, r.total_pass, r.total_fail, r.total_na
+            obj.target_arc a, arcw, maxsize*target/100
+            a += arcw
+            url  = "http://qa-reports.meego.com/#{r.release}/#{r.profile}/#{r.testtype}/#{r.hardware}/#{r.qa_id}"
+            return {title:title, apex:apex, mid:a-arcw/2, arcw:arcw, href:url}
 
         if opts.labels
             @render_titles titles
@@ -184,8 +198,6 @@ class RadarChart
             "stroke-color": "black"
             "stroke-opacity": 0.8
             fill: undefined
-
-    render_alternative_circle: (reports, targets) ->
 
     render_titles: (titles) ->
         y = 10
@@ -236,6 +248,19 @@ class RadarChart
                 "stroke-opacity": 0.5
 
             prevy = ty
+
+    target_arc: (start, width, radius) ->
+        cx = @cx
+        cy = @cy
+
+        a = drawArc @paper, cx, cy, start, start+width, radius
+        a.attr
+            "stroke-width": 3
+            "stroke-color": "black"
+            "stroke-opacity": 0.8
+            fill: undefined
+        return a
+
 
     group_arc: (start, width, length, pass, fail, na) ->
         cx = @cx

@@ -40,7 +40,7 @@ arcPath = (cx, cy, start, end, radius) ->
     large_arc = if l>180 then 1 else 0
     p = arcPoints(cx, cy, start, end, radius)
     s = "".concat "M",[p.sx,p.sy]
-    s = s.concat  "A",[radius,radius,0,large_arc,1,p.ex,p.ey], "Z"
+    s = s.concat  "A",[radius,radius,0,large_arc,1,p.ex,p.ey]
 
 window.arcPoints = arcPoints
 
