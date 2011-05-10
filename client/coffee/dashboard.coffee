@@ -95,7 +95,6 @@ load_dashboard = (callback) ->
 
 init_user_dashboard = (dashboard) ->
     $p.form_container.hide()
-    $p.widget_container.show()
     $p.toolbar_container.show()
     $p.upper_header.show()
     $p.logged_user.text(current_user.username)
@@ -103,12 +102,14 @@ init_user_dashboard = (dashboard) ->
     cached.get "/widgets", (data) ->
         initialize_toolbar data, $p.widget_bar
 
+    add_tab_element "Default"
+
     load_widgets()
 
     balance_columns()
 
 balance_columns = () ->
-    $('#page_content').equalHeights()
+    $('#page_content .tab_content').equalHeights()
 
 get_widget_class = (name) -> (callback) ->
     cls = widgets[name]
@@ -197,15 +198,30 @@ updateWidgetElement = (elem) ->
     $e = $(elem)
     obj = $e.data("widgetObj")
     $parent = $e.parent()
-    if $parent.attr("id") == "sidebar"
+    if $parent.hasClass "sidebar"
         obj.render_small_view balance_columns
     else
         obj.render_main_view balance_columns
 
+add_tab_element = (title) ->
+    $dom = $('#hidden_templates .tab').clone()
+    $dom.find('.tab_title').text(title)
+    $dom.data('tab-content', $('#hidden_templates .tab_content').clone())
+    $dom.appendTo $p.tab_list
+    set_current_tab $dom
+
+set_current_tab = (dom) ->
+    $dom = $(dom)
+    $p.tab_list.find('li').removeClass('current')
+    $dom.addClass('current')
+    $('#page_content .tab_content').detach()
+    $('#page_content').prepend $dom.data 'tab-content'
 
 initialize_sortable_columns = () ->
+    $s = $sortables()
+
     # Dragging existing widgets from one position to another
-    $('#left_column, #sidebar').sortable
+    $s.sortable
         items:   '.widget'
         handle:  '.widget_move'
         opacity: 0.9
@@ -220,7 +236,7 @@ initialize_sortable_columns = () ->
             obj = $item.data "widgetObj"
             if obj?
                 $parent = $item.parent()
-                if $parent.attr("id") == "sidebar"
+                if $parent.hasClass "sidebar"
                     obj.render_small_view balance_columns
                 else
                     obj.render_main_view balance_columns
@@ -237,19 +253,19 @@ initialize_sortable_columns = () ->
         tolerance:   'pointer'
 
     # Connect the sortable columns with each other
-    lc = '#left_column'
-    sb = '#sidebar'
+    lc = '#page_content .left_column'
+    sb = '#page_content .sidebar'
     $(lc).sortable('option', 'connectWith', sb)
     $(sb).sortable('option', 'connectWith', lc)
 
     # Enable columns to receive new widgets from toolbar
-    $('#left_column, #sidebar').droppable
+    $s.droppable
         accept: '.widget_info'
         scope: 'widget'
         greedy: true
         tolerance: 'pointer'
         over: (event, ui) ->
-            $('#left_column, #sidebar').sortable('refresh')
+            $s.sortable('refresh')
             balance_columns()
         drop: (event, ui) ->
             $this = $(this)
@@ -262,7 +278,7 @@ initialize_sortable_columns = () ->
                 if undo?
                     wgt.config = undo[name]
                     delete undo[name]
-                if $this.attr("id") == "sidebar"
+                if $this.hasClass "sidebar"
                     wgt.render_small_view balance_columns
                 else
                     wgt.render_main_view balance_columns
@@ -299,13 +315,17 @@ initialize_toolbar_draggable = (elem) ->
         cursorAt:
             top:32
             left:32
-        connectToSortable: '#left_column, #sidebar'
+        connectToSortable: $sortables()
         scope: 'widget'
+
+$sortables   = () -> $('#page_content').find('.left_column, .sidebar')
+$left_column = () -> $('#page_content .left_column')
+$sidebar     = () -> $('#page_content .sidebar')
 
 load_widgets = (cb) ->
     $.getJSON "/user/dashboard", (dashb) ->
-        $lc = $('#left_column')
-        $sb = $('#sidebar')
+        $lc = $left_column()
+        $sb = $sidebar()
 
         $lc.empty()
         $sb.empty()
@@ -335,8 +355,8 @@ save_widgets = (cb) ->
     ## TODO: save requests need to be synchronized via a queued so that we
     ##       don't accidentally overwrite newer state with older state if
     ##       asynchronious save requests get processed in different order
-    $lc = $('#left_column')
-    $sb = $('#sidebar')
+    $lc = $('.left_column')
+    $sb = $('.sidebar')
 
     find_configs = ($elem) ->
         result = []
@@ -366,13 +386,15 @@ $ () ->
     $p.login_form        = $('.login_form')
 
     $p.form_container    = $('.form_container')
-    $p.widget_container  = $('.widget_container')
     $p.toolbar_container = $('.toolbar_container')
     $p.upper_header      = $('#upper_header')
     $p.logged_user       = $('#logged_user')
 
     $p.widget_bar        = $('#widget_bar')
     $p.add_widget_btn    = $('#add_widgets_btn')
+
+    $p.tab_list          = $('#tab_navi ul')
+    $p.add_tab_btn       = $('#tab_navi .add')
 
     $p.login_form.appendTo('.form_container')
     $p.login_form.find('form').submit submit_login_form
