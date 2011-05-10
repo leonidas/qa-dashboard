@@ -95,7 +95,6 @@ load_dashboard = (callback) ->
 
 init_user_dashboard = (dashboard) ->
     $p.form_container.hide()
-    $p.widget_container.show()
     $p.toolbar_container.show()
     $p.upper_header.show()
     $p.logged_user.text(current_user.username)
@@ -207,17 +206,22 @@ updateWidgetElement = (elem) ->
 add_tab_element = (title) ->
     $dom = $('#hidden_templates .tab').clone()
     $dom.find('.tab_title').text(title)
-    $dom.data('tab-content', $('<div class="tab_content"/>'))
+    $dom.data('tab-content', $('#hidden_templates .tab_content').clone())
     $dom.appendTo $p.tab_list
     set_current_tab $dom
 
 set_current_tab = (dom) ->
+    $dom = $(dom)
     $p.tab_list.find('li').removeClass('current')
-    $(dom).addClass('current')
+    $dom.addClass('current')
+    $('#page_content .tab_content').detach()
+    $('#page_content').prepend $dom.data 'tab-content'
 
 initialize_sortable_columns = () ->
+    $s = $sortables()
+
     # Dragging existing widgets from one position to another
-    $('.left_column, .sidebar').sortable
+    $s.sortable
         items:   '.widget'
         handle:  '.widget_move'
         opacity: 0.9
@@ -249,19 +253,19 @@ initialize_sortable_columns = () ->
         tolerance:   'pointer'
 
     # Connect the sortable columns with each other
-    lc = '.left_column'
-    sb = '.sidebar'
+    lc = '#page_content .left_column'
+    sb = '#page_content .sidebar'
     $(lc).sortable('option', 'connectWith', sb)
     $(sb).sortable('option', 'connectWith', lc)
 
     # Enable columns to receive new widgets from toolbar
-    $('.left_column, .sidebar').droppable
+    $s.droppable
         accept: '.widget_info'
         scope: 'widget'
         greedy: true
         tolerance: 'pointer'
         over: (event, ui) ->
-            $('.left_column, .sidebar').sortable('refresh')
+            $s.sortable('refresh')
             balance_columns()
         drop: (event, ui) ->
             $this = $(this)
@@ -311,13 +315,17 @@ initialize_toolbar_draggable = (elem) ->
         cursorAt:
             top:32
             left:32
-        connectToSortable: '.left_column, .sidebar'
+        connectToSortable: $sortables()
         scope: 'widget'
+
+$sortables   = () -> $('#page_content').find('.left_column, .sidebar')
+$left_column = () -> $('#page_content .left_column')
+$sidebar     = () -> $('#page_content .sidebar')
 
 load_widgets = (cb) ->
     $.getJSON "/user/dashboard", (dashb) ->
-        $lc = $('.left_column')
-        $sb = $('.sidebar')
+        $lc = $left_column()
+        $sb = $sidebar()
 
         $lc.empty()
         $sb.empty()
@@ -378,7 +386,6 @@ $ () ->
     $p.login_form        = $('.login_form')
 
     $p.form_container    = $('.form_container')
-    $p.widget_container  = $('.widget_container')
     $p.toolbar_container = $('.toolbar_container')
     $p.upper_header      = $('#upper_header')
     $p.logged_user       = $('#logged_user')
