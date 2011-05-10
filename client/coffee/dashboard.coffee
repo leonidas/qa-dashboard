@@ -309,8 +309,6 @@ initialize_sortable_columns = () ->
                 balance_columns()
             setTimeout f, 0
 
-    console.log $p.widget_bar.find('.widget_info')
-    console.log $s
     $p.widget_bar.find('.widget_info').draggable 'option', 'connectToSortable', $s
 
 initialize_toolbar_draggable = (elem) ->
