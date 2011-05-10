@@ -103,6 +103,8 @@ init_user_dashboard = (dashboard) ->
     cached.get "/widgets", (data) ->
         initialize_toolbar data, $p.widget_bar
 
+    add_tab_element "Default"
+
     load_widgets()
 
     balance_columns()
@@ -201,6 +203,11 @@ updateWidgetElement = (elem) ->
         obj.render_small_view balance_columns
     else
         obj.render_main_view balance_columns
+
+add_tab_element = (title) ->
+    $dom = $('#hidden_templates .tab').clone()
+    $dom.find('.tab_title').text(title)
+    $dom.appendTo $p.tab_list
 
 
 initialize_sortable_columns = () ->
@@ -373,6 +380,10 @@ $ () ->
 
     $p.widget_bar        = $('#widget_bar')
     $p.add_widget_btn    = $('#add_widgets_btn')
+
+    $p.tab_list          = $('#tab_navi ul')
+    $p.add_tab_btn       = $('#tab_navi .add')
+
 
     $p.login_form.appendTo('.form_container')
     $p.login_form.find('form').submit submit_login_form
