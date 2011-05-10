@@ -102,7 +102,13 @@ init_user_dashboard = (dashboard) ->
     cached.get "/widgets", (data) ->
         initialize_toolbar data, $p.widget_bar
 
-    add_tab_element "Default"
+    $tab = add_tab_element "Default"
+    set_current_tab $tab
+
+    $p.add_tab_btn.click () ->
+        $new = add_tab_element "New Tab"
+        set_current_tab $new
+        return false
 
     load_widgets()
 
@@ -208,7 +214,7 @@ add_tab_element = (title) ->
     $dom.find('.tab_title').text(title)
     $dom.data('tab-content', $('#hidden_templates .tab_content').clone())
     $dom.appendTo $p.tab_list
-    set_current_tab $dom
+    return $dom
 
 set_current_tab = (dom) ->
     $dom = $(dom)
@@ -216,6 +222,8 @@ set_current_tab = (dom) ->
     $dom.addClass('current')
     $('#page_content .tab_content').detach()
     $('#page_content').prepend $dom.data 'tab-content'
+
+    initialize_sortable_columns()
 
 initialize_sortable_columns = () ->
     $s = $sortables()
@@ -400,7 +408,5 @@ $ () ->
     $p.login_form.find('form').submit submit_login_form
 
     $('#logout_btn').click submit_user_logout
-
-    initialize_sortable_columns()
 
     initialize_application()
