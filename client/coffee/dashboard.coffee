@@ -101,16 +101,14 @@ init_user_dashboard = (dashboard) ->
 
     cached.get "/widgets", (data) ->
         initialize_toolbar data, $p.widget_bar
-
-    $tab = add_tab_element "Default"
-    set_current_tab $tab
+        $tab = add_tab_element "Default"
+        set_current_tab $tab
+        load_widgets()
 
     $p.add_tab_btn.click () ->
         $new = add_tab_element "New Tab"
         set_current_tab $new
         return false
-
-    load_widgets()
 
     balance_columns()
 
@@ -227,6 +225,7 @@ set_current_tab = (dom) ->
     $('#page_content').prepend $dom.data 'tab-content'
 
     initialize_sortable_columns()
+    balance_columns()
 
 initialize_sortable_columns = () ->
     $s = $sortables()
@@ -310,6 +309,10 @@ initialize_sortable_columns = () ->
                 balance_columns()
             setTimeout f, 0
 
+    console.log $p.widget_bar.find('.widget_info')
+    console.log $s
+    $p.widget_bar.find('.widget_info').draggable 'option', 'connectToSortable', $s
+
 initialize_toolbar_draggable = (elem) ->
     $(elem).draggable
         helper: () ->
@@ -326,7 +329,6 @@ initialize_toolbar_draggable = (elem) ->
         cursorAt:
             top:32
             left:32
-        connectToSortable: $sortables()
         scope: 'widget'
 
 $sortables   = () -> $('#page_content').find('.left_column, .sidebar')
