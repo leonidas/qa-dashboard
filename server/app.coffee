@@ -5,6 +5,10 @@ _       = require('underscore')
 
 MongoStore = require('connect-mongo')
 
+HOUR  = 60*60*1000
+DAY   = 24*HOUR
+MONTH = 30*DAY
+
 create_app = (basedir, db) ->
 
     PUBLIC = basedir + "/public"
@@ -27,7 +31,11 @@ create_app = (basedir, db) ->
 
         app.use express.cookieParser()
         app.use express.bodyParser()
-        app.use express.session {secret: "TODO", store:store}
+        app.use express.session
+            secret: "TODO"
+            store:store
+            cookie:
+                maxAge: MONTH
         app.use express.static PUBLIC
 
     app.configure "development", ->
