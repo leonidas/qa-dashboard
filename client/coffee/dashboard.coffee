@@ -214,6 +214,9 @@ add_tab_element = (title) ->
     $dom.find('.tab_title').text(title)
     $dom.data('tab-content', $('#hidden_templates .tab_content').clone())
     $dom.appendTo $p.tab_list
+    $dom.click ->
+        set_current_tab $dom
+        return false
     return $dom
 
 set_current_tab = (dom) ->
