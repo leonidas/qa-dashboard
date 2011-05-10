@@ -439,7 +439,7 @@ save_widgets = (cb) ->
         tabs: _($tabs).map serialize_tab
         undo: current_user.dashboard.undo
 
-    console.log dashboard
+    #console.log dashboard
 
     $.post "/user/dashboard/save", dashboard, cb
 
