@@ -208,7 +208,11 @@ add_tab_element = (title) ->
     $dom = $('#hidden_templates .tab').clone()
     $dom.find('.tab_title').text(title)
     $dom.appendTo $p.tab_list
+    set_current_tab $dom
 
+set_current_tab = (dom) ->
+    $p.tab_list.find('li').removeClass('current')
+    $(dom).addClass('current')
 
 initialize_sortable_columns = () ->
     # Dragging existing widgets from one position to another
