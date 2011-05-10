@@ -101,9 +101,16 @@ init_user_dashboard = (dashboard) ->
 
     cached.get "/widgets", (data) ->
         initialize_toolbar data, $p.widget_bar
-        $tab = add_tab_element "Default"
-        set_current_tab $tab
-        load_widgets()
+
+        tabs = dashboard.tabs
+        if not tabs?
+            $tab = add_tab_element "Default"
+            set_current_tab $tab
+            if dashboard.column?
+                # backwads compatibility
+                load_widgets()
+        else
+            load_tabs(tabs)
 
     $p.add_tab_btn.click () ->
         $new = add_tab_element "New Tab"
@@ -333,8 +340,47 @@ $sortables   = () -> $('#page_content').find('.left_column, .sidebar')
 $left_column = () -> $('#page_content .left_column')
 $sidebar     = () -> $('#page_content .sidebar')
 
+load_tabs = (tabs, cb) ->
+    load_tab = (tab) -> (cb) ->
+        $tab = add_tab_element tab.name
+        $con = $tab.data('tab-content')
+
+        $lc = $con.find('.left_column')
+        $sb = $con.find('.sidebar')
+
+        $lc.empty()
+        $sb.empty()
+
+        add_widgets = (arr, $elem) -> (cb) ->
+            arr = _(arr).map (w) -> (callback) ->
+                wt = create_new_widget(w.type) (obj) ->
+                    obj.config = w.config
+                    dom = obj.dom
+                    $elem.append(dom)
+                    balance_columns()
+                    if $elem == $lc
+                        obj.render_main_view ->
+                            balance_columns()
+                    else
+                        obj.render_small_view ->
+                            balance_columns()
+                    callback?()
+            async.series arr, cb
+
+        async.parallel [
+            add_widgets(tab.column, $lc),
+            add_widgets(tab.sidebar, $sb)], cb
+
+    loaders = _(tabs).map load_tab
+    async.parallel loaders, (err) ->
+        return cb? err if err?
+        set_current_tab $p.tab_list.find('li.tab')[0]
+        cb?()
+
+
 load_widgets = (cb) ->
     $.getJSON "/user/dashboard", (dashb) ->
+
         $lc = $left_column()
         $sb = $sidebar()
 
@@ -366,25 +412,34 @@ save_widgets = (cb) ->
     ## TODO: save requests need to be synchronized via a queued so that we
     ##       don't accidentally overwrite newer state with older state if
     ##       asynchronious save requests get processed in different order
-    $lc = $('.left_column')
-    $sb = $('.sidebar')
 
     find_configs = ($elem) ->
         result = []
         $elem.find('.widget').each (idx, sub) ->
-            #console.log sub
             obj = $(sub).data("widgetObj")
             if obj?
                 cfg = obj.config
                 result.push {type:obj.type, config:cfg}
         result
 
-    dashboard =
+    serialize_tab = (tab) ->
+        $tab = $(tab)
+        $content = $tab.data('tab-content')
+        $lc = $content.find '.left_column'
+        $sb = $content.find '.sidebar'
+
+        name: $tab.find('.tab_title').text()
         column:  find_configs $lc
         sidebar: find_configs $sb
+
+
+    $tabs = $p.tab_list.find('li.tab')
+
+    dashboard =
+        tabs: _($tabs).map serialize_tab
         undo: current_user.dashboard.undo
 
-    #console.log dashboard
+    console.log dashboard
 
     $.post "/user/dashboard/save", dashboard, cb
 
