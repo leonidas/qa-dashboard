@@ -230,6 +230,7 @@ add_tab_element = (title) ->
     return $dom
 
 init_tab_events = ($dom) ->
+    $dom.unbind()
     $actions = $dom.find('.tab_actions')
 
     $dom.click ->
@@ -239,7 +240,7 @@ init_tab_events = ($dom) ->
             set_current_tab $dom
         return false
 
-    def_action = (name, f) -> $actions.find(".#{name}").click ->
+    def_action = (name, f) -> $actions.find(".#{name}").unbind().click ->
         f()
         $actions.hide()
         return false
