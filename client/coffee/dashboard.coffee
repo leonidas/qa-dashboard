@@ -123,6 +123,7 @@ init_user_dashboard = (dashboard) ->
     $p.add_tab_btn.click () ->
         $new = add_tab_element "New Tab"
         set_current_tab $new
+        save_widgets()
         return false
 
     balance_columns()
@@ -244,6 +245,29 @@ init_tab_events = ($dom) ->
         return false
 
     def_action 'rename', ->
+        old = $dom.find('.tab_title').text()
+        $dom.empty()
+        $dom.append $('#hidden_templates .new_tab').clone().children()
+        $form  = $dom.find('form')
+        $input = $form.find('input')
+        $input.val(old)
+        $input.focus()
+        $input.select()
+
+        end_edit = () ->
+            title = $input.val()
+            $dom.empty()
+            $dom.append $('#hidden_templates .tab').clone().children()
+            $dom.find('.tab_title').text(title)
+
+            init_tab_events $dom
+
+            if title != old
+                save_widgets()
+
+        $input.blur  -> end_edit(); false
+        $form.submit -> end_edit(); false
+
 
     def_action 'copy', ->
         conf = deepcopy serialize_tab $dom
