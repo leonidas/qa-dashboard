@@ -231,7 +231,7 @@ init_tab_events = ($dom) ->
 
     $dom.find('.open_actions').click (ev) ->
         ev.stopPropagation()
-        $actions.toggle().width($dom.width)
+        $actions.toggle().width($dom.width())
 
 set_current_tab = (dom) ->
     $dom = $(dom)
