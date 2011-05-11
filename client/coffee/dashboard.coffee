@@ -302,7 +302,7 @@ init_tab_events = ($dom) ->
     def_action 'copy', ->
         conf = deepcopy serialize_tab $dom
         conf.name = "#{conf.name} copy"
-        load_tab(conf)(-> save_widgets())
+        load_tab(conf) save_widgets
 
     def_action 'delete', ->
         $tabs = $p.tab_list.find('li.tab')
@@ -317,6 +317,20 @@ init_tab_events = ($dom) ->
         else
             set_current_tab $tabs[idx-1]
 
+        conf = serialize_tab $dom
+        $n = $('#notification')
+
+        close = () ->
+            current_user.dashboard.tab_undo = null
+            $n.slideUp()
+            return false
+
+        $n.find('a.undo').unbind().click ->
+            load_tab(conf) save_widgets
+            close()
+        $n.find('a.close').unbind().click close
+
+        $n.slideDown()
         $dom.remove()
         save_widgets()
 
@@ -546,9 +560,11 @@ save_widgets = (cb) ->
 
     $tabs = $p.tab_list.find('li.tab')
 
+    old = current_user.dashboard
+
     dashboard =
         tabs: _($tabs).map serialize_tab
-        undo: current_user.dashboard.undo
+        undo: old.undo
 
     #console.log dashboard
 
