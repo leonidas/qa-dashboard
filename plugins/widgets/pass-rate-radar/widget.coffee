@@ -115,7 +115,7 @@ class PassRateChart extends WidgetBase
         @config.groups = selected
         @config.passtargets = passtargets
 
-        console.log selected
+        #console.log selected
 
         cb?()
 
