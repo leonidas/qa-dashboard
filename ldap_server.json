@@ -1,0 +1,6 @@
+{
+  "useldap": true,
+  "ldapuri": "ldap://example.com:389",
+  "dn_base": "ou=people,dc=example,dc=com",
+  "filters": "myProperty=value"
+}
