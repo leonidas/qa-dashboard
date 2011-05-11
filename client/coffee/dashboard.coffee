@@ -240,11 +240,15 @@ init_tab_events = ($dom) ->
 
     def_action = (name, f) -> $actions.find(".#{name}").click ->
         f()
+        $actions.hide()
         return false
 
     def_action 'rename', ->
 
     def_action 'copy', ->
+        conf = deepcopy serialize_tab $dom
+        conf.name = "#{conf.name} copy"
+        load_tab(conf)(->)
 
     def_action 'delete', ->
 
