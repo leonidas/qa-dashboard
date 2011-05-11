@@ -219,14 +219,24 @@ add_tab_element = (title) ->
     $dom.find('.tab_title').text(title)
     $dom.data('tab-content', $('#hidden_templates .tab_content').clone())
     $dom.appendTo $p.tab_list
+    init_tab_events $dom
+    return $dom
+
+init_tab_events = ($dom) ->
+    $actions = $dom.find('.tab_actions')
+
     $dom.click ->
         set_current_tab $dom
         return false
-    return $dom
+
+    $dom.find('.open_actions').click (ev) ->
+        ev.stopPropagation()
+        $actions.toggle().width($dom.width)
 
 set_current_tab = (dom) ->
     $dom = $(dom)
     $p.tab_list.find('li').removeClass('current')
+    $p.tab_list.find('.tab_actions').hide()
     $dom.addClass('current')
     $('#page_content .tab_content').detach()
     $('#page_content').prepend $dom.data 'tab-content'
