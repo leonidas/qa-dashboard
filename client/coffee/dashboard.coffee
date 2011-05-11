@@ -248,9 +248,24 @@ init_tab_events = ($dom) ->
     def_action 'copy', ->
         conf = deepcopy serialize_tab $dom
         conf.name = "#{conf.name} copy"
-        load_tab(conf)(->)
+        load_tab(conf)(-> save_widgets())
 
     def_action 'delete', ->
+        $tabs = $p.tab_list.find('li.tab')
+        len   = $tabs.length
+        idx   = $tabs.index $dom
+
+        if len == 1
+            $new = add_tab_element "Default"
+            set_current_tab $new
+        else if idx == 0
+            set_current_tab $tabs[1]
+        else
+            set_current_tab $tabs[idx-1]
+
+        $dom.remove()
+        save_widgets()
+
 
 set_current_tab = (dom) ->
     $dom = $(dom)
