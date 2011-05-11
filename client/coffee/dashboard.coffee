@@ -241,14 +241,19 @@ init_tab_events = ($dom) ->
 
         over: (event, ui) ->
             return false if $dom.hasClass 'current'
+            $dom.addClass "accepting-drop"
             tab_hack = true
 
         out: (event, ui) ->
             return false if $dom.hasClass 'current'
+            $dom.removeClass "accepting-drop"
             tab_hack = false
 
         drop: (event, ui) ->
-            return false if $dom.hasClass 'current'
+            $dom.removeClass "accepting-drop"
+            if $dom.hasClass 'current'
+                tab_hack = false
+                return false
             $ud = $(ui.draggable)
 
             f = () ->
