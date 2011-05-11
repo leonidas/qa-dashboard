@@ -24,6 +24,14 @@ current_user = null
 $p = {}
 widgets = {}
 
+deepcopy = (obj) ->
+    return obj if typeof obj != 'object'
+
+    cp = {}
+    for k,v of obj
+        cp[k] = deepcopy v
+    return cp
+
 submit_login_form = () ->
     $form = $(this)
     field = (name) -> $form.find("input[name=\"#{name}\"]").val()
@@ -201,9 +209,7 @@ init_widget_dom_events = (dom) ->
 update_undo_buffer = (obj) ->
     buf = current_user?.dashboard?.undo ?= {}
     typ = obj.type
-    ## TODO: obj.config needs to be deep-cloned to avoid widget
-    ##       implementations from modifying the undo buffer
-    buf[typ] = _.clone(obj.config)
+    buf[typ] = deepcopy(obj.config)
 
 updateWidgetElement = (elem) ->
     $e = $(elem)
@@ -231,6 +237,16 @@ init_tab_events = ($dom) ->
         else
             set_current_tab $dom
         return false
+
+    def_action = (name, f) -> $actions.find(".#{name}").click ->
+        f()
+        return false
+
+    def_action 'rename', ->
+
+    def_action 'copy', ->
+
+    def_action 'delete', ->
 
 set_current_tab = (dom) ->
     $dom = $(dom)
@@ -349,43 +365,62 @@ $sortables   = () -> $('#page_content').find('.left_column, .sidebar')
 $left_column = () -> $('#page_content .left_column')
 $sidebar     = () -> $('#page_content .sidebar')
 
+load_tab = (tab) -> (cb) ->
+    $tab = add_tab_element tab.name
+    $con = $tab.data('tab-content')
+
+    $lc = $con.find('.left_column')
+    $sb = $con.find('.sidebar')
+
+    $lc.empty()
+    $sb.empty()
+
+    add_widgets = (arr, $elem) -> (cb) ->
+        arr = _(arr).map (w) -> (callback) ->
+            wt = create_new_widget(w.type) (obj) ->
+                obj.config = w.config
+                dom = obj.dom
+                $elem.append(dom)
+                balance_columns()
+                if $elem == $lc
+                    obj.render_main_view ->
+                        balance_columns()
+                else
+                    obj.render_small_view ->
+                        balance_columns()
+                callback?()
+        async.series arr, cb
+
+    async.parallel [
+        add_widgets(tab.column, $lc),
+        add_widgets(tab.sidebar, $sb)], cb
+
 load_tabs = (tabs, cb) ->
-    load_tab = (tab) -> (cb) ->
-        $tab = add_tab_element tab.name
-        $con = $tab.data('tab-content')
-
-        $lc = $con.find('.left_column')
-        $sb = $con.find('.sidebar')
-
-        $lc.empty()
-        $sb.empty()
-
-        add_widgets = (arr, $elem) -> (cb) ->
-            arr = _(arr).map (w) -> (callback) ->
-                wt = create_new_widget(w.type) (obj) ->
-                    obj.config = w.config
-                    dom = obj.dom
-                    $elem.append(dom)
-                    balance_columns()
-                    if $elem == $lc
-                        obj.render_main_view ->
-                            balance_columns()
-                    else
-                        obj.render_small_view ->
-                            balance_columns()
-                    callback?()
-            async.series arr, cb
-
-        async.parallel [
-            add_widgets(tab.column, $lc),
-            add_widgets(tab.sidebar, $sb)], cb
-
     loaders = _(tabs).map load_tab
     async.parallel loaders, (err) ->
         return cb? err if err?
         set_current_tab $p.tab_list.find('li.tab')[0]
         cb?()
 
+
+serialize_tab = (tab) ->
+    find_configs = ($elem) ->
+        result = []
+        $elem.find('.widget').each (idx, sub) ->
+            obj = $(sub).data("widgetObj")
+            if obj?
+                cfg = obj.config
+                result.push {type:obj.type, config:cfg}
+        result
+
+    $tab = $(tab)
+    $content = $tab.data('tab-content')
+    $lc = $content.find '.left_column'
+    $sb = $content.find '.sidebar'
+
+    name: $tab.find('.tab_title').text()
+    column:  find_configs $lc
+    sidebar: find_configs $sb
 
 load_widgets = (cb) ->
     $.getJSON "/user/dashboard", (dashb) ->
@@ -421,26 +456,6 @@ save_widgets = (cb) ->
     ## TODO: save requests need to be synchronized via a queued so that we
     ##       don't accidentally overwrite newer state with older state if
     ##       asynchronious save requests get processed in different order
-
-    find_configs = ($elem) ->
-        result = []
-        $elem.find('.widget').each (idx, sub) ->
-            obj = $(sub).data("widgetObj")
-            if obj?
-                cfg = obj.config
-                result.push {type:obj.type, config:cfg}
-        result
-
-    serialize_tab = (tab) ->
-        $tab = $(tab)
-        $content = $tab.data('tab-content')
-        $lc = $content.find '.left_column'
-        $sb = $content.find '.sidebar'
-
-        name: $tab.find('.tab_title').text()
-        column:  find_configs $lc
-        sidebar: find_configs $sb
-
 
     $tabs = $p.tab_list.find('li.tab')
 
