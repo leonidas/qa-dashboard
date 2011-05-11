@@ -226,12 +226,10 @@ init_tab_events = ($dom) ->
     $actions = $dom.find('.tab_actions')
 
     $dom.click ->
-        set_current_tab $dom
-        return false
-
-    $dom.find('.open_actions').click (ev) ->
-        ev.stopPropagation()
-        $actions.toggle().width($dom.width())
+        if $dom.hasClass 'current'
+            $actions.toggle().width($dom.width())
+        else
+            set_current_tab $dom
         return false
 
 set_current_tab = (dom) ->
