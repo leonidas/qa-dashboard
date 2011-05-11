@@ -1,5 +1,5 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<!DOCTYPE html>
+<html lang="en">
 
 <!--
 
@@ -127,9 +127,15 @@ Important measurements of layout:
 
 <div id="hidden_templates" style="display:none">
 
-<li class="tab"><a href="#" class="tab_title">Tab Title</a><a href="" class="close">x</a></li>
+<li class="tab"><a href="#" class="tab_title">Tab Title</a><a href="#" class="open_actions">v</a>
+    <ul class="tab_actions" style="display:none">
+        <li><a href="#" class="rename">Rename</a></li>
+        <li><a href="#" class="copy">Copy</a></li>
+        <li><a href="#" class="delete">Delete</a></li>
+    </ul>
+</li>
 
-<li class="new_tab"><input type="text" value="New tab"/><a href="" class="close">x</a></li>
+<li class="new_tab"><form><a href="#"><input type="text" value="New tab"/></a></form></li>
 
 <div class="tab_content">
     <section class="left_column two">

@@ -439,7 +439,18 @@ aside .widget h1,
  ul li {
     background: #fff url(../img/version_navi_active_bg.png) repeat-x 0 bottom;
     float: left;
-    position:relative;}
+    position:relative;
+ }
+
+ li.tab {
+ 	min-width: 8em;
+ }
+
+ input {
+ 	position: relative;
+ 	left: -0.1em;
+ 	top:  -0.5em;
+ }
 
  ul li:hover {
     background: #fff url(../img/version_navi_hover_bg.png) repeat-x right bottom;}
@@ -494,6 +505,75 @@ aside .widget h1,
 
   ul li:hover a.close {
   	display:block !important;}
+  ul li a.open_actions {
+  	display: none;
+  }
+  ul li.current a.open_actions {
+	background: transparent no-repeat left top url(../img/tab_actions.png);
+	border: 0 !important;
+	width: 10px;
+	height: 10px !important;
+	position: absolute;
+	display: none;
+	right: 7px;
+	top: 13px;
+	padding: 0;
+	margin: 0;
+	z-index: 100;
+	color: red;
+	text-indent: -9999px;}
+  ul li.current a.open_actions:hover {
+	background: transparent no-repeat left top url(../img/tab_actions_hover.png);}
+  ul li.current:hover a.open_actions {
+  	display: block !important;}
+  li .tab_actions {
+	position: absolute;
+	left: -1px;
+	border-left: 1px solid #cacaca;
+	border-right: 1px solid #cacaca;
+	border-bottom: 1px solid #cacaca;
+	background-color: #fff;
+	padding: 0 0 0.6em 0;
+	li {
+	  border: none;
+	  display: block;
+	  float: none;
+	  background: #fff;
+	  padding-right: 0.5em;
+	  a {
+	  	border: none;
+	  	width: auto;
+	  	padding: 2px;
+	  	margin: 0;
+	  	display: block;
+	    float: none;
+	    color: #949494;
+	    font-weight: normal;
+	    padding: 0.4em 1.5em 0.4em 1em;
+	  }
+	  a:hover {
+	  	color: #57585b;
+	  }
+	  a.rename {
+	  	background: transparent url(../img/tab_action_rename.png) no-repeat center right;
+	  }
+	  a.rename:hover {
+	  	background-image: url(../img/tab_action_rename_hover.png);
+	  }
+	  a.copy {
+	  	background: transparent url(../img/tab_action_copy.png) no-repeat center right;
+	  }
+	  a.copy:hover {
+	  	background-image: url(../img/tab_action_copy_hover.png);
+	  }
+	  a.delete {
+	  	background: transparent url(../img/tab_action_delete.png) no-repeat center right;
+	  }
+	  a.delete:hover {
+	  	background-image: url(../img/tab_action_delete_hover.png);
+	  }
+	}
+  }
 }
 
 a.close:hover {
