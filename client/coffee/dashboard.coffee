@@ -351,6 +351,7 @@ initialize_sortable_columns = () ->
     $p.tab_list.sortable
         items:  'li.tab'
         helper: 'clone'
+        axis: 'x'
 
         start: (event, ui) ->
             $p.tab_list.find('.tab_actions').hide()
