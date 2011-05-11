@@ -303,6 +303,18 @@ set_current_tab = (dom) ->
     balance_columns()
 
 initialize_sortable_columns = () ->
+    # Enable sorting tabs
+    $p.tab_list.sortable
+        items:  'li.tab'
+        helper: 'clone'
+
+        start: (event, ui) ->
+            $p.tab_list.find('.tab_actions').hide()
+
+        stop: (event, ui) ->
+            $p.tab_list.find('.tab_actions').hide()
+            save_widgets()
+
     $s = $sortables()
 
     # Dragging existing widgets from one position to another
