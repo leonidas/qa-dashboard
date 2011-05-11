@@ -23,6 +23,7 @@
 current_user = null
 $p = {}
 widgets = {}
+tab_hack = false
 
 deepcopy = (obj) ->
     return obj if typeof obj != 'object'
@@ -233,6 +234,34 @@ init_tab_events = ($dom) ->
     $dom.unbind()
     $actions = $dom.find('.tab_actions')
 
+    $dom.droppable
+        accept: ".widget"
+        tolerance: "pointer"
+        greedy: true
+
+        over: (event, ui) ->
+            return false if $dom.hasClass 'current'
+            tab_hack = true
+
+        out: (event, ui) ->
+            return false if $dom.hasClass 'current'
+            tab_hack = false
+
+        drop: (event, ui) ->
+            return false if $dom.hasClass 'current'
+            $ud = $(ui.draggable)
+
+            f = () ->
+                $con = $dom.data('tab-content')
+                $ud.prependTo $con.find('.left_column')
+                set_current_tab $dom
+                save_widgets()
+                tab_hack = false
+
+            event.stopImmediatePropagation()
+            setTimeout f, 0
+
+
     $dom.click ->
         if $dom.hasClass 'current'
             $actions.toggle().width($dom.width())
@@ -322,6 +351,7 @@ initialize_sortable_columns = () ->
     $s.sortable
         items:   '.widget'
         handle:  '.widget_move'
+        appendTo: 'body'
         opacity: 0.9
         revert:  false
 
@@ -329,6 +359,7 @@ initialize_sortable_columns = () ->
             $('.ui-widget-sortable-placeholder').height($(ui.item).height())
             balance_columns()
         stop: (event, ui) ->
+            return if tab_hack
             $item = $(ui.item)
             $item.removeClass 'move_mode'
             obj = $item.data "widgetObj"
