@@ -242,12 +242,14 @@ init_tab_events = ($dom) ->
         over: (event, ui) ->
             return false if $dom.hasClass 'current'
             ui.draggable.addClass "tab-drop"
+            $('.ui-widget-sortable-placeholder').css 'visibility', 'hidden'
             $dom.addClass "accepting-widget"
             tab_hack = true
 
         out: (event, ui) ->
             return false if $dom.hasClass 'current'
             ui.draggable.removeClass "tab-drop"
+            $('.ui-widget-sortable-placeholder').css 'visibility', 'visible'
             $dom.removeClass "accepting-widget"
             tab_hack = false
 
@@ -262,7 +264,8 @@ init_tab_events = ($dom) ->
             f = () ->
                 $con = $dom.data('tab-content')
                 $ud.prependTo $con.find('.left_column')
-                set_current_tab $dom
+                #set_current_tab $dom
+                balance_columns()
                 save_widgets()
                 tab_hack = false
 
