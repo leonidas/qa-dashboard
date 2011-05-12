@@ -309,7 +309,7 @@ init_tab_events = ($dom) ->
 
     def_action 'copy', ->
         conf = deepcopy serialize_tab $dom
-        conf.name = "#{conf.name} copy"
+        conf.name = "Copy of #{conf.name}"
         load_tab(conf) save_widgets
 
     def_action 'delete', ->
