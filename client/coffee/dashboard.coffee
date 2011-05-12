@@ -111,8 +111,7 @@ init_user_dashboard = (dashboard) ->
     cached.get "/widgets", (data) ->
         initialize_toolbar data, $p.widget_bar
 
-        tabs = dashboard.tabs
-        if not tabs?
+        if not dashboard?.tabs?
             $tab = add_tab_element "Default"
             set_current_tab $tab
             $('#tab_navi').css('visibility','visible')
@@ -120,7 +119,7 @@ init_user_dashboard = (dashboard) ->
                 # backwads compatibility
                 load_widgets()
         else
-            load_tabs tabs, (err) ->
+            load_tabs dashboard.tabs, (err) ->
                 $('#tab_navi').css('visibility','visible')
 
     $p.add_tab_btn.click () ->
