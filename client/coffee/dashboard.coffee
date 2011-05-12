@@ -115,7 +115,7 @@ init_user_dashboard = (dashboard) ->
             $tab = add_tab_element "Default"
             set_current_tab $tab
             $('#tab_navi').css('visibility','visible')
-            if dashboard.column?
+            if dashboard?.column?
                 # backwads compatibility
                 load_widgets()
         else
