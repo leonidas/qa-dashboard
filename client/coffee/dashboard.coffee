@@ -43,10 +43,10 @@ submit_login_form = () ->
         username: field "username"
         password: field "password"
 
-    $form.attr 'disabled', 'disabled'
+    $form.find('input').attr 'disabled', 'disabled'
 
     $.post "/auth/login", req, (data) ->
-        $form.removeAttr 'disabled'
+        $form.find('input').removeAttr 'disabled'
         if data.status == "error"
             # show error message
             $form.find('.error').show()
@@ -119,7 +119,8 @@ init_user_dashboard = (dashboard) ->
                 # backwads compatibility
                 load_widgets()
         else
-            load_tabs(tabs)
+            load_tabs tabs, (err) ->
+                $('#tab_navi').css('visibility','visible')
 
     $p.add_tab_btn.click () ->
         $new = add_tab_element "New Tab"
@@ -363,6 +364,9 @@ initialize_sortable_columns = () ->
         items:  'li.tab'
         helper: 'clone'
         axis: 'x'
+        distance: 5
+        tolerance: 'intersect'
+
 
         start: (event, ui) ->
             $p.tab_list.find('.tab_actions').hide()
