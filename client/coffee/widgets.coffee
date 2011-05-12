@@ -105,6 +105,12 @@ class WidgetBase
         else
             @render_view ".content_settings", @format_settings_view, cb
 
+    render: (cb) ->
+        if @dom.parent().hasClass '.sidebar'
+            @render_small_view cb
+        else
+            @render_main_view cb
+
     is_main_view_ready: ->
         @dom.find(".content_main .loading").length == 0
 

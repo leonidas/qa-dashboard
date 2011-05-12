@@ -26,7 +26,7 @@ widgets = {}
 tab_hack = false
 
 deepcopy = (obj) ->
-    return obj if typeof obj != 'object'
+    return obj if (typeof obj) != 'object'
 
     cp = {}
     for k,v of obj
@@ -164,13 +164,13 @@ init_widget_dom_events = (dom) ->
     $dom.find('.widget_edit').click ->
         $this = $(this)
 
-        $settings = $dom.find('.content_settings');
+        $settings = $dom.find('.content_settings')
         if $this.hasClass "active"
             $this.toggleClass 'active'
             updateWidgetElement $dom
         else
             $this.toggleClass 'active'
-            obj = $dom.data("widgetObj");
+            obj = $dom.data("widgetObj")
             obj.render_settings_view ->
                 balance_columns()
                 $dom.find('.widget_edit_content .cancel').click ->
@@ -201,18 +201,35 @@ init_widget_dom_events = (dom) ->
     $m.bind 'mouseout',  -> $dom.removeClass('move_mode')
 
     $dom.find('.widget_close').click ->
-        $dom.slideUp 200, ->
-            obj = $dom.data("widgetObj")
-            update_undo_buffer(obj)
-            $dom.remove()
+        sidebar = $dom.parent().hasClass 'sidebar'
+        obj = $dom.data('widgetObj')
+        console.log obj
+        $n = $('#notification')
+
+        close = () ->
+            $n.slideUp()
+            return false
+
+        $n.find('a.undo').unbind().click ->
+            dst = if sidebar then $('.sidebar') else $('.left_column')
+            obj.dom.prependTo dst
+            init_widget_dom_events obj.dom
+            obj.dom.data('widgetObj', obj)
             save_widgets()
-            balance_columns()
-        return false
+            close()
+        $n.find('a.close').unbind().click close
+
+        $n.find('span').text("Widget has been deleted.")
+        $n.slideDown()
+        $dom.remove()
+        save_widgets()
 
 update_undo_buffer = (obj) ->
-    buf = current_user?.dashboard?.undo ?= {}
+    current_user.dashboard ?= {}
+    buf = current_user.dashboard.undo ?= {}
     typ = obj.type
     buf[typ] = deepcopy(obj.config)
+    console.log buf
 
 updateWidgetElement = (elem) ->
     $e = $(elem)
@@ -342,6 +359,7 @@ init_tab_events = ($dom) ->
             close()
         $n.find('a.close').unbind().click close
 
+        $n.find('span').text("The tab has been deleted.")
         $n.slideDown()
         $dom.remove()
         save_widgets()
@@ -482,6 +500,15 @@ $sortables   = () -> $('#page_content').find('.left_column, .sidebar')
 $left_column = () -> $('#page_content .left_column')
 $sidebar     = () -> $('#page_content .sidebar')
 
+load_widget = ($elem) -> (w) -> (cb) ->
+    create_new_widget(w.type) (obj) ->
+        obj.config = w.config
+        dom = obj.dom
+        $elem.append(dom)
+        balance_columns()
+        obj.render balance_columns
+        cb?()
+
 load_tab = (tab) -> (cb) ->
     $tab = add_tab_element tab.name
     $con = $tab.data('tab-content')
@@ -493,19 +520,7 @@ load_tab = (tab) -> (cb) ->
     $sb.empty()
 
     add_widgets = (arr, $elem) -> (cb) ->
-        arr = _(arr).map (w) -> (callback) ->
-            wt = create_new_widget(w.type) (obj) ->
-                obj.config = w.config
-                dom = obj.dom
-                $elem.append(dom)
-                balance_columns()
-                if $elem == $lc
-                    obj.render_main_view ->
-                        balance_columns()
-                else
-                    obj.render_small_view ->
-                        balance_columns()
-                callback?()
+        arr = _(arr).map (load_widget $elem)
         async.series arr, cb
 
     async.parallel [
