@@ -6,14 +6,7 @@ class PassRateChart extends WidgetBase
     height: 500
     side_height: 318
 
-    init_reports: (@reports) ->
-
-    init_config: (@config) ->
-
     group_key: (grp) ->
-        "#{grp.profile} #{grp.testtype}"
-
-    group_title: (grp) ->
         "#{grp.profile} #{grp.testtype}"
 
     get_default_config: (cb) ->
