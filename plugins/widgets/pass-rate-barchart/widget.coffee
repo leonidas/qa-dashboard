@@ -30,16 +30,10 @@ class PassRateBarChart extends WidgetBase
     format_main_view: ($t, cb) ->
         @get_reports @config.groups, (reports) =>
             @reports = reports
-            @render_chart $t.find(".radar-chart")
-            if cb
-                cb $t
 
     format_small_view: ($t, cb) ->
         @get_reports @config.groups, (reports) =>
             @reports = reports
-            @render_small_chart $t.find(".radar-chart")
-            if cb
-                cb $t
 
     format_settings_view: ($t, cb) ->
         hw = @config.hwproduct
@@ -119,16 +113,6 @@ class PassRateBarChart extends WidgetBase
             cb reports.filter (r) ->
                 selected.any (s) ->
                     s.hardware == r.hardware && s.testtype ==  r.testtype && s.profile == r.profile
-
-    render_chart: (@chart_elem) ->
-        @chart = new RadarChart @chart_elem, @width, @height
-        @chart.render_reports(@reports, @config.passtargets)
-
-    render_small_chart: (@chart_elem) ->
-        @chart = new RadarChart @chart_elem, @side_width, @side_height
-        @chart.render_reports(@reports, @config.passtargets, {labels:false})
-
-
 
 
 return PassRateBarChart
