@@ -360,9 +360,11 @@ initialize_sortable_columns = () ->
         items:  'li.tab'
         helper: 'clone'
         axis: 'x'
+        tolerance: 'pointer'
 
         start: (event, ui) ->
             $p.tab_list.find('.tab_actions').hide()
+            $p.tab_list.find('.ui-sortable-placeholder').width(ui.helper.width())
 
         stop: (event, ui) ->
             $p.tab_list.find('.tab_actions').hide()
