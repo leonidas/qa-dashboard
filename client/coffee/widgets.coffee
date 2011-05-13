@@ -106,7 +106,7 @@ class WidgetBase
             @render_view ".content_settings", @format_settings_view, cb
 
     render: (cb) ->
-        if @dom.parent().hasClass '.sidebar'
+        if @dom.parents('.sidebar').length > 0
             @render_small_view cb
         else
             @render_main_view cb
