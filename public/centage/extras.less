@@ -31,3 +31,17 @@
 		-moz-opacity:@op/100;
 		-khtml-opacity:@op/100;
 		opacity:@op/100;}	
+
+.gradient(@startcol:#000, @stopcol:@fff, @startedge:top, @stop:100px){
+	/* Firefox 3.6+ */
+   background-image: -moz-linear-gradient(@startedge, @startcol @stop, @stopcol);
+
+   /* Safari 4+, Chrome 1+ */
+   background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(@startcol), to(@stopcol));
+
+   /* Safari 5.1+, Chrome 10+ */
+   background-image: -webkit-linear-gradient(@startedge, @startcol, @stopcol @stop); 
+
+   /* Opera 11.10+ */
+   background-image: -o-linear-gradient(@startcol, @stopcol);
+   }
