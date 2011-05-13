@@ -383,11 +383,11 @@ initialize_sortable_columns = () ->
         helper: 'clone'
         axis: 'x'
         distance: 5
-        tolerance: 'intersect'
-
+        tolerance: 'pointer'
 
         start: (event, ui) ->
             $p.tab_list.find('.tab_actions').hide()
+            $p.tab_list.find('.ui-sortable-placeholder').width(ui.helper.width())
 
         stop: (event, ui) ->
             $p.tab_list.find('.tab_actions').hide()
