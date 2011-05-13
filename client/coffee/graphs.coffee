@@ -66,5 +66,6 @@ window.drawSectorPath = (paper, cx, cy, sectors) ->
         l = s.end - s.start
         large_arc = if l>180 then 1 else 0
         d = d.concat "A", [s.radius,s.radius,0,large_arc,1,p.ex,p.ey]
-    d = d.concat "L",[fst.sx,fst.sy]
+    if fst?
+        d = d.concat "L",[fst.sx,fst.sy]
     paper.path(d)
