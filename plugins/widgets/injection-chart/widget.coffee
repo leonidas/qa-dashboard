@@ -18,13 +18,21 @@ class InjectionChart extends WidgetBase
         cb? $t        
 
     format_main_view: ($t, cb) ->
-        @chart = new BarChart $t.find(".injection-chart"), @width, @height        
+        @get_reports (reports) =>        
+            @reports = reports
+            @render_chart $t.find(".injection-chart")
+            cb $t
 
-        values = [10,20,30,80,10,20,30,400,0,0,0,0]
-        values2 = [10,20,30,40,100,200,300,400,0,0,0,0]
-        labels = ["wk05", "wk06", "wk07", "wk08", "wk09", "wk10", "wk11", "wk12", "wk13", "wk14", "wk15", "wk16"]
+    get_reports: (cb) ->
+        values = 
+            new_bugs: [10,20,30,80,10,20,30,400,0,0,0,0]
+            total_cases: [10,20,30,40,100,200,300,400,0,0,0,0]
+            weeks: ["wk05", "wk06", "wk07", "wk08", "wk09", "wk10", "wk11", "wk12", "wk13", "wk14", "wk15", "wk16"]
+        cb(values)
 
-        @chart.render(values, values2, labels)
+    render_chart: (elem) ->
+        @chart = new BarChart elem, @width, @height        
+        @chart.render @reports.new_bugs, @reports.total_cases, @reports.weeks
         cb? $t
 
 class BarChart
