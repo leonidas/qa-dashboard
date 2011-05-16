@@ -30,10 +30,24 @@ class PassRateBarChart extends WidgetBase
     format_main_view: ($t, cb) ->
         @get_reports @config.groups, (reports) =>
             @reports = reports
+            tr = $t.find('tbody tr')
+            for r in reports
+                row = tr.clone()
+                passrate = r.total_pass*100/r.total_cases
+                if passrate >= @config.alert
+                    row.find('.alert img').hide()
+                row.find('.title').text "#{r.profile} #{r.testtype}"
+                row.find('.change').text " "
+                container = row.find('div.pass-rate-bar')
+                @draw_graph r, container
+                row.insertBefore tr
+            tr.remove()
+            cb? $t
 
     format_small_view: ($t, cb) ->
         @get_reports @config.groups, (reports) =>
             @reports = reports
+            cb?
 
     format_settings_view: ($t, cb) ->
         hw = @config.hwproduct
@@ -113,6 +127,34 @@ class PassRateBarChart extends WidgetBase
             cb reports.filter (r) ->
                 selected.any (s) ->
                     s.hardware == r.hardware && s.testtype ==  r.testtype && s.profile == r.profile
+
+
+    draw_graph: (report, elem) ->
+        paper = Raphael(elem.get(0), 200,10)
+        x = 0
+        w = report.total_pass*200/report.total_cases
+        pass = paper.rect(x,0,w,10)
+        x += w
+        w = report.total_fail*200/report.total_cases
+        fail = paper.rect(x,0,w,10)
+        x += w
+        w = report.total_na*200/report.total_cases
+        na = paper.rect(x,0,w,10)
+
+        na.attr
+            fill: "#C7C6C6"
+            "stroke-width": 0
+            stroke: null
+
+        fail.attr
+            fill: "#E7A6AB"
+            "stroke-width": 0
+            stroke: null
+
+        pass.attr
+            fill: "#309937"
+            "stroke-width": 0
+            stroke: null
 
 
 return PassRateBarChart
