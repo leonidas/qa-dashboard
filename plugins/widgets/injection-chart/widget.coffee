@@ -47,39 +47,42 @@ class BarChart
         @new_bugs = @paper.g.barchart(25, 20, @width, 180, [new_bugs_values], opts)            
             .attr fill: "#cbcbcb"
         
-        @paper.path("M".concat [[45, 180], [@width, 180]]).attr(stroke: '#eaeaea', 'stroke-width': 1)
-        @paper.path("M".concat [[45, 181], [@width, 181]]).attr(stroke: '#d5d5d5', 'stroke-width': 1)
-
         @total_cases = @paper.g.barchart(24, 180, @width, 85, [total_cases_values], opts)            
             .attr fill: "#eaddcd"
 
-        @paper.path("M".concat [[45, 245], [@width, 245]]).attr(stroke: '#eaeaea', 'stroke-width': 1)
-        @paper.path("M".concat [[45, 246], [@width, 246]]).attr(stroke: '#d5d5d5', 'stroke-width': 1)
-
-        @new_bugs.hover(@hoverIn("#d22323"), @hoverOut("#cbcbcb"))
-        @total_cases.hover(@hoverIn("#eca451"), @hoverOut("#eaddcd"))
+        @new_bugs.hover(@hoverIn(), @hoverOut())
+        @total_cases.hover(@hoverIn(), @hoverOut())
         
-        @labels()
-        _(@total_cases.bars[0]).each (bar, index) =>
+        _(@new_bugs.bars[0]).each (bar, index) =>            
+            bar.idx = index
+        
+        _(@total_cases.bars[0]).each (bar, index) =>            
+            bar.idx = index
             label = @paper.text(bar.x, @height-10, labels[index])
             label.attr font: "14px Arial", fill: "#adadad"
             if bar.value > 0
                 label.attr fill: "#666666"
 
-
-    hoverIn: (color) ->
+        @labels()
+    
+    hoverIn: () ->
+        new_bugs = @new_bugs.bars[0]
+        total_cases = @total_cases.bars[0]
         () ->
-            @bar.attr fill: color
+            new_bugs[@bar.idx].attr fill: "#d22323"
+            total_cases[@bar.idx].attr fill: "#eca451"
             @label = null
             if @bar.value > 0
                 @label = @paper.text(@bar.x, @bar.y - 10, @bar.value || "0").insertBefore(this)
                 @label.attr font:"14px Arial", "font-weight": "bold", "fill": "#000"
 
-    hoverOut: (color) ->
+    hoverOut: () ->
+        new_bugs = @new_bugs.bars[0]
+        total_cases = @total_cases.bars[0]
         () ->
-            @bar.attr fill: color
-            if @label?
-                @label.animate({opacity: 0}, 200, () -> @remove())
+            new_bugs[@bar.idx].attr fill: "#cbcbcb"
+            total_cases[@bar.idx].attr fill: "#eaddcd"
+            @label?.animate {opacity: 0}, 200, () -> @remove()
 
     labels: () ->
         attrs = font: '11px Arial', fill: "#a7a7a7"        
@@ -88,5 +91,12 @@ class BarChart
         @paper.text(15, @height - 49, "Total").attr(attrs)
         @paper.text(15, @height - 37, "test").attr(attrs)
         @paper.text(15, @height - 25, "cases").attr(attrs)
+        
+        @paper.path("M".concat [[45, 180], [@width, 180]]).attr(stroke: '#eaeaea', 'stroke-width': 1)
+        @paper.path("M".concat [[45, 181], [@width, 181]]).attr(stroke: '#d5d5d5', 'stroke-width': 1)
+
+        @paper.path("M".concat [[45, 245], [@width, 245]]).attr(stroke: '#eaeaea', 'stroke-width': 1)
+        @paper.path("M".concat [[45, 246], [@width, 246]]).attr(stroke: '#d5d5d5', 'stroke-width': 1)
+
 
 return InjectionChart
