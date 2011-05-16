@@ -31,7 +31,9 @@ class PassRateBarChart extends WidgetBase
         @get_reports @config.groups, (reports) =>
             @reports = reports
             tr = $t.find('tbody tr')
-            for r in reports
+            console.log reports
+            for rs in reports
+                r = rs[0]
                 row = tr.clone()
                 passrate = r.total_pass*100/r.total_cases
                 if passrate >= @config.alert
@@ -121,10 +123,12 @@ class PassRateBarChart extends WidgetBase
         cb?()
 
     get_reports: (groups, cb) ->
-        cached.get "/query/qa-reports/latest/#{@config.hwproduct}", (data) =>
+        url = "/query/qa-reports/latest/#{@config.hwproduct}?num=10"
+        cached.get url, (data) ->
             reports  = _ data
             selected = _ groups
-            cb reports.filter (r) ->
+            cb reports.filter (rs) ->
+                r = rs[0]
                 selected.any (s) ->
                     s.hardware == r.hardware && s.testtype ==  r.testtype && s.profile == r.profile
 
