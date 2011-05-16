@@ -871,11 +871,13 @@ span.alert {
 
 .login_form {
 	padding: 10px 0 60px 0px;
+	position: relative;
 	h3 {
-		color: #bbb;
-		font-size: 36px;
+		color: #000;
+		font-size: 20px;
 		margin-bottom: 40px;
-		font-weight: normal;
+		font-weight: bold;
+		margin-left: 220px;
 	}
 	form {
 		.field {
@@ -885,9 +887,11 @@ span.alert {
 
 			label {
 				float: left;
-				width: 180px;
-				font-size: 24px;
+				width: 200px;
+				font-size: 14px;
 				line-height: 30px;
+				text-align: right;
+				font-weight: normal;
 			}
 
 			input {
@@ -897,20 +901,68 @@ span.alert {
 				border: 1px solid #bbb;
 				height: 20px;
 				line-height: 20px;
-				font-size: 20px;
+				font-size: 14px;
+				background-color: #FFF8DE;
+			}
+
+			#user_password {
+				width: 150px;
+				margin-right: 130px;
 			}
 
 			input[type=submit] {
-				margin-top: 20px;
-				height: 45px;
-				width: 292px;
+				margin-top: 15px;
+				font-size: 16px;
+				color: #fff;
+				width: auto;
+				float: left;
+				margin-left: 218px;
+				height: auto;
+				line-height: auto;
+				font-weight: bold;
+				padding: 13px 48px 13px 25px;
+				background: #4FC3E6 url('../img/btn_arrow.png') no-repeat 88% 50%;
+				cursor: pointer;
+				border: none;
 			}
 		}
+		.checkbox {
+			input {
+				float: left;
+				margin-left: 218px;
+				width: auto;
+			}
+			label {
+				margin: 0;
+				float: left;
+				line-height: auto;
+				padding: 0 0 0 5px;
+				width: auto;
+				text-align: left;
+				font-size: 12px;
+			}
+		}
+	}
+	.error {
+		position: absolute;
+		top: 60px;
+		left: 220px;
+		color: #eb5f54;
+		font-size: 12px;
+		line-height: 20px;
+		margin-bottom: 30px;
+		font-weight: normal;
+		background: transparent url('../img/icon_alert.gif') no-repeat left center;
+		padding-left: 20px;
+	}
+	.error p {
+		margin: 0;
+		padding: 0;
 	}
 }
 
 #notification {
-	position: fixed;
+	position: absolute;
 	top: 27px;
 	left: 50%;
 	margin-left: -130px;
@@ -939,3 +991,4 @@ span.alert {
 		}
 	}
 }
+
