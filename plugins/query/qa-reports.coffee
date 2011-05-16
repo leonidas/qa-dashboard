@@ -36,7 +36,7 @@ exports.register_plugin = (db) ->
             testtype:1
             release:1
             features:1
-        api.latest_reports hw, fields, (err, arr) ->
+        api.latest_reports 1, hw, fields, (err, arr) ->
             return cb? err if err?
             has_bug = (r) ->
                 for f in r.features
@@ -103,47 +103,41 @@ exports.register_plugin = (db) ->
 
                 callback? null, result
 
-    api.latest_for_group = (grp, fields, callback) ->
-        if not callback?
-            callback = fields
-            fields =
-                hardware:1
-                profile:1
-                testtype:1
-                release:1
-                total_cases:1
-                total_pass:1
-                total_fail:1
-                total_na:1
-                qa_id:1
-        q = reports.find(grp).fields(fields).sort(tested_at:-1,created_at:-1).limit(1)
+    api.latest_for_group = (n, fields) -> (grp, callback) ->
+        fields ?=
+            hardware:1
+            profile:1
+            testtype:1
+            release:1
+            total_cases:1
+            total_pass:1
+            total_fail:1
+            total_na:1
+            qa_id:1
+        q = reports.find(grp).fields(fields).sort(tested_at:-1,created_at:-1).limit(n)
         q.run (err, arr) ->
-            if err?
-                callback? err
-            else
-                callback? null, arr[0]
-
-    api.latest_reports = (hw, fields, callback) ->
-        api.groups_for_hw hw, (err, groups) ->
             return callback? err if err?
+            arr = arr[0] if n == 1
+            callback? null, arr
+
+    api.latest_reports = (n, hw, fields, callback) ->
+        api.groups_for_hw hw, (err, groups) ->
             if not callback?
                 callback = fields
-                async.map groups, api.latest_for_group, callback
-            else
-                f = (grp, cb) -> api.latest_for_group grp, fields, cb
-                async.map groups, f, callback
-
+                fields = null
+            return callback? err if err?
+            async.map groups, api.latest_for_group(n,fields), callback
 
     name: "qa-reports"
     api: api
     http: get:
         "/for_bug/:id/:hw": (req,res) ->
-
             api.reports_for_bug req.params.hw, req.params.id, (err, arr) ->
                 res.send arr
 
         "/latest/:hw": (req,res) ->
-            api.latest_reports req.params.hw, (err,arr) ->
+            num = parseInt(req.param("num") ? "1")
+            api.latest_reports num, req.params.hw, (err,arr) ->
                 if err?
                     console.log err
                     res.send 500

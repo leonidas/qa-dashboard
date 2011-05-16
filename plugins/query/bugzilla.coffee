@@ -41,7 +41,8 @@ exports.register_plugin = (db) ->
 
     api.bug_counts_for_group = (grp) -> (cb) ->
         reports_api = plugins.api.query['qa-reports']
-        reports_api.latest_for_group grp, {"features.cases.bugs":1}, (err, r) ->
+        fields = "features.cases.bugs":1
+        reports_api.latest_for_group(1, fields) grp, (err, r) ->
             return cb? err if err?
 
             bugcounts = {}
