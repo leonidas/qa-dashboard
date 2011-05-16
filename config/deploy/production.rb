@@ -15,9 +15,8 @@ end
 namespace :db do
   desc "Dump and fetch production database"
   task :dump, :roles => :db, :only => {:primary => true} do
-    # TODO: mongodump -> tar -> download -> extract
-    #  run "cd #{current_path} && mongodump"
-    #  get "#{current_path}/qadash_dbdump.tar", "./qadash_dbdump.tar"
-    #  run "rm #{current_path}/qadash_dbdump.tar"
+    run "cd #{current_path} && mongodump --db qadash-production && tar -czf qadash-production.tar.gz ./dump/qadash-production"
+    get "#{current_path}/qadash-production.tar.gz", "./qadash-production.tar.gz"
+    run "rm #{current_path}/qadash-production.tar.gz"
   end
 end
