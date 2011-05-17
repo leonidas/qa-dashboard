@@ -148,8 +148,10 @@ get_widget_class = (name) -> (callback) ->
             callback? cls
 
 add_custom_css = (css) ->
-    src = $p.custom_styles.text() + '\n\n' + css
-    $p.custom_styles.text(src)
+    if css? and css != ""
+        elem = document.getElementById('custom_styles')
+        src = elem.innerText + '\n\n' + css
+        elem.innerText = src
 
 
 create_new_widget = (name) -> (callback) ->
@@ -160,6 +162,8 @@ create_new_widget = (name) -> (callback) ->
     get_widget_class(name) (cls) ->
         wgt = new cls()
         wgt.type = name
+        dom.attr("class", cls.prototype.template.attr("class"))
+        dom.addClass("widget")
         dom.data("widgetObj", wgt)
         wgt.dom = dom
         callback? wgt
