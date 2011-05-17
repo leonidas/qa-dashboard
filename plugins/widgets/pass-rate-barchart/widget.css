@@ -26,3 +26,7 @@
 .widget_pass_rate_bars td.title span.profile {
     color: #A6A6A6;
 }
+
+.sidebar .widget_pass_rate_bars td.title {
+    font-size: 0.9em;
+}

@@ -26,7 +26,20 @@
     </div>
 
     <div class="widget_content content_small">
-        <div class="radar-chart"></div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Test Group</th>
+                    <th>Pass Rate</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="title"><span class="profile">report</span> <span class="testtype">group</span></td>
+                    <td class="graph"><div class="pass-rate-bar"/></td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 
 
@@ -47,7 +60,7 @@
                     </div>
 
 
-                    <div class="field" style="display:none">
+                    <div class="field">
                         <label for="">Alert marker threshold:</label>
                         <input class="alert" type="text" size="2" value="30"/> %
                     </div>

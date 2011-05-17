@@ -1,13 +1,11 @@
 
 class PassRateBarChart extends WidgetBase
-    width: 585
-    side_width: 318
-
-    height: 500
-    side_height: 318
 
     bar_width: 130
     bar_height: 14
+
+    small_bar_width: 90
+    small_bar_height: 12
 
     history_width: 80
     history_height: 20
@@ -93,9 +91,33 @@ class PassRateBarChart extends WidgetBase
             cb? $t
 
     format_small_view: ($t, cb) ->
+        targets = @config.passtargets
         @get_reports @config.groups, (reports) =>
             @reports = reports
-            cb?
+            tr = $t.find('tbody tr')
+
+            max_total = _.max(rs[0].total_cases for rs in reports)
+
+            for rs in reports
+                r = rs[0]
+                row = tr.clone()
+                if r.total_cases == 0
+                    passrate = 0
+                else
+                    passrate = r.total_pass*100/r.total_cases
+
+                # Title
+                row.find('.title .profile').text r.profile
+                row.find('.title .testtype').text r.testtype
+
+                # Pass Rate Bar
+                container = row.find('div.pass-rate-bar')
+                key = "#{r.profile} #{r.testtype}"
+                @draw_graph r, targets[key], max_total, container
+
+                row.insertBefore tr
+            tr.remove()
+            cb? $t
 
     format_settings_view: ($t, cb) ->
         hw = @config.hwproduct
@@ -144,7 +166,7 @@ class PassRateBarChart extends WidgetBase
         @config = {}
 
         @config.hwproduct = $form.find(".hwproduct").val()
-        @config.alert = $form.find(".alert").val()
+        @config.alert = parseInt($form.find(".alert").val())
         @config.title = $form.find(".title").val()
 
         selected = []
@@ -180,8 +202,12 @@ class PassRateBarChart extends WidgetBase
 
 
     draw_graph: (report, target, max_total, elem) ->
-        bw = @bar_width
-        bh = @bar_height
+        if @dom.parent().hasClass 'sidebar'
+            bw = @small_bar_width
+            bh = @small_bar_height
+        else
+            bw = @bar_width
+            bh = @bar_height
 
         m = 3
         m2 = m*2
@@ -214,7 +240,6 @@ class PassRateBarChart extends WidgetBase
 
         if target > 0
             x = target*report.total_cases*bw/(max_total*100)
-            console.log x
             paper.path("M#{x} 0L#{x} #{bh})").attr
                 fill: null
                 "stroke-width": 1
