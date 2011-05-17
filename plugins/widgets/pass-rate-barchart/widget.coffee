@@ -6,6 +6,8 @@ class PassRateBarChart extends WidgetBase
     height: 500
     side_height: 318
 
+    bar_width: 180
+
     group_key: (grp) ->
         "#{grp.profile} #{grp.testtype}"
 
@@ -31,17 +33,40 @@ class PassRateBarChart extends WidgetBase
         @get_reports @config.groups, (reports) =>
             @reports = reports
             tr = $t.find('tbody tr')
-            console.log reports
+
+            max_total = _.max(rs[0].total_cases for rs in reports)
+
             for rs in reports
                 r = rs[0]
                 row = tr.clone()
                 passrate = r.total_pass*100/r.total_cases
+
+                # Alert
                 if passrate >= @config.alert
                     row.find('.alert img').hide()
+
+                # Title
                 row.find('.title').text "#{r.profile} #{r.testtype}"
-                row.find('.change').text " "
+
+                # Change%
+                ce = row.find('.change span')
+                if rs.length > 1
+                    prev = rs[1]
+                    ppr = prev.total_pass*100/prev.total_cases
+                    delta = parseInt(passrate - ppr)
+                    if delta > 0
+                        c = "+#{delta}%"
+                        ce.addClass "up"
+                    else
+                        if delta < 0
+                            ce.addClass "down"
+                        c = "#{delta}%"
+                else
+                    c = " "
+                ce.text c
+
                 container = row.find('div.pass-rate-bar')
-                @draw_graph r, container
+                @draw_graph r, max_total, container
                 row.insertBefore tr
             tr.remove()
             cb? $t
@@ -133,16 +158,17 @@ class PassRateBarChart extends WidgetBase
                     s.hardware == r.hardware && s.testtype ==  r.testtype && s.profile == r.profile
 
 
-    draw_graph: (report, elem) ->
+    draw_graph: (report, max_total, elem) ->
+        bw = @bar_width
         paper = Raphael(elem.get(0), 200,10)
         x = 0
-        w = report.total_pass*200/report.total_cases
+        w = report.total_pass*bw/max_total
         pass = paper.rect(x,0,w,10)
         x += w
-        w = report.total_fail*200/report.total_cases
+        w = report.total_fail*bw/max_total
         fail = paper.rect(x,0,w,10)
         x += w
-        w = report.total_na*200/report.total_cases
+        w = report.total_na*bw/max_total
         na = paper.rect(x,0,w,10)
 
         na.attr
