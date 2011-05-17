@@ -6,7 +6,13 @@ class PassRateBarChart extends WidgetBase
     height: 500
     side_height: 318
 
-    bar_width: 180
+    bar_width: 130
+    bar_height: 14
+
+    history_width: 80
+    history_height: 20
+
+    history_num: 10
 
     group_key: (grp) ->
         "#{grp.profile} #{grp.testtype}"
@@ -30,6 +36,7 @@ class PassRateBarChart extends WidgetBase
         cb? $t
 
     format_main_view: ($t, cb) ->
+        targets = @config.passtargets
         @get_reports @config.groups, (reports) =>
             @reports = reports
             tr = $t.find('tbody tr')
@@ -39,34 +46,48 @@ class PassRateBarChart extends WidgetBase
             for rs in reports
                 r = rs[0]
                 row = tr.clone()
-                passrate = r.total_pass*100/r.total_cases
+                if r.total_cases == 0
+                    passrate = 0
+                else
+                    passrate = r.total_pass*100/r.total_cases
 
                 # Alert
                 if passrate >= @config.alert
                     row.find('.alert img').hide()
 
                 # Title
-                row.find('.title').text "#{r.profile} #{r.testtype}"
+                row.find('.title .profile').text r.profile
+                row.find('.title .testtype').text r.testtype
 
                 # Change%
                 ce = row.find('.change span')
                 if rs.length > 1
                     prev = rs[1]
-                    ppr = prev.total_pass*100/prev.total_cases
-                    delta = parseInt(passrate - ppr)
-                    if delta > 0
-                        c = "+#{delta}%"
-                        ce.addClass "up"
+                    if prev.total_cases == 0
+                        c = " "
                     else
-                        if delta < 0
-                            ce.addClass "down"
-                        c = "#{delta}%"
+                        ppr = prev.total_pass*100/prev.total_cases
+                        delta = parseInt(passrate - ppr)
+                        if delta > 0
+                            c = "+#{delta}%"
+                            ce.addClass "up"
+                        else
+                            if delta < 0
+                                ce.addClass "down"
+                            c = "#{delta}%"
                 else
                     c = " "
                 ce.text c
 
+                # Pass Rate Bar
                 container = row.find('div.pass-rate-bar')
-                @draw_graph r, max_total, container
+                key = "#{r.profile} #{r.testtype}"
+                @draw_graph r, targets[key], max_total, container
+
+                # Pass Rate History
+                container = row.find('div.pass-rate-history')
+                @draw_history_graph rs, container
+
                 row.insertBefore tr
             tr.remove()
             cb? $t
@@ -148,7 +169,7 @@ class PassRateBarChart extends WidgetBase
         cb?()
 
     get_reports: (groups, cb) ->
-        url = "/query/qa-reports/latest/#{@config.hwproduct}?num=10"
+        url = "/query/qa-reports/latest/#{@config.hwproduct}?num=#{@history_num}"
         cached.get url, (data) ->
             reports  = _ data
             selected = _ groups
@@ -158,18 +179,23 @@ class PassRateBarChart extends WidgetBase
                     s.hardware == r.hardware && s.testtype ==  r.testtype && s.profile == r.profile
 
 
-    draw_graph: (report, max_total, elem) ->
+    draw_graph: (report, target, max_total, elem) ->
         bw = @bar_width
-        paper = Raphael(elem.get(0), 200,10)
+        bh = @bar_height
+
+        m = 3
+        m2 = m*2
+
+        paper = Raphael(elem.get(0), bw,bh)
         x = 0
         w = report.total_pass*bw/max_total
-        pass = paper.rect(x,0,w,10)
+        pass = paper.rect(x,m,w,bh-m2)
         x += w
         w = report.total_fail*bw/max_total
-        fail = paper.rect(x,0,w,10)
+        fail = paper.rect(x,m,w,bh-m2)
         x += w
         w = report.total_na*bw/max_total
-        na = paper.rect(x,0,w,10)
+        na = paper.rect(x,m,w,bh-m2)
 
         na.attr
             fill: "#C7C6C6"
@@ -185,6 +211,42 @@ class PassRateBarChart extends WidgetBase
             fill: "#309937"
             "stroke-width": 0
             stroke: null
+
+        if target > 0
+            x = target*report.total_cases*bw/(max_total*100)
+            console.log x
+            paper.path("M#{x} 0L#{x} #{bh})").attr
+                fill: null
+                "stroke-width": 1
+                stroke: "black"
+
+    draw_history_graph: (reports, elem) ->
+        hw = @history_width
+        hh = @history_height
+        hn = @history_num
+
+        paper = Raphael(elem.get(0), hw, hh)
+
+        spacing = 2
+        w = hw/hn - spacing
+
+        x = hw
+        for r in reports
+            paper.rect(x-w,0,w,hh).attr
+                fill: "#F1F0F0"
+                "stroke-width": 0
+                stroke: null
+
+            if (r.total_cases > 0) and (r.total_pass > 0)
+                h = r.total_pass*hh/r.total_cases
+
+                paper.rect(x-w,hh-h,w,h).attr
+                    fill: "#C7C6C6"
+                    "stroke-width": 0
+                    stroke: null
+
+            x -= w + spacing
+
 
 
 return PassRateBarChart

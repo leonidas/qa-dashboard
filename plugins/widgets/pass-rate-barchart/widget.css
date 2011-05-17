@@ -1,0 +1,28 @@
+.widget_pass_rate_bars .content_main td {
+    vertical-align: bottom;
+}
+
+.widget_pass_rate_bars .content_main td.history {
+    position: relative;
+}
+
+.widget_pass_rate_bars .content_main div.pass-rate-history {
+    position: relative;
+    bottom: -5px;
+}
+
+.widget_pass_rate_bars td.change span {
+    color: #A6A6A6;
+}
+
+.widget_pass_rate_bars td.change span.up {
+    color: #2D9618;
+}
+
+.widget_pass_rate_bars td.change span.down {
+    color: #C25050;
+}
+
+.widget_pass_rate_bars td.title span.profile {
+    color: #A6A6A6;
+}
