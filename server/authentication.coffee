@@ -85,6 +85,10 @@ exports.secure = (db) ->
                 res.send 403
 
 exports.init_authentication = (app, db) ->
+    users = db.collection("users")
+    users.ensureIndex("username").unique().run()
+    users.ensureIndex("token").run()
+
     app.post "/auth/login", (req,res) ->
         login = req.body
         authenticate(login.username, login.password) (err,ok) ->

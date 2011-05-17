@@ -30,6 +30,9 @@ exports.register_plugin = (db) ->
 
     api = {}
 
+    bugs.ensureIndex("bug_id").unique().run()
+    reports.ensureIndex("features.cases.bugs").sparse().run()
+
     merge_counts = (c1, c2) ->
         merged = {}
         for b,c of c1
