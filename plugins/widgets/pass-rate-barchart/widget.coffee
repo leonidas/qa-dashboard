@@ -54,6 +54,10 @@ class PassRateBarChart extends WidgetBase
                     row.find('.alert img').hide()
 
                 # Title
+
+                ## TODO: hardcoded url to qa-reports
+                url  = "http://qa-reports.meego.com/#{r.release}/#{r.profile}/#{r.testtype}/#{r.hardware}/#{r.qa_id}"
+                row.find('.title a').attr "href", url
                 row.find('.title .profile').text r.profile
                 row.find('.title .testtype').text r.testtype
 

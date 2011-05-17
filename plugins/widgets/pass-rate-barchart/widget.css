@@ -30,3 +30,8 @@
 .sidebar .widget_pass_rate_bars td.title {
     font-size: 0.9em;
 }
+
+.widget_pass_rate_bars td.title a {
+    text-decoration: none;
+    color: inherit;
+}
