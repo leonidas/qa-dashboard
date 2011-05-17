@@ -212,6 +212,9 @@ class PassRateBarChart extends WidgetBase
         m = 3
         m2 = m*2
 
+        # Comment out for absolute
+        max_total = report.total_cases
+
         paper = Raphael(elem.get(0), bw,bh)
         x = 0
         w = report.total_pass*bw/max_total
