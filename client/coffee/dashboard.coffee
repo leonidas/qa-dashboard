@@ -144,7 +144,15 @@ get_widget_class = (name) -> (callback) ->
             cls = eval code
             cls.prototype.template = $(data.html)
             widgets[name] = cls
+            add_custom_css(data.css)
             callback? cls
+
+add_custom_css = (css) ->
+    if css? and css != ""
+        elem = document.getElementById('custom_styles')
+        src = elem.innerText + '\n\n' + css
+        elem.innerText = src
+
 
 create_new_widget = (name) -> (callback) ->
     dom = $("#widget-base-template").clone().removeAttr("id")
@@ -154,6 +162,8 @@ create_new_widget = (name) -> (callback) ->
     get_widget_class(name) (cls) ->
         wgt = new cls()
         wgt.type = name
+        dom.attr("class", cls.prototype.template.attr("class"))
+        dom.addClass("widget")
         dom.data("widgetObj", wgt)
         wgt.dom = dom
         callback? wgt
@@ -619,6 +629,8 @@ $ () ->
 
     $p.tab_list          = $('#tab_navi ul')
     $p.add_tab_btn       = $('#tab_navi .add')
+
+    $p.custom_styles     = $('#custom_styles')
 
     $p.login_form.appendTo('.form_container')
     $p.login_form.find('form').submit submit_login_form
