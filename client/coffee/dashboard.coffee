@@ -213,7 +213,7 @@ init_widget_dom_events = (dom) ->
     $dom.find('.widget_close').click ->
         sidebar = $dom.parent().hasClass 'sidebar'
         obj = $dom.data('widgetObj')
-        console.log obj
+        #console.log obj
         $n = $('#notification')
 
         close = () ->
@@ -239,7 +239,7 @@ update_undo_buffer = (obj) ->
     buf = current_user.dashboard.undo ?= {}
     typ = obj.type
     buf[typ] = deepcopy(obj.config)
-    console.log buf
+    #console.log buf
 
 updateWidgetElement = (elem) ->
     $e = $(elem)
