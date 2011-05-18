@@ -6,7 +6,7 @@ port: 443
 use_ssl: true
 
 # Query URI template
-uri: /buglist.cgi?bugidtype=include&columnlist=short_desc%2Cbug_status%2Copendate%2Cresolution&query_format=advanced&ctype=csv
+uri: /buglist.cgi?bugidtype=include&columnlist=short_desc%2Cbug_status%2Copendate%2Cresolution%2Cbug_severity%2Cpriority%2Cproduct%2Ccomponent%2Cversion%2Crep_platform&query_format=advanced&ctype=csv
 
 # Proxy server address and port (leave empty if not needed)
 proxy_server: 
