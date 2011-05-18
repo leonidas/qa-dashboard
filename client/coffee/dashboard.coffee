@@ -466,9 +466,9 @@ initialize_sortable_columns = () ->
                 if undo?
                     wgt.config = undo[name]
                     delete undo[name]
-                wgt.render balance_columns
                 g = () ->
                     if widget.parent()?
+                        wgt.render balance_columns
                         save_widgets()
                     else
                         setTimeout g, 0
