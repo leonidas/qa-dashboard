@@ -57,9 +57,14 @@ class PassRateBarChart extends WidgetBase
 
                 ## TODO: hardcoded url to qa-reports
                 url  = "http://qa-reports.meego.com/#{r.release}/#{r.profile}/#{r.testtype}/#{r.hardware}/#{r.qa_id}"
-                row.find('.title a').attr "href", url
+                row.find('.title a').attr("href", url).attr("title", r.title)
                 row.find('.title .profile').text r.profile
                 row.find('.title .testtype').text r.testtype
+
+                # Age
+                ms_in_day  = 1000 * 60 * 60 * 24
+                report_age = "" + Math.floor(((new Date() - new Date(r.tested_at)) / ms_in_day))
+                row.find('.age span').text "" + report_age
 
                 # Change%
                 ce = row.find('.change span')
@@ -111,6 +116,11 @@ class PassRateBarChart extends WidgetBase
                     passrate = r.total_pass*100/r.total_cases
 
                 # Title
+
+                ## TODO: hardcoded url to qa-reports
+                url  = "http://qa-reports.meego.com/#{r.release}/#{r.profile}/#{r.testtype}/#{r.hardware}/#{r.qa_id}"
+                row.find('.title a').attr("href", url).attr("title", r.title)
+
                 row.find('.title .profile').text r.profile
                 row.find('.title .testtype').text r.testtype
 
@@ -249,8 +259,9 @@ class PassRateBarChart extends WidgetBase
             x = target*report.total_cases*bw/(max_total*100)
             paper.path("M#{x} 0L#{x} #{bh})").attr
                 fill: null
+                stroke: "#004000"
                 "stroke-width": 1
-                stroke: "black"
+                "stroke-opacity": 0.8
 
     draw_history_graph: (reports, elem) ->
         hw = @history_width

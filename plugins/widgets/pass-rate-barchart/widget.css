@@ -11,6 +11,22 @@
     bottom: -5px;
 }
 
+.widget_pass_rate_bars th.age {
+    text-align: right;
+}
+
+.widget_pass_rate_bars td.age {
+    text-align: right;
+}
+
+.widget_pass_rate_bars th.change {
+    text-align: right;
+}
+
+.widget_pass_rate_bars td.change {
+    text-align: right;
+}
+
 .widget_pass_rate_bars td.change span {
     color: #A6A6A6;
 }
