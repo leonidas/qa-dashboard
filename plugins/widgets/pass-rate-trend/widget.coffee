@@ -21,7 +21,7 @@ class PassRateTrend extends WidgetBase
                 hwproduct:hw
                 groups: data
                 passtargets: targets
-                title: "Pass rate: #{hw}"
+                title: "Pass trends: #{hw}"
 
     format_header: ($t, cb) ->
         $t.find("h1 span.title").text @config.title
@@ -29,6 +29,9 @@ class PassRateTrend extends WidgetBase
 
     format_main_view: ($t, cb) ->
         targets = @config.passtargets
+
+        tooltip = @template.find('.tooltip').clone()
+
         @get_reports @config.groups, (reports) =>
             @reports = reports
             tr = $t.find('tbody tr')
@@ -49,10 +52,14 @@ class PassRateTrend extends WidgetBase
 
                 # Pass Rate History
                 container = row.find('div.trend-graph')
-                @draw_trend_graph rs, container
+                @draw_trend_graph rs, tooltip, container
 
                 row.insertBefore tr
             tr.remove()
+
+            tooltip.appendTo $t
+            tooltip.hide()
+
             cb? $t
 
     format_small_view: ($t, cb) ->
@@ -131,7 +138,6 @@ class PassRateTrend extends WidgetBase
         @config = {}
 
         @config.hwproduct = $form.find(".hwproduct").val()
-        @config.alert = parseInt($form.find(".alert").val())
         @config.title = $form.find(".title").val()
 
         selected = []
@@ -165,55 +171,7 @@ class PassRateTrend extends WidgetBase
                 selected.any (s) ->
                     s.hardware == r.hardware && s.testtype ==  r.testtype && s.profile == r.profile
 
-
-    draw_graph: (report, target, max_total, elem) ->
-        if @dom.parent().hasClass 'sidebar'
-            bw = @small_bar_width
-            bh = @small_bar_height
-        else
-            bw = @bar_width
-            bh = @bar_height
-
-        m = 3
-        m2 = m*2
-
-        # Comment out for absolute
-        max_total = report.total_cases
-
-        paper = Raphael(elem.get(0), bw,bh)
-        x = 0
-        w = report.total_pass*bw/max_total
-        pass = paper.rect(x,m,w,bh-m2)
-        x += w
-        w = report.total_fail*bw/max_total
-        fail = paper.rect(x,m,w,bh-m2)
-        x += w
-        w = report.total_na*bw/max_total
-        na = paper.rect(x,m,w,bh-m2)
-
-        na.attr
-            fill: "#C7C6C6"
-            "stroke-width": 0
-            stroke: null
-
-        fail.attr
-            fill: "#E7A6AB"
-            "stroke-width": 0
-            stroke: null
-
-        pass.attr
-            fill: "#309937"
-            "stroke-width": 0
-            stroke: null
-
-        if target > 0
-            x = target*report.total_cases*bw/(max_total*100)
-            paper.path("M#{x} 0L#{x} #{bh})").attr
-                fill: null
-                "stroke-width": 1
-                stroke: "black"
-
-    draw_trend_graph: (reports, elem) ->
+    draw_trend_graph: (reports, tooltip, elem) ->
         hw = @history_width
         hh = @history_height
         hn = @history_num
@@ -228,20 +186,74 @@ class PassRateTrend extends WidgetBase
             if (r.total_cases > 0)
                 h = (r.total_pass+r.total_fail)*hh/r.total_cases
 
-                paper.rect(x-w,hh-h,w,h).attr
+                na = paper.rect(x-w,0,w,hh)
+                na.attr
+                    fill: "#F1F0F0"
+                    "stroke-width": 0
+                    stroke: null
+
+                fail = paper.rect(x-w,hh-h,w,h)
+                fail.attr
                     fill: "#E7A6AB"
                     "stroke-width": 0
                     stroke: null
 
                 h = r.total_pass*hh/r.total_cases
 
-                paper.rect(x-w,hh-h,w,h).attr
+                pass = paper.rect(x-w,hh-h,w,h)
+                pass.attr
                     fill: "#309937"
                     "stroke-width": 0
                     stroke: null
 
+                invisible = paper.rect(x-w,0,w,hh)
+                invisible.attr
+                    stroke: null
+                    fill: "white"
+                    opacity: 0
+
+                @init_tooltip_events tooltip, r, $(pass.node), $(fail.node) ,$(invisible.node)
+
             x -= w + spacing
 
+
+    init_tooltip_events: (tooltip, r, pass, fail, na) ->
+        hh = @history_height
+        bw = @history_width/@history_num-@history_spacing
+
+        url  = "http://qa-reports.meego.com/#{r.release}/#{r.profile}/#{r.testtype}/#{r.hardware}/#{r.qa_id}"
+
+        passrate = parseInt(r.total_pass*100/r.total_cases)
+        failrate = parseInt(r.total_fail*100/r.total_cases)
+        narate   = parseInt(r.total_na  *100/r.total_cases)
+
+        date = (""+r.tested_at)
+        date = date.slice(0,date.indexOf("T"))
+
+        show_tip = () ->
+            pass.attr fill: "#6AC526"
+            fail.attr fill :"#E3D4D7"
+
+            tooltip.find('.date').text date
+            tooltip.find('.pass').text "#{passrate}%"
+            tooltip.find('.fail').text "#{failrate}%"
+            tooltip.find('.na').text "#{narate}%"
+            tooltip.show()
+
+            offset = na.offset()
+            w = tooltip.width()
+            tooltip.offset
+                left: offset.left - w/2 + bw/2
+                top:  offset.top  + hh
+
+        hide_tip = () ->
+            pass.attr fill: "#309937"
+            fail.attr fill :"#E7A6AB"
+            tooltip.hide()
+
+        na.hover show_tip, hide_tip
+        na.click ->
+            window.open url, "_blank"
 
 
 return PassRateTrend

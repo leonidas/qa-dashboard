@@ -28,7 +28,7 @@
 .widget_pass_rate_trend .tooltip {
     position: absolute;
     padding-top: 16px;
-    background: transparent url('tooltip-arrow.png') no-repeat center top;
+    background: transparent url('/widgets/pass-rate-trend/tooltip-arrow.png') no-repeat center top;
 }
 .widget_pass_rate_trend .tooltip .tooltip_content {
     background-color: #000;
@@ -60,7 +60,7 @@
 .widget_pass_rate_trend .tooltip .pass {
     color: #6fcd2a;
 }
-.widget_pass_rate_trend.tooltip .fail {
+.widget_pass_rate_trend .tooltip .fail {
     color: #dfa6ac;
 }
 .widget_pass_rate_trend .tooltip .na {
