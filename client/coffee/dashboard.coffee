@@ -419,17 +419,18 @@ initialize_sortable_columns = () ->
         stop: (event, ui) ->
             return if tab_hack
             $item = $(ui.item)
-            $item.removeClass 'move_mode'
-            obj = $item.data "widgetObj"
-            if obj?
-                $parent = $item.parent()
-                if $parent.hasClass "sidebar"
-                    obj.render_small_view balance_columns
-                else
-                    obj.render_main_view balance_columns
-                #console.log "save_widgets sortable stop"
-                save_widgets()
-            balance_columns()
+
+            if $item.hasClass "widget_info"
+                $item.hide()
+            else
+                $item.removeClass 'move_mode'
+                obj = $item.data "widgetObj"
+                if obj?
+                    $parent = $item.parent()
+                    obj.render balance_columns
+                    #console.log "save_widgets sortable stop"
+                    save_widgets()
+                balance_columns()
         over: (event, ui) ->
             $(this).sortable('refresh')
             balance_columns()
@@ -465,11 +466,7 @@ initialize_sortable_columns = () ->
                 if undo?
                     wgt.config = undo[name]
                     delete undo[name]
-                if $this.hasClass "sidebar"
-                    wgt.render_small_view balance_columns
-                else
-                    wgt.render_main_view balance_columns
-                #console.log "save_widgets after create_new_widget"
+                wgt.render balance_columns
                 g = () ->
                     if widget.parent()?
                         save_widgets()
