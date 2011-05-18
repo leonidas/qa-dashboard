@@ -292,6 +292,7 @@ init_tab_events = ($dom) ->
             f = () ->
                 $con = $dom.data('tab-content')
                 $ud.prependTo $con.find('.left_column')
+                $ud.data('widgetObj').render()
                 #set_current_tab $dom
                 balance_columns()
                 save_widgets()
