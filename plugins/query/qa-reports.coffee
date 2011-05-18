@@ -24,6 +24,10 @@ _     = require('underscore')
 exports.register_plugin = (db) ->
     reports = db.collection('qa-reports')
 
+    reports.ensureIndex([['qa_id',1]]).unique().run()
+    reports.ensureIndex([["version",-1], ["hardware",1], ["profile","1"], ["testtype",1]])
+
+
     api = {}
 
     api.reports_for_bug = (hw, id, cb) ->

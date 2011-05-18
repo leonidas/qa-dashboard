@@ -129,6 +129,18 @@ class MongoMonad
     insertAll: (docs) ->
         @_bind_action {insert:docs, cmd:"insertAll"}
 
+    ensureIndex: (key) ->
+        @_bind_action {key:key, cmd:"ensureIndex"}
+
+    unique: (flag) ->
+        @_bind {unique: flag ? true}
+
+    sparse: (flag) ->
+        @_bind {sparse: flag ? true}
+
+    dropDups: (flag) ->
+        @_bind {dropDups: flag ? true}
+
     do: (callback) ->
         if @cfg.cmd == 'find'
             m = @_bind_action {}
@@ -256,6 +268,16 @@ class MongoMonad
 
                 docs = cfg.insert
                 c.insertAll docs, opts, callback
+
+            ensureIndex: (err, c) ->
+                return callback? err if err?
+
+                opts = {}
+                opts.sparse = cfg.sparse if cfg.sparse
+                opts.unique = cfg.unique if cfg.unique
+                opts.dropDups = cfg.dropDups if cfg.dropDups
+
+                c.ensureIndex cfg.key, opts, callback
 
             remove: (err, c) ->
                 return callback? err if err?
