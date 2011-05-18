@@ -1,10 +1,10 @@
 
 class PassRateChart extends WidgetBase
     width: 585
-    side_width: 318
+    side_width: 270
 
     height: 500
-    side_height: 318
+    side_height: 270
 
     group_key: (grp) ->
         "#{grp.profile} #{grp.testtype}"
