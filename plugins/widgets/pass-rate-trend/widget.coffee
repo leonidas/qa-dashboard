@@ -2,10 +2,15 @@
 class PassRateTrend extends WidgetBase
 
     history_width: 220
+    history_width_sidebar: 80
+
     history_height: 35
+    history_height_sidebar: 30
+
     history_spacing: 2
 
     history_num: 20
+    history_num_sidebar: 8
 
     group_key: (grp) ->
         "#{grp.profile} #{grp.testtype}"
@@ -62,34 +67,7 @@ class PassRateTrend extends WidgetBase
 
             cb? $t
 
-    format_small_view: ($t, cb) ->
-        targets = @config.passtargets
-        @get_reports @config.groups, (reports) =>
-            @reports = reports
-            tr = $t.find('tbody tr')
-
-            max_total = _.max(rs[0].total_cases for rs in reports)
-
-            for rs in reports
-                r = rs[0]
-                row = tr.clone()
-                if r.total_cases == 0
-                    passrate = 0
-                else
-                    passrate = r.total_pass*100/r.total_cases
-
-                # Title
-                row.find('.title .profile').text r.profile
-                row.find('.title .testtype').text r.testtype
-
-                # Pass Rate Bar
-                container = row.find('div.pass-rate-bar')
-                key = "#{r.profile} #{r.testtype}"
-                @draw_graph r, targets[key], max_total, container
-
-                row.insertBefore tr
-            tr.remove()
-            cb? $t
+    format_small_view: ($t, cb) -> @format_main_view $t, cb
 
     format_settings_view: ($t, cb) ->
         hw = @config.hwproduct
@@ -162,7 +140,11 @@ class PassRateTrend extends WidgetBase
         cb?()
 
     get_reports: (groups, cb) ->
-        url = "/query/qa-reports/latest/#{@config.hwproduct}?num=#{@history_num}"
+        if @dom.parent().hasClass 'sidebar'
+            num = @history_num_sidebar
+        else
+            num = @history_num
+        url = "/query/qa-reports/latest/#{@config.hwproduct}?num=#{num}"
         cached.get url, (data) ->
             reports  = _ data
             selected = _ groups
@@ -172,9 +154,15 @@ class PassRateTrend extends WidgetBase
                     s.hardware == r.hardware && s.testtype ==  r.testtype && s.profile == r.profile
 
     draw_trend_graph: (reports, tooltip, elem) ->
-        hw = @history_width
-        hh = @history_height
-        hn = @history_num
+        if @dom.parent().hasClass 'sidebar'
+            hw = @history_width_sidebar
+            hh = @history_height_sidebar
+            hn = @history_num_sidebar
+        else
+            hw = @history_width
+            hh = @history_height
+            hn = @history_num
+
         spacing = @history_spacing
 
         paper = Raphael(elem.get(0), hw, hh)

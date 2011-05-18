@@ -3,11 +3,20 @@
     vertical-align: bottom;
 }
 
+.widget_pass_rate_trend .content_small td {
+    vertical-align: bottom;
+}
+
 .widget_pass_rate_trend .content_main td.history {
     position: relative;
 }
 
 .widget_pass_rate_trend .content_main div.trend-graph {
+    position: relative;
+    bottom: -5px;
+}
+
+.widget_pass_rate_trend .content_small div.trend-graph {
     position: relative;
     bottom: -5px;
 }
