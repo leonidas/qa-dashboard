@@ -1,0 +1,68 @@
+
+.widget_pass_rate_trend .content_main td {
+    vertical-align: bottom;
+}
+
+.widget_pass_rate_trend .content_main td.history {
+    position: relative;
+}
+
+.widget_pass_rate_trend .content_main div.trend-graph {
+    position: relative;
+    bottom: -5px;
+}
+
+.widget_pass_rate_trend td.title span.profile {
+    color: #A6A6A6;
+}
+
+.sidebar .widget_pass_rate_trend td.title {
+    font-size: 0.9em;
+}
+
+.widget_pass_rate_trend td.title a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.widget_pass_rate_trend .tooltip {
+    position: absolute;
+    padding-top: 16px;
+    background: transparent url('/widgets/pass-rate-trend/tooltip-arrow.png') no-repeat center top;
+}
+.widget_pass_rate_trend .tooltip .tooltip_content {
+    background-color: #000;
+    background-image: -webkit-gradient(
+        linear,
+        left bottom,
+        left top,
+        color-stop(1, rgb(67,67,67)),
+        color-stop(0, rgb(0,0,0))
+    );
+    background-image: -moz-linear-gradient(
+        center bottom,
+        rgb(67,67,67) 0%,
+        rgb(0,0,0) 100%
+    );
+    color: #fff;
+    padding: 10px;
+    text-shadow: -1px -1px 1px #000;
+    font-size: 16px;
+    font-weight: bold;
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
+}
+.widget_pass_rate_trend .tooltip .date {
+    display: block;
+    text-align: center;
+}
+.widget_pass_rate_trend .tooltip .pass {
+    color: #6fcd2a;
+}
+.widget_pass_rate_trend .tooltip .fail {
+    color: #dfa6ac;
+}
+.widget_pass_rate_trend .tooltip .na {
+    color: #d0d0d0;
+}

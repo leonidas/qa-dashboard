@@ -1,0 +1,90 @@
+<div class="widget widget_pass_rate_trend">
+    <div class="tooltip">
+        <div class="tooltip_content">
+            <span class="date">2010-05-10</span>
+            <span class="pass">57%</span>
+            <span class="fail">30%</span>
+            <span class="na">13%</span>
+        </div>
+    </div>
+
+
+    <div class="widget_header">
+        <h1><span class="bullet"/><span class="title">Pass Rate Trend: N900</span></h1>
+    </div>
+
+    <div class="widget_content content_main">
+        <table>
+            <thead>
+                <tr>
+                    <th>Test Set</th>
+                    <th>Trend</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="title"><a href=""><span class="profile">report</span> <span class="testtype">group</span></a></td>
+                    <td class="graph"><div class="trend-graph"/></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="widget_content content_small">
+        <table>
+            <thead>
+                <tr>
+                    <th>Test Group</th>
+                    <th>Pass Rate</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="title"><span class="profile">report</span> <span class="testtype">group</span></td>
+                    <td class="graph"><div class="pass-rate-bar"/></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+
+    <div class="widget_content content_settings widget_edit_content">
+        <form method="post" action="">
+            <div class="widget_edit_columns_container">
+                <div class="widget_edit_left_column">
+
+                    <div class="field">
+                        <label for="">Widget title:</label>
+                        <input class="title" type="text" size="27" />
+                    </div>
+
+
+                    <div class="field">
+                        <label for="">Hardware:</label>
+                        <input class="hwproduct" type="text" size="27" />
+                    </div>
+
+                </div>
+
+                <div class="widget_edit_right_column">
+                    <label for="">Test sets:</label>
+                    <table class="multiple_select">
+                        <tr>
+                            <th></th>
+                            <th colspan="2" style="text-align:right">Target pass rate</th>
+                        </tr>
+                        <tr class="row-template">
+                            <td><input type="checkbox" class="shiftcb" value="1" name="test_set" checked/></td>
+                            <td><span class="target">Handset</span> <strong class="testtype">Acceptance</strong></td>
+                            <td><input class="passtarget" type="text" value="90" /></td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="widget_edit_actions">
+                    <input type="submit" value="OK" class="ui_btn big dark"/>
+                    <input type="button" class="ui_btn big dark cancel" value="Cancel" />
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

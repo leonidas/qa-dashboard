@@ -113,6 +113,7 @@ exports.register_plugin = (db) ->
             profile:1
             testtype:1
             release:1
+            tested_at:1
             total_cases:1
             total_pass:1
             total_fail:1
