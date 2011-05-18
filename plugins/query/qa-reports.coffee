@@ -114,6 +114,8 @@ exports.register_plugin = (db) ->
             total_fail:1
             total_na:1
             qa_id:1
+            tested_at:1
+            title:1
         q = reports.find(grp).fields(fields).sort(tested_at:-1,created_at:-1).limit(n)
         q.run (err, arr) ->
             return callback? err if err?
