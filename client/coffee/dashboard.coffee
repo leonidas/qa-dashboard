@@ -73,17 +73,22 @@ handle_fragment_path = (frag) ->
         init_shared_dashboard data
 
 initialize_application = () ->
-    frag = window.location.hash;
-    if frag? and frag != ''
-        frag = frag.substring(1)
-        handle_fragment_path frag
-    else
-        load_dashboard (data) ->
-            if data.username?
-                current_user = data
-                data.dashboard ?= {}
+    frag = window.location.hash
+    load_dashboard (data) ->
+        if data.username?
+            current_user = data
+            data.dashboard ?= {}
+            # TODO: refactor duplicate frag checking
+            if frag? and frag != ''
+                frag = frag.substring(1)
+                handle_fragment_path frag
+            else
                 # render dashboard
                 init_user_dashboard(data.dashboard)
+        else
+            if frag? and frag != ''
+                frag = frag.substring(1)
+                handle_fragment_path frag
             else
                 # show login form
                 $p.form_container.show()
@@ -116,7 +121,10 @@ load_dashboard = (callback) ->
         callback? data
 
 init_shared_dashboard = (tab) ->
-    $('#wrap').addClass 'shared'
+    if current_user?
+        $('#wrap').addClass 'shared'
+    else
+        $('#wrap').addClass 'shared-anon'
     $p.form_container.hide()
     $p.toolbar_container.hide()
     $p.upper_header.show()
