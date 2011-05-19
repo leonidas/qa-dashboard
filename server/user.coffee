@@ -91,6 +91,8 @@ exports.init_user = (app, db) ->
         q = users.find({username:req.params.user}).fields({"dashboard.tabs":1}).one()
         q.run (err, user) ->
             return res.send {status:"error", error:err} if err?
+            return res.send {status:"error", error:"No dashboard for user: #{req.params.user}"} if !user? or !user.dashboard? or !user.dashboard.tabs?
+
             tab = _(user.dashboard.tabs).select (tab) -> tab.name == req.params.tab
             if _.isEmpty(tab)
                 res.send {status:"error", error:"Could not find shared dashboard for user:#{req.params.user} with tabname:#{req.params.tab}"}
