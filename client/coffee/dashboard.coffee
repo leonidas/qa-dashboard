@@ -232,6 +232,7 @@ init_widget_dom_events = (dom) ->
         $n.find('span').text("Widget has been deleted.")
         $n.slideDown()
         $dom.remove()
+        balance_columns()
         save_widgets()
 
 update_undo_buffer = (obj) ->
