@@ -19,6 +19,7 @@
 #
 
 auth = require('authentication')
+_    = require('underscore')
 
 get_user = (db) ->
     users = db.collection("users")
@@ -83,3 +84,11 @@ exports.init_user = (app, db) ->
                 res.send {status:"error", error:err}
             else
                 res.send {status:"OK"}
+
+    app.get "/shared/:user/:tab", (req,res) ->
+        q = users.find({username:req.params.user}).fields({"dashboard.tabs":1}).one()
+        q.run (err, user) ->
+            return res.send {status:"error", error:err} if err?
+            tab = _(user.dashboard.tabs).select (tab) -> tab.name == req.params.tab
+            return res.send {status:"error", error:"Could not find shared dashboard for user:#{req.params.user} with tabname:#{req.params.tab}"} if _.isEmpty(tab)
+            return res.send _.first(tab)
