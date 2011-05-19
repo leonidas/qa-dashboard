@@ -1059,6 +1059,10 @@ span.alert {
 	}
 }
 
+#upper_header .share_info {
+	display: none;
+}
+
 #wrap.shared #upper_header {
 	background-color: #595959;
 	text-shadow: -1px -1px 1px #404040;
@@ -1072,20 +1076,26 @@ span.alert {
 	);	
 	font-weight: bold;
 	color: #b7b7b7;
-	.share_info {
-		float: left;
-		padding: 3px 10px;
-		.user {
-			color: #fff;
-		}
+	.h-navi {
+		display: none;
 	}
-	.share_link {
-		float: right;
-		padding: 3px 10px;
-		a {
-			text-decoration: none;
-			padding-right: 14px;
-			background: transparent url('../img/external_icon_blue.png') no-repeat right center;
+	.share_info {
+		display: block;
+		.shared_by {
+			float: left;
+			padding: 3px 10px;
+			.user {
+				color: #fff;
+			}
+		}
+		.share_link {
+			float: right;
+			padding: 3px 10px;
+			a {
+				text-decoration: none;
+				padding-right: 14px;
+				background: transparent url('../img/external_icon_blue.png') no-repeat right center;
+			}
 		}
 	}
 }
