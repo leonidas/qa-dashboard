@@ -69,7 +69,7 @@ handle_fragment_path = (frag) ->
     user = decodeURIComponent frag.substring(0,sep)
     tab  = decodeURIComponent frag.substring(sep+1)
 
-    if user == current_user.username
+    if current_user? and user == current_user.username
         init_user_dashboard current_user.dashboard, (err) ->
             set_current_tab_by_name(tab)
     else
@@ -426,9 +426,10 @@ set_current_tab = (dom) ->
     $('#page_content .tab_content').detach()
     $('#page_content').prepend $dom.data 'tab-content'
 
-    user    = encodeURIComponent current_user.username
-    tabname = encodeURIComponent $dom.find('.tab_title').text()
-    window.location.hash = "#{user}/#{tabname}"
+    if current_user?
+        user    = encodeURIComponent current_user.username
+        tabname = encodeURIComponent $dom.find('.tab_title').text()
+        window.location.hash = "#{user}/#{tabname}"
 
     initialize_sortable_columns()
     balance_columns()
