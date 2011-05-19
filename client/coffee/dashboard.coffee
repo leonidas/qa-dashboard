@@ -66,13 +66,18 @@ submit_user_logout = () ->
 
 handle_fragment_path = (frag) ->
     sep  = frag.indexOf '/'
-    user = frag.substring(0,sep)
-    tab  = frag.substring(sep+1)
-    cached.get "/shared/#{user}/#{tab}", (res) ->
-        tab = res.result if res.status == 'ok'
-        # TODO: handle error
-        $('.share_info .user').text user
-        init_shared_dashboard tab
+    user = decodeURIComponent frag.substring(0,sep)
+    tab  = decodeURIComponent frag.substring(sep+1)
+
+    if user == current_user.username
+        init_user_dashboard current_user.dashboard, (err) ->
+            set_current_tab_by_name(tab)
+    else
+        cached.get "/shared/#{user}/#{tab}", (res) ->
+            tab = res.result if res.status == 'ok'
+            # TODO: handle error
+            $('.share_info .user').text user
+            init_shared_dashboard tab
 
 initialize_application = () ->
     frag = window.location.hash
@@ -136,7 +141,7 @@ init_shared_dashboard = (tab) ->
         set_current_tab $p.tab_list.find('li.tab')[0]
 
 
-init_user_dashboard = (dashboard) ->
+init_user_dashboard = (dashboard, cb) ->
     $p.form_container.hide()
     $p.toolbar_container.show()
     $p.upper_header.show()
@@ -155,6 +160,7 @@ init_user_dashboard = (dashboard) ->
         else
             load_tabs dashboard.tabs, (err) ->
                 $('#tab_navi').css('visibility','visible')
+                cb?(err)
 
     $p.add_tab_btn.click () ->
         $new = add_tab_element "New Tab"
@@ -420,8 +426,20 @@ set_current_tab = (dom) ->
     $('#page_content .tab_content').detach()
     $('#page_content').prepend $dom.data 'tab-content'
 
+    user    = encodeURIComponent current_user.username
+    tabname = encodeURIComponent $dom.find('.tab_title').text()
+    window.location.hash = "#{user}/#{tabname}"
+
     initialize_sortable_columns()
     balance_columns()
+
+set_current_tab_by_name = (name) ->
+    console.log name
+    for tab in $p.tab_list.find('li')
+        $tab = $(tab)
+        tabname = $tab.find('.tab_title').text()
+        if tabname == name
+            return set_current_tab $tab
 
 initialize_sortable_columns = () ->
     return if $('#wrap').hasClass 'shared'
