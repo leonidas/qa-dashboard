@@ -68,9 +68,11 @@ handle_fragment_path = (frag) ->
     sep  = frag.indexOf '/'
     user = frag.substring(0,sep)
     tab  = frag.substring(sep+1)
-    cached.get "/shared/#{user}/#{tab}", (data) ->
+    cached.get "/shared/#{user}/#{tab}", (res) ->
+        tab = res.result if res.status == 'ok'
+        # TODO: handle error
         $('.share_info .user').text user
-        init_shared_dashboard data
+        init_shared_dashboard tab
 
 initialize_application = () ->
     frag = window.location.hash
