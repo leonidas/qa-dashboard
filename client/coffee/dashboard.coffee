@@ -120,6 +120,7 @@ init_shared_dashboard = (tab) ->
     $p.toolbar_container.hide()
     $p.upper_header.show()
 
+    $('#tab_navi').css('visibility','visible')
     load_tab(tab) (err) ->
         set_current_tab $p.tab_list.find('li.tab')[0]
 
