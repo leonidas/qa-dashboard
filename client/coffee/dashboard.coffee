@@ -69,6 +69,7 @@ handle_fragment_path = (frag) ->
     user = frag.substring(0,sep)
     tab  = frag.substring(sep+1)
     cached.get "/shared/#{user}/#{tab}", (data) ->
+        $('.share_info .user').text user
         init_shared_dashboard data
 
 initialize_application = () ->
