@@ -73,7 +73,7 @@ handle_fragment_path = (frag) ->
 
 initialize_application = () ->
     frag = window.location.hash;
-    if frag?
+    if frag? and frag != ''
         frag = frag.substring(1)
         handle_fragment_path frag
     else
@@ -120,8 +120,8 @@ init_shared_dashboard = (tab) ->
     $p.toolbar_container.hide()
     $p.upper_header.show()
 
-    load_tab(tab)(err) ->
-
+    load_tab(tab) (err) ->
+        set_current_tab $p.tab_list.find('li.tab')[0]
 
 
 init_user_dashboard = (dashboard) ->
@@ -277,7 +277,7 @@ add_tab_element = (title) ->
     $dom = $('#hidden_templates .tab').clone()
     $dom.find('.tab_title').text(title)
     $dom.data('tab-content', $('#hidden_templates .tab_content').clone())
-    $dom.appendTo $p.tab_list
+    $dom.insertBefore $p.tab_list.find('.share_info')
     if not $('#wrap').hasClass 'shared'
         init_tab_events $dom
     return $dom
