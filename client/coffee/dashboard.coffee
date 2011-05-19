@@ -64,17 +64,29 @@ submit_user_logout = () ->
 
     return false
 
+handle_fragment_path = (frag) ->
+    sep  = frag.indexOf '/'
+    user = frag.substring(0,sep)
+    tab  = frag.substring(sep+1)
+    cached.get "/shared/#{user}/#{tab}", (data) ->
+        init_shared_dashboard data
+
 initialize_application = () ->
-    load_dashboard (data) ->
-        if data.username?
-            current_user = data
-            data.dashboard ?= {}
-            # render dashboard
-            init_user_dashboard(data.dashboard)
-        else
-            # show login form
-            $p.form_container.show()
-            balance_columns()
+    frag = window.location.hash;
+    if frag? and frag != ''
+        frag = frag.substring(1)
+        handle_fragment_path frag
+    else
+        load_dashboard (data) ->
+            if data.username?
+                current_user = data
+                data.dashboard ?= {}
+                # render dashboard
+                init_user_dashboard(data.dashboard)
+            else
+                # show login form
+                $p.form_container.show()
+                balance_columns()
 
 initialize_toolbar = (widgets, elem) ->
     $elem  = $(elem)
@@ -101,6 +113,16 @@ initialize_toolbar = (widgets, elem) ->
 load_dashboard = (callback) ->
     $.getJSON "/user", (data) ->
         callback? data
+
+init_shared_dashboard = (tab) ->
+    $('#wrap').addClass 'shared'
+    $p.form_container.hide()
+    $p.toolbar_container.hide()
+    $p.upper_header.show()
+
+    load_tab(tab) (err) ->
+        set_current_tab $p.tab_list.find('li.tab')[0]
+
 
 init_user_dashboard = (dashboard) ->
     $p.form_container.hide()
@@ -255,8 +277,9 @@ add_tab_element = (title) ->
     $dom = $('#hidden_templates .tab').clone()
     $dom.find('.tab_title').text(title)
     $dom.data('tab-content', $('#hidden_templates .tab_content').clone())
-    $dom.appendTo $p.tab_list
-    init_tab_events $dom
+    $dom.insertBefore $p.tab_list.find('.share_info')
+    if not $('#wrap').hasClass 'shared'
+        init_tab_events $dom
     return $dom
 
 init_tab_events = ($dom) ->
@@ -389,6 +412,8 @@ set_current_tab = (dom) ->
     balance_columns()
 
 initialize_sortable_columns = () ->
+    return if $('#wrap').hasClass 'shared'
+
     # Enable sorting tabs
     $p.tab_list.sortable
         items:  'li.tab'

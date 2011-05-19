@@ -83,7 +83,6 @@ Important measurements of layout:
 <body>
 	<div id="wrap">
         <div id="upper_header" style="display:none">
-
             <ul class="h-navi">
                 <li><a class="plain mailto" href="mailto:qa-dashboard@leonidasoy.fi">Give Feedback</a></li>
                 <li><a class="plain external" href="http://wiki.meego.com/Quality/QA-tools/QADashboard" target="_blank">Documentation</a></li>
@@ -91,10 +90,13 @@ Important measurements of layout:
                 <li><a class="plain" href="#" target="_blank" id="logged_user"></a>
                 <a href="#" class="ui_btn" id="logout_btn">Sign out</a></li>
             </ul>
+            <div class="share_info">
+                <span class="shared_by">This tab was shared by <span class="user">Foo Bar</span></span>
+                <span class="share_link">Create your Dashboard at <a href="http://dashboard.meego.com">dashboard.meego.com</a></span>
+            </div>
         </div>
 		<div id="header">
             <div class="toolbar_container" style="display:none">
-
     			<a href="#" class="ui_btn" id="add_widgets_btn">Add Widgets <span class="symbol">+</span></a>
 
             </div>
@@ -103,8 +105,8 @@ Important measurements of layout:
 		<!-- tabs -->
 		<div id="tab_navi" style="visibility:hidden">
 			<ul class="clearfix">
+                  <li class="share_info" style="display:none">This tab was shared by <span class="user">Foo Bar</span> <a href="#" class="add_shared_tab">Add tab to my Dashboard <span class="plus">+</span></a></li>
 			</ul>
-			<a href="" class="add">+</a>
 		</div>
 
 		<!-- content columns -->

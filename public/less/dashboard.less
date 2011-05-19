@@ -996,3 +996,109 @@ span.alert {
 	}
 }
 
+/* SHARED VIEW */
+#wrap.shared #tab_navi {
+	background-color: #595959;
+	background-image: -webkit-gradient(linear, left bottom, left top,
+	    color-stop(0, rgb(64,64,64)),
+	    color-stop(0.25, rgb(89,89,89))
+	);
+	background-image: -moz-linear-gradient(center bottom,
+	    rgb(64,64,64) 0%,
+	    rgb(89,89,89) 25%
+	);
+	border-bottom-color: #404040;
+	.share_info {
+		background: transparent;
+		color: #b7b7b7;
+		font-weight: bold;
+		width: 350px;
+		padding: 0.90em;
+		text-shadow: -1px -1px 1px #404040;
+		height: 1.083em;
+		.user {
+			color: #fff;
+		}
+		a {
+			display: inline-block;
+			color: #fff;
+			padding: 0;
+			margin: 0;
+			width: auto;
+			height: auto;
+			background: none;
+		}
+		a.add_shared_tab {
+			font-size: 10px;
+			color: #404040;
+			background-color: #fff;
+			background-image: -webkit-gradient(linear,
+			    left bottom,
+			    left top,
+			    color-stop(0, rgb(236,236,236)),
+			    color-stop(1, rgb(255,255,255))
+			);
+			background-image: -moz-linear-gradient(center bottom,
+			    rgb(236,236,236) 0%,
+			    rgb(255,255,255) 100%
+			);
+			border: 1px solid #cfcfcf;
+			text-shadow: 1px 1px 1px #fff;
+			padding: 3px 5px 4px 5px;
+			margin-left: 15px;
+			/*.rounded(5px);*/
+			.plus {
+				color: #4FC3E6;
+			}
+			&:hover {
+				-webkit-box-shadow: 0px 0px 5px #c0c0c0;
+				-moz-box-shadow: 0px 0px 5px #c0c0c0;
+				box-shadow: 0px 0px 5px #c0c0c0;
+			}
+		}
+	}
+}
+
+#upper_header .share_info {
+	display: none;
+}
+
+#wrap.shared #upper_header {
+	background-color: #595959;
+	text-shadow: -1px -1px 1px #404040;
+	background-image: -webkit-gradient(linear, left bottom, left top,
+	    color-stop(0, rgb(64,64,64)),
+	    color-stop(1, rgb(89,89,89))
+	);
+	background-image: -moz-linear-gradient(center bottom,
+	    rgb(64,64,64) 0%,
+	    rgb(89,89,89) 100%
+	);	
+	font-weight: bold;
+	color: #b7b7b7;
+	.h-navi {
+		display: none;
+	}
+	.share_info {
+		display: block;
+		.shared_by {
+			float: left;
+			padding: 3px 10px;
+			.user {
+				color: #fff;
+			}
+		}
+		.share_link {
+			float: right;
+			padding: 3px 10px;
+			a {
+				text-decoration: none;
+				padding-right: 14px;
+				background: transparent url('../img/external_icon_blue.png') no-repeat right center;
+			}
+		}
+	}
+}
+
+
+
