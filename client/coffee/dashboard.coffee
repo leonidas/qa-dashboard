@@ -564,7 +564,10 @@ serialize_tab = (tab) ->
     sidebar: find_configs $sb
 
 load_widgets = (cb) ->
-    $.getJSON "/user/dashboard", (dashb) ->
+    $.getJSON "/user/dashboard", (res) ->
+
+        dashb = {}
+        dashb = res.result if res.status == "ok"
 
         $lc = $left_column()
         $sb = $sidebar()

@@ -73,8 +73,10 @@ exports.init_user = (app, db) ->
         else
             q = users.find({username:username}).fields({dashboard:1}).one()
             q.run (err, user) ->
-                console.log "ERROR: #{err}" if err?
-                res.send user.dashboard
+                if err
+                    res.send {status:"error", error:err}
+                else
+                    res.send {status:"ok", result:user.dashboard}
 
     app.post "/user/dashboard/save", (req, res) ->
         username = req.session.username
@@ -83,12 +85,14 @@ exports.init_user = (app, db) ->
             if err
                 res.send {status:"error", error:err}
             else
-                res.send {status:"OK"}
+                res.send {status:"ok"}
 
     app.get "/shared/:user/:tab", (req,res) ->
         q = users.find({username:req.params.user}).fields({"dashboard.tabs":1}).one()
         q.run (err, user) ->
             return res.send {status:"error", error:err} if err?
             tab = _(user.dashboard.tabs).select (tab) -> tab.name == req.params.tab
-            return res.send {status:"error", error:"Could not find shared dashboard for user:#{req.params.user} with tabname:#{req.params.tab}"} if _.isEmpty(tab)
-            return res.send _.first(tab)
+            if _.isEmpty(tab)
+                res.send {status:"error", error:"Could not find shared dashboard for user:#{req.params.user} with tabname:#{req.params.tab}"}
+            else
+                res.send {status:"ok", result:_.first(tab)}
