@@ -60,6 +60,8 @@ submit_login_form = () ->
 
 submit_user_logout = () ->
     $.post "/auth/logout", (data) ->
+        window.location.pathname = ""
+        window.location.hash = ""
         window.location.reload()
 
     return false
