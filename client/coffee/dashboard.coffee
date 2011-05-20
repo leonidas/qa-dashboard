@@ -68,7 +68,7 @@ submit_user_logout = () ->
 
 handle_fragment_path = () ->
     f = parse_fragment()
-    console.log f
+    #console.log f
 
     if current_user? and f.user == current_user.username
         init_user_dashboard current_user.dashboard, (err) ->
@@ -128,6 +128,10 @@ load_dashboard = (callback) ->
     $.getJSON "/user", (data) ->
         callback? data
 
+reset_dashboard = () ->
+    $('#wrap').removeClass('shared').removeClass('shared-anon')
+    $p.tab_list.find('li.tab').remove()
+
 init_shared_dashboard = (tab) ->
     if current_user?
         $('#wrap').addClass 'shared'
@@ -140,6 +144,15 @@ init_shared_dashboard = (tab) ->
     $('#tab_navi').css('visibility','visible')
     load_tab(tab) (err) ->
         set_current_tab $p.tab_list.find('li.tab')[0]
+
+    $p.add_shared_tab.click () ->
+        shared_copy = deepcopy tab
+        reset_dashboard()
+        init_user_dashboard current_user.dashboard, (err) ->
+            shared_copy.name = make_unique_tab_name(shared_copy.name)
+            load_tab(shared_copy) (err) ->
+                save_widgets()
+                set_current_tab_by_name(shared_copy.name)
 
 
 init_user_dashboard = (dashboard, cb) ->
@@ -463,7 +476,7 @@ set_current_tab = (dom) ->
     balance_columns()
 
 set_current_tab_by_name = (name) ->
-    console.log name
+    #console.log name
     for tab in $p.tab_list.find('li')
         $tab = $(tab)
         tabname = $tab.find('.tab_title').text()
@@ -717,6 +730,8 @@ $ () ->
     $p.add_tab_btn       = $('#tab_navi .add')
 
     $p.custom_styles     = $('#custom_styles')
+
+    $p.add_shared_tab    = $('.add_shared_tab')
 
     $p.login_form.appendTo('.form_container')
     $p.login_form.find('form').submit submit_login_form
