@@ -163,7 +163,7 @@ init_user_dashboard = (dashboard, cb) ->
                 cb?(err)
 
     $p.add_tab_btn.click () ->
-        $new = add_tab_element "New Tab"
+        $new = add_tab_element make_unique_tab_name("New Tab")
         set_current_tab $new
         save_widgets()
         return false
@@ -300,6 +300,16 @@ add_tab_element = (title) ->
         init_tab_events $dom
     return $dom
 
+unique_tab_name = (tabname) ->
+    $tabs = $p.tab_list.find('li.tab').find('.tab_title')
+    not _.any $tabs, ($tab) -> $tab.text == tabname
+
+make_unique_tab_name = (tabname) ->
+        i = 1
+        while not unique_tab_name(tabname)
+            tabname = tabname.replace(/\(\d+\)$/,'') + "(#{i++})"
+        tabname
+
 init_tab_events = ($dom) ->
     $dom.unbind()
     $actions = $dom.find('.tab_actions')
@@ -368,9 +378,13 @@ init_tab_events = ($dom) ->
 
         end_edit = () ->
             title = $input.val()
+
             $dom.empty()
             $dom.append $('#hidden_templates .tab').clone().children()
-            $dom.find('.tab_title').text(title)
+            if unique_tab_name(title)
+                $dom.find('.tab_title').text(title)
+            else
+                $dom.find('.tab_title').text(old)
 
             init_tab_events $dom
 
@@ -378,12 +392,12 @@ init_tab_events = ($dom) ->
                 save_widgets()
 
         $input.blur  -> end_edit(); false
-        $form.submit -> end_edit(); false
+        $form.submit -> end_edit() if unique_tab_name($input.val()); false
 
 
     def_action 'copy', ->
         conf = deepcopy serialize_tab $dom
-        conf.name = "Copy of #{conf.name}"
+        conf.name = make_unique_tab_name("Copy of #{conf.name}")
         load_tab(conf) save_widgets
 
     def_action 'delete', ->
