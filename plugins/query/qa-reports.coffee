@@ -68,6 +68,7 @@ exports.register_plugin = (db) ->
                 cases = count_cases(fea.cases)
                 doc.fail_cases = cases.fail_count
                 doc.na_cases   = cases.na_count
+                doc.qa_id      = fea.qa_id
                 return doc
 
             reformat = (r) ->
