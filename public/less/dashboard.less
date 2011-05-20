@@ -83,12 +83,6 @@ td.bug_blocker_count {
 	width: 60px;
 	font-weight:bold;}
 
-label {
-	font-weight: bold;
-	display: block;
-	font-size: 14px;
-	margin-bottom: 5px;
-}
 
 /**** FORMS *****/
 .form_container {
@@ -103,6 +97,80 @@ input[type="text"] {
 	border: 1px solid #bbb;
 	padding: 3px;
 }
+
+label {
+	font-weight: bold;
+	display: block;
+	font-size: 14px;
+	margin-bottom: 5px;
+}
+
+.field.radio {
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-o-user-select: none;
+	user-select: none;
+	margin-right: 20px;
+	background-color: #666;
+	background-image: -webkit-gradient(linear,
+	    left bottom,
+	    left top,
+	    color-stop(0, rgb(80,80,80)),
+	    color-stop(0.25, rgb(102,102,102))
+	);
+	background-image: -moz-linear-gradient(center bottom,
+	    rgb(80,80,80) 0%,
+	    rgb(102,102,102) 25%
+	);
+	color: #fff;
+	.title {
+		display: block;
+		font-weight: bold;
+		font-size: 1.2em;
+		background: #4e4d50;
+		padding: 3px 5px;
+	}
+	.options {
+		padding: 2px;
+			
+		input { display: none; }
+		label { 
+			color: #c0c0c0;
+			text-shadow: -1px -1px 1px #333;
+			font-size: 0.9em;
+			font-weight: normal;
+			margin: 0px;
+			padding: 2px 3px;
+			display: inline-block; 
+			cursor: pointer;
+			.rounded(5px);
+			&:hover {
+				color: #fff;
+				background: #555;
+			}
+		}
+		input[type="radio"]:checked+label{
+			background-color: #f9c51e;
+			background-image: -webkit-gradient(linear,
+			    left bottom,
+			    left top,
+			    color-stop(0, rgb(197,156,22)),
+			    color-stop(0.25, rgb(249,198,30))
+			);
+			background-image: -moz-linear-gradient(center bottom,
+			    rgb(197,156,22) 0%,
+			    rgb(249,198,30) 25%
+			);
+			border-top: 1px solid #fff759;
+			padding-top: 1px;
+			color: #000;
+			text-shadow: 1px 1px 1px #fff759;
+			font-weight: normal;
+		} 
+	}
+}
+
 
 
 /**** PAGE STRUCTURE ****/
