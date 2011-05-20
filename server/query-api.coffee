@@ -20,8 +20,10 @@
 
 plugins = require('plugins')
 
+ALLOW_ANON_ACCESS = true
+
 init_query_plugins = (rootdir, app, db) ->
     httproot  = "/query"
-    plugins.init_plugins "query", rootdir, httproot, app, db
+    plugins.init_plugins "query", rootdir, httproot, app, db, ALLOW_ANON_ACCESS
 
 exports.init_query_plugins = init_query_plugins
