@@ -389,6 +389,7 @@ init_tab_events = ($dom) ->
                 $dom.find('.tab_title').text(old)
 
             init_tab_events $dom
+            set_current_tab $dom
 
             if title != old
                 save_widgets()
