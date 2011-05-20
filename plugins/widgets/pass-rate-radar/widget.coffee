@@ -10,17 +10,14 @@ class PassRateChart extends WidgetBase
         "#{grp.profile} #{grp.testtype}"
 
     get_default_config: (cb) ->
-        hw = "N900"
-        cached.get "/query/qa-reports/groups/#{hw}", (data) =>
+        cached.get "/query/qa-reports/groups", (data) =>
             targets = {}
-            _(data).each (grp) =>
-                targets[@group_key(grp)] = 90
             cb
-                type:"radar"
-                hwproduct:hw
+                hwproduct:"N900"
+                release: "1.3"
                 groups: data
                 alert:30
-                passtargets: targets
+                passtargets: {}
                 title: "Pass rate: #{hw}"
 
     format_header: ($t, cb) ->
@@ -41,9 +38,11 @@ class PassRateChart extends WidgetBase
             if cb
                 cb $t
 
+    format_settings_groups: ($trow, $dst) ->
+
     format_settings_view: ($t, cb) ->
         hw = @config.hwproduct
-        cached.get "/query/qa-reports/groups/#{hw}", (data) =>
+        cached.get "/query/qa-reports/groups", (data) =>
             # set hardware
             $t.find("form .hwproduct").val(hw)
 
@@ -69,7 +68,7 @@ class PassRateChart extends WidgetBase
                 $row = $trow.clone()
                 $row.find(".target").text(grp.profile)
                 $row.find(".testtype").text(grp.testtype)
-                $row.find(".passtarget").val(""+targets[@group_key(grp)])
+                $row.find(".passtarget").val(""+(targets[@group_key(grp)] ? 90)
                 $row.find(".shiftcb").attr("checked", checked)
                 $row.data("groupData", grp)
 
