@@ -310,9 +310,13 @@ add_tab_element = (title) ->
     $dom.find('.tab_title').text(title)
     $dom.data('tab-content', $('#hidden_templates .tab_content').clone())
     $dom.insertBefore $p.tab_list.find('.share_info')
-    if not $('#wrap').hasClass 'shared'
+    if not is_shared()
         init_tab_events $dom
     return $dom
+
+is_shared = () ->
+    w = $('#wrap')
+    w.hasClass('shared') or w.hasClass('shared-anon')
 
 unique_tab_name = (tabname) ->
     $tabs = $p.tab_list.find('li.tab').find('.tab_title')
@@ -484,7 +488,7 @@ set_current_tab_by_name = (name) ->
             return set_current_tab $tab
 
 initialize_sortable_columns = () ->
-    return if $('#wrap').hasClass 'shared'
+    return if is_shared()
 
     # Enable sorting tabs
     $p.tab_list.sortable
