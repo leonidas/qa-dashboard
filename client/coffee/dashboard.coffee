@@ -381,7 +381,7 @@ init_tab_events = ($dom) ->
 
             $dom.empty()
             $dom.append $('#hidden_templates .tab').clone().children()
-            if unique_tab_name(title)
+            if unique_tab_name(title) && title != ""
                 $dom.find('.tab_title').text(title)
             else
                 $dom.find('.tab_title').text(old)
