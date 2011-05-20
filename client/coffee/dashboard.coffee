@@ -66,20 +66,19 @@ submit_user_logout = () ->
 
     return false
 
-handle_fragment_path = (frag) ->
-    sep  = frag.indexOf '/'
-    user = decodeURIComponent frag.substring(0,sep)
-    tab  = decodeURIComponent frag.substring(sep+1)
+handle_fragment_path = () ->
+    f = parse_fragment()
+    console.log f
 
-    if current_user? and user == current_user.username
+    if current_user? and f.user == current_user.username
         init_user_dashboard current_user.dashboard, (err) ->
-            set_current_tab_by_name(tab)
+            set_current_tab_by_name(f.tab)
     else
-        cached.get "/shared/#{user}/#{tab}", (res) ->
+        cached.get "/shared/#{f.user}/#{f.tab}", (res) ->
             tab = res.result if res.status == 'ok'
             # TODO: handle error
-            $('.share_info .user').text user
-            init_shared_dashboard tab
+            $('.share_info .user').text f.user
+            init_shared_dashboard f.tab
 
 initialize_application = () ->
     frag = window.location.hash
@@ -433,6 +432,16 @@ init_tab_events = ($dom) ->
         $dom.remove()
         save_widgets()
 
+parse_fragment = () ->
+    frag = window.location.hash
+    if frag?
+        frag = frag.substring(1)
+        return null if frag == ""
+
+        sep  = frag.indexOf '/'
+
+        user: decodeURIComponent frag.substring(0,sep)
+        tab:  decodeURIComponent frag.substring(sep+1)
 
 set_current_tab = (dom) ->
     $dom = $(dom)
@@ -442,7 +451,9 @@ set_current_tab = (dom) ->
     $('#page_content .tab_content').detach()
     $('#page_content').prepend $dom.data 'tab-content'
 
-    if current_user?
+    fu = parse_fragment()?.user
+
+    if current_user? and (not fu? or fu == current_user.username)
         user    = encodeURIComponent current_user.username
         tabname = encodeURIComponent $dom.find('.tab_title').text()
         window.location.hash = "#{user}/#{tabname}"
