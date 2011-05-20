@@ -78,7 +78,7 @@ handle_fragment_path = () ->
             tab = res.result if res.status == 'ok'
             # TODO: handle error
             $('.share_info .user').text f.user
-            init_shared_dashboard f.tab
+            init_shared_dashboard tab
 
 initialize_application = () ->
     frag = window.location.hash
@@ -454,10 +454,10 @@ set_current_tab = (dom) ->
 
     fu = parse_fragment()?.user
 
-    if current_user? and (not fu? or fu == current_user.username)
-        user    = encodeURIComponent current_user.username
-        tabname = encodeURIComponent $dom.find('.tab_title').text()
-        window.location.hash = "#{user}/#{tabname}"
+    username = fu ? current_user.username
+    user    = encodeURIComponent username
+    tabname = encodeURIComponent $dom.find('.tab_title').text()
+    window.location.hash = "#{user}/#{tabname}"
 
     initialize_sortable_columns()
     balance_columns()
