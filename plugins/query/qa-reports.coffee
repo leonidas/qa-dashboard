@@ -82,26 +82,26 @@ exports.register_plugin = (db) ->
             arr = _(arr).filter has_bug
             cb? null,_(arr).map reformat
 
-    api.targets_for_hw = (hw, callback) ->
-        q = reports.find(release:"1.2",hardware:hw).distinct "profile"
+    api.targets_for_hw = (ver, hw, callback) ->
+        q = reports.find(release:ver,hardware:hw).distinct "profile"
         q.run callback
 
-    api.types_for_hw = (hw) -> (profile, callback) ->
-        q = reports.find(release:"1.2",hardware:hw,profile:profile)
+    api.types_for_hw = (ver, hw) -> (profile, callback) ->
+        q = reports.find(release:ver,hardware:hw,profile:profile)
         q = q.distinct "testtype"
         q.run callback
 
-    api.groups_for_hw = (hw, callback) ->
-        api.targets_for_hw hw, (err, targets) ->
+    api.groups_for_hw = (ver, hw) -> (callback) ->
+        api.targets_for_hw ver, hw, (err, targets) ->
             return callback? err if err?
-            async.map targets, api.types_for_hw(hw), (err, types) ->
+            async.map targets, api.types_for_hw(ver, hw), (err, types) ->
                 return callback? err if err?
 
                 result = []
                 for [target,typs] in _.zip(targets,types)
                     for type in typs
                         result.push
-                            release:"1.2"
+                            release:ver
                             profile:target
                             testtype:type
                             hardware:hw
@@ -128,6 +128,28 @@ exports.register_plugin = (db) ->
             arr = arr[0] if n == 1
             callback? null, arr
 
+    api.all_releases = (callback) ->
+        reports.distinct("release").run callback
+
+    api.hws_for_release = (ver, callback) ->
+        reports.find({release:ver}).distinct("hardware").run callback
+
+    api.hw_groups_for_release = (ver) -> (callback) ->
+        api.hws_for_release ver, (err, arr) ->
+            return callback? err if err?
+            hws = {}
+            for hw in arr
+                hws[hw] = api.groups_for_hw ver, hw
+            async.parallel hws, callback
+
+    api.all_groups = (callback) ->
+        api.all_releases (err, arr) ->
+            return callback? err if err?
+            releases = {}
+            for v in arr
+                releases[v] = api.hw_groups_for_release(v)
+            async.parallel releases, callback
+
     api.latest_reports = (n, hw, fields, callback) ->
         api.groups_for_hw hw, (err, groups) ->
             if not callback?
@@ -145,7 +167,7 @@ exports.register_plugin = (db) ->
 
         "/latest/:hw": (req,res) ->
             num = parseInt(req.param("num") ? "1")
-            api.latest_reports num, req.params.hw, (err,arr) ->
+            api.latest_reports num, "1.2", req.params.hw, (err,arr) ->
                 if err?
                     console.log err
                     res.send 500
@@ -153,7 +175,15 @@ exports.register_plugin = (db) ->
                     res.send arr
 
         "/groups/:hw": (req,res) ->
-            api.groups_for_hw req.params.hw, (err,arr) ->
+            api.groups_for_hw("1.2", req.params.hw) (err,arr) ->
+                if err?
+                    console.log err
+                    res.send 500
+                else
+                    res.send arr
+
+        "/groups": (req, res) ->
+            api.all_groups (err,arr) ->
                 if err?
                     console.log err
                     res.send 500
