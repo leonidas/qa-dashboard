@@ -40,11 +40,32 @@ class PassRateChart extends WidgetBase
     format_settings_view: ($t, cb) ->
         hw = @config.hwproduct
         cached.get "/query/qa-reports/groups", (data) =>
+            # set title
+            $t.find("form input.title").val @config.title
+
+            # Generate Release Radio Buttons
+            rel = $t.find("form div.release")
+            inputTmpl = rel.find("input").first().clone().removeAttr "id"
+            labelTmpl = rel.find("label").first().clone().removeAttr "for"
+            rel.empty()
+            for k of data
+                do (k) ->
+                    i = inputTmpl.clone()
+                    l = labelTmpl.clone()
+                    i.val k
+                    l.text k
+                    i.appendTo rel
+                    l.appendTo rel
+                    l.click ->
+                        i.click()
+
+
+            # Generate Handware Radio Buttons
+
+
             # set hardware
             $t.find("form .hwproduct").val(hw)
 
-            # set title
-            $t.find("form .title").val @config.title
 
             # set alert limit
             $t.find("form .alert").val(""+@config.alert)
