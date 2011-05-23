@@ -56,20 +56,13 @@ class PassRateChart extends WidgetBase
                     l.text k
                     i.appendTo rel
                     l.appendTo rel
-                    l.click ->
-                        i.click()
+                    l.click -> i.click()
 
 
             # Generate Handware Radio Buttons
 
 
-            # set hardware
-            $t.find("form .hwproduct").val(hw)
-
-
-            # set alert limit
-            $t.find("form .alert").val(""+@config.alert)
-
+            ###
             targets = @config.passtargets
             # set selected groups
             # generate a new row for each item in "data"
@@ -93,6 +86,7 @@ class PassRateChart extends WidgetBase
                 $row.insertBefore $trow
 
             $trow.remove()
+            ###
             cb? $t
 
     process_save_settings: ($form, cb) ->
