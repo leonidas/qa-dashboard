@@ -1,9 +1,3 @@
-group_key = (grp) ->
-    "#{grp.release};#{grp.hardware};#{grp.profile};#{grp.testtype}"
-
-same_group = (g1, g2) -> group_key(g1) == group_key(g2)
-
-contains_group = (arr) -> (grp) -> _(arr).any (g) -> same_group(g,grp)
 
 class PassRateChart extends WidgetBase
     width: 585
@@ -13,9 +7,9 @@ class PassRateChart extends WidgetBase
     side_height: 270
 
     get_default_config: (cb) ->
-        cached.get "/query/qa-reports/groups", (data) =>
+        cached.get "/query/qa-reports/groups", (data) ->
             targets = {}
-            _(data).each (grp) =>
+            for grp in data
                 targets[group_key(grp)] = 90
             cb
                 hwproduct:"N900"
@@ -33,15 +27,13 @@ class PassRateChart extends WidgetBase
         @get_reports @config.groups, (reports) =>
             @reports = reports
             @render_chart $t.find(".radar-chart")
-            if cb
-                cb $t
+            cb? $t
 
     format_small_view: ($t, cb) ->
         @get_reports @config.groups, (reports) =>
             @reports = reports
             @render_small_chart $t.find(".radar-chart")
-            if cb
-                cb $t
+            cb? $t
 
     format_settings_groups: ($trow, $dst) ->
 
@@ -67,21 +59,20 @@ class PassRateChart extends WidgetBase
             $trow = $table.find("tr.row-template").removeClass("row-template").addClass("graph-target")
 
             #$trow.detach()
-            _(data).each (grp) =>
+            for grp in data
                 checked = @contains_group(@config.groups, grp)
 
                 $row = $trow.clone()
                 $row.find(".target").text(grp.profile)
                 $row.find(".testtype").text(grp.testtype)
-                $row.find(".passtarget").val(""+(targets[group_key(grp)] ? 90)
+                $row.find(".passtarget").val(""+(targets[group_key(grp)] ? 90))
                 $row.find(".shiftcb").attr("checked", checked)
                 $row.data("groupData", grp)
 
                 $row.insertBefore $trow
 
             $trow.remove()
-            if cb
-                cb $t
+            cb? $t
 
     process_save_settings: ($form, cb) ->
         @config = {}
@@ -320,5 +311,15 @@ class RadarChart
         mcos = Math.cos(mid)
         [cx+msin*length,cy-mcos*length,cx+msin*@maxsize,cy-mcos*@maxsize]
 
+
+group_key = (grp) ->
+    "#{grp.release};#{grp.hardware};#{grp.profile};#{grp.testtype}"
+
+same_group = (g1, g2) ->
+    group_key(g1) == group_key(g2)
+
+contains_group = (arr) -> (grp) ->
+    _(arr).any (g) ->
+        same_group(g, grp)
 
 return PassRateChart
