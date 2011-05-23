@@ -1,3 +1,9 @@
+group_key = (grp) ->
+    "#{grp.release};#{grp.hardware};#{grp.profile};#{grp.testtype}"
+
+same_group = (g1, g2) -> group_key(g1) == group_key(g2)
+
+contains_group = (arr) -> (grp) -> _(arr).any (g) -> same_group(g,grp)
 
 class PassRateChart extends WidgetBase
     width: 585
@@ -6,16 +12,15 @@ class PassRateChart extends WidgetBase
     height: 500
     side_height: 270
 
-    group_key: (grp) ->
-        "#{grp.profile} #{grp.testtype}"
-
     get_default_config: (cb) ->
         cached.get "/query/qa-reports/groups", (data) =>
             targets = {}
+            _(data).each (grp) =>
+                targets[group_key(grp)] = 90
             cb
                 hwproduct:"N900"
                 release: "1.3"
-                groups: data
+                groups: targets
                 alert:30
                 passtargets: {}
                 title: "Pass rate: #{hw}"
@@ -68,7 +73,7 @@ class PassRateChart extends WidgetBase
                 $row = $trow.clone()
                 $row.find(".target").text(grp.profile)
                 $row.find(".testtype").text(grp.testtype)
-                $row.find(".passtarget").val(""+(targets[@group_key(grp)] ? 90)
+                $row.find(".passtarget").val(""+(targets[group_key(grp)] ? 90)
                 $row.find(".shiftcb").attr("checked", checked)
                 $row.data("groupData", grp)
 
@@ -77,11 +82,6 @@ class PassRateChart extends WidgetBase
             $trow.remove()
             if cb
                 cb $t
-
-    same_group: (g1, g2) ->
-        g1.hardware == g2.hardware && g1.testtype == g2.testtype && g1.profile == g2.profile
-
-    contains_group: (arr, grp) -> _(arr).any (g) => @same_group(g,grp)
 
     process_save_settings: ($form, cb) ->
         @config = {}
@@ -103,7 +103,7 @@ class PassRateChart extends WidgetBase
             target = parseInt($tr.find(".passtarget").val())
             if not target > 0
                 target = 0
-            passtargets[@group_key(grp)] = parseInt(target)
+            passtargets[group_key(grp)] = parseInt(target)
         @config.groups = selected
         @config.passtargets = passtargets
 
@@ -115,9 +115,7 @@ class PassRateChart extends WidgetBase
         cached.get "/query/qa-reports/latest/#{@config.hwproduct}", (data) =>
             reports  = _ data
             selected = _ groups
-            cb reports.filter (r) ->
-                selected.any (s) ->
-                    s.hardware == r.hardware && s.testtype ==  r.testtype && s.profile == r.profile
+            cb reports.filter contains_group selected
 
     render_chart: (@chart_elem) ->
         @chart = new RadarChart @chart_elem, @width, @height
