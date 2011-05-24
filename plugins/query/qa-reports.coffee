@@ -25,7 +25,7 @@ exports.register_plugin = (db) ->
     reports = db.collection('qa-reports')
 
     reports.ensureIndex([['qa_id',1]]).unique().run()
-    reports.ensureIndex([["version",-1], ["hardware",1], ["profile","1"], ["testtype",1]])
+    reports.ensureIndex([["release",-1], ["hardware",1], ["profile","1"], ["testtype",1]])
 
 
     api = {}
@@ -150,8 +150,8 @@ exports.register_plugin = (db) ->
                 releases[v] = api.hw_groups_for_release(v)
             async.parallel releases, callback
 
-    api.latest_reports = (n, hw, fields, callback) ->
-        api.groups_for_hw hw, (err, groups) ->
+    api.latest_reports = (n, ver, hw, fields, callback) ->
+        api.groups_for_hw(ver, hw) (err, groups) ->
             if not callback?
                 callback = fields
                 fields = null

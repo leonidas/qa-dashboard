@@ -9,11 +9,13 @@ class PassRateChart extends WidgetBase
     get_default_config: (cb) ->
         cached.get "/query/qa-reports/groups", (data) ->
             targets = {}
+            ver = _.last _(data).keys()
+            hw  = _.first _(data[ver]).keys()
             for grp in data
                 targets[group_key(grp)] = 90
             cb
-                hwproduct:"N900"
-                release: "1.3"
+                hwproduct: hw
+                release: ver
                 groups: targets
                 alert:30
                 passtargets: {}
@@ -38,13 +40,12 @@ class PassRateChart extends WidgetBase
     format_settings_groups: ($trow, $dst) ->
 
     format_settings_view: ($t, cb) ->
-        hw = @config.hwproduct
-        cached.get "/query/qa-reports/groups", (data) =>
-            # set title
-            $t.find("form input.title").val @config.title
+        hw  = @config.hwproduct
+        ver = @config.release
 
-            # Generate Release Radio Buttons
-            rel = $t.find("form div.release")
+        createRadioButtons = (parent, data, checked, func) ->
+            # Generate Radio Buttons from Templates
+            rel = parent
             inputTmpl = rel.find("input").first().clone().removeAttr "id"
             labelTmpl = rel.find("label").first().clone().removeAttr "for"
             rel.empty()
@@ -52,14 +53,27 @@ class PassRateChart extends WidgetBase
                 do (k) ->
                     i = inputTmpl.clone()
                     l = labelTmpl.clone()
+                    if k == checked
+                        i.attr('checked','checked')
                     i.val k
                     l.text k
                     i.appendTo rel
                     l.appendTo rel
-                    l.click -> i.click()
+                    l.click ->
+                        i.click()
+                        func?(k)
 
+        cached.get "/query/qa-reports/groups", (data) =>
+            # set title
+            $t.find("form input.title").val @config.title
+
+            # Generate Release Radio Buttons
+            rel = $t.find("form div.release")
+            createRadioButtons rel, data, ver
 
             # Generate Handware Radio Buttons
+            rel = $t.find("form div.hardware")
+            createRadioButtons rel, data[ver], hw
 
 
             ###

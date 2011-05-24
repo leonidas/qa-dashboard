@@ -68,7 +68,7 @@ submit_user_logout = () ->
 
 handle_fragment_path = () ->
     f = parse_fragment()
-    console.log f
+    #console.log f
 
     if current_user? and f.user == current_user.username
         init_user_dashboard current_user.dashboard, (err) ->
@@ -462,7 +462,6 @@ set_current_tab = (dom) ->
     balance_columns()
 
 set_current_tab_by_name = (name) ->
-    console.log name
     for tab in $p.tab_list.find('li')
         $tab = $(tab)
         tabname = $tab.find('.tab_title').text()
