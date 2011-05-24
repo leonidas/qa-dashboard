@@ -242,22 +242,20 @@ init_widget_dom_events = (dom) ->
                 $dom.find('.widget_edit_content .cancel').unbind()
                 $dom.find('.widget_edit_content .cancel').click ->
                     $this.removeClass 'active'
-                    $widget = $(this).closest(".widget")
-                    updateWidgetElement $widget
+                    updateWidgetElement $dom
                     return false
 
                 $dom.find('.widget_edit_content form').unbind()
                 $dom.find('.widget_edit_content form').submit ->
                     $form   = $(this)
-                    $widget = $form.closest(".widget")
-                    obj     = $widget.data("widgetObj")
+                    obj     = $dom.data("widgetObj")
 
-                    $widget.find(".action .widget_edit").toggleClass("active")
+                    $dom.find(".action .widget_edit").removeClass("active")
 
                     obj.process_save_settings $form, ->
                         obj.reset_dom()
                         save_widgets()
-                        updateWidgetElement $widget
+                        updateWidgetElement $dom
                     return false
 
         balance_columns()
