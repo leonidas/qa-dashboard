@@ -53,16 +53,21 @@
                 </div>
 
                 <div class="widget_edit_right_column">
-                    <label for="">Test sets:</label>
                     <table class="multiple_select">
-                        <tr>
-                            <th></th>
-                            <th colspan="2" style="text-align:right">Target pass rate</th>
+                        <tr class="title-row">
+                            <td colspan="3"><strong>Test sets</strong>
+                            <input type="text" class="filters" name="filters" style="display: block; width: 260px;" />
+                            </td>
                         </tr>
                         <tr class="row-template">
-                            <td><input type="checkbox" class="shiftcb" value="1" name="test_set" checked/></td>
                             <td><span class="target">Handset</span> <strong class="testtype">Acceptance</strong></td>
                             <td><input class="passtarget" type="text" value="90" /></td>
+                            <td><input type="checkbox" class="shiftcb" value="1" name="test_set" checked/></td>
+                        </tr>
+                        <tr class="row-template suggestion">
+                            <td><span class="target">Handset</span> <strong class="testtype">Acceptance</strong></td>
+                            <td><input class="passtarget" type="text" value="90" /></td>
+                            <td><input type="checkbox" class="shiftcb" value="1" name="test_set" checked/></td>
                         </tr>
                     </table>
                 </div>

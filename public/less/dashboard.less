@@ -874,16 +874,67 @@ table.multiple_select {
 
 	td {
 	background-color: #dfdfdf;
-	border-bottom:1px solid #ccc;}
+	border-bottom:1px solid #ccc;
+	padding: 3px 5px;
+	}
 
-	td:first-child {
-		width: 10px;
-		padding-right: 0;
+	td:last-child {
+		width: 16px;
+		padding-right: 3px;
 	}
 
 	input[type="text"] {
 		width: 2em;
 		padding: 1px 3px;
+	}
+
+	tr.title-row td {
+		border-bottom-width: 5px;
+		padding: 10px;
+	}
+
+	.highlight {
+		background-color: #f0d773;
+	}
+
+	.shiftcb {
+		border: 1px solid #555;
+		background: #818181;
+		-webkit-appearance: none !important;
+		display: inline-block;
+		width: 10px;
+		height: 10px;
+		.rounded(5px);
+		&:hover {
+			background: #f9c51e;
+		}
+	}
+
+	.passtarget {
+		color: #818181;
+	}
+
+	.suggestion {
+		td {
+			font-size: 0.9em;
+			background: transparent;
+		}
+		.shiftcb {
+			background: transparent;
+			border-color: #999;
+			&:hover {
+				background: #f9c51e;
+			}
+		}
+		.passtarget {
+			display: none;
+		}
+		.target {
+			color: #818181;
+		}
+		.testtype {
+			font-weight: normal;
+		}
 	}
 
 }
