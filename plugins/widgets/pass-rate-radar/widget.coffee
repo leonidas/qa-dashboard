@@ -11,14 +11,17 @@ class PassRateChart extends WidgetBase
             targets = {}
             ver = _.last _(data).keys()
             hw  = _.first _(data[ver]).keys()
-            for grp in data
+
+            groups = []
+            for grp in data[ver][hw]
                 targets[group_key(grp)] = 90
+                groups.push grp
             cb
                 hwproduct: hw
                 release: ver
-                groups: targets
+                groups: groups
                 alert:30
-                passtargets: {}
+                passtargets: targets
                 title: "Pass rate: #{hw}"
 
     format_header: ($t, cb) ->
@@ -28,22 +31,25 @@ class PassRateChart extends WidgetBase
     format_main_view: ($t, cb) ->
         @get_reports @config.groups, (reports) =>
             @reports = reports
-            @render_chart $t.find(".radar-chart")
+            #@render_chart $t.find(".radar-chart")
             cb? $t
 
     format_small_view: ($t, cb) ->
         @get_reports @config.groups, (reports) =>
             @reports = reports
-            @render_small_chart $t.find(".radar-chart")
+            #@render_small_chart $t.find(".radar-chart")
             cb? $t
 
     format_settings_groups: ($trow, $dst) ->
 
     format_settings_view: ($t, cb) ->
-        init_hw  = @config.hwproduct
-        init_ver = @config.release
+        cfg = @config
 
-        selected = contains_group @config.groups
+        init_hw  = cfg.hwproduct
+        init_ver = cfg.release
+
+        groups   = cfg.groups
+        selected = contains_group groups
 
         createRadioButtons = (parent, data, checked, func) ->
             # Generate Radio Buttons from Templates
@@ -78,16 +84,35 @@ class PassRateChart extends WidgetBase
             for g in data
                 do (g) ->
                     row = tmpl.clone()
-                    row.find('input.shiftcb').val group_key g
+                    key = group_key g
+
+                    checkbox = row.find('input.shiftcb')
+                    checkbox.removeAttr("checked").val key
+                    checkbox.die()
+
                     row.find('span.target').text g.profile
                     row.find('strong.testtype').text g.testtype
+
+                    passtarget = row.find('input.passtarget')
+                    passtarget.val "90"
+                    passtarget.data "test-group", g
+
+                    if selected g
+                        checkbox.attr("checked", "checked")
+
+                    checkbox.click ->
+                        status = checkbox.attr "checked"
+                        if status
+                            groups.push g
+                        else
+                            remove_group groups, g
 
                     row.appendTo body
 
             balance_columns()
 
 
-        cached.get "/query/qa-reports/groups", (data) =>
+        cached.get "/query/qa-reports/groups", (data) ->
             currentHw  = () -> hwsel.find("input:checked").val()
             currentVer = () -> relsel.find("input:checked").val()
 
@@ -101,9 +126,8 @@ class PassRateChart extends WidgetBase
                 ver = currentVer()
                 createTestSets sets, data[ver][hw]
 
-
             # set title
-            $t.find("form input.title").val @config.title
+            $t.find("form input.title").val cfg.title
 
             # Generate Release Radio Buttons
             relsel = $t.find("form div.release")
@@ -147,28 +171,37 @@ class PassRateChart extends WidgetBase
     process_save_settings: ($form, cb) ->
         @config = {}
 
-        @config.hwproduct = $form.find(".hwproduct").val()
-        @config.alert = $form.find(".alert").val()
-        @config.title = $form.find(".title").val()
+        @config.release = $form.find("div.release input:checked").val()
+        @config.hwproduct = $form.find("div.hardware input:checked").val()
+        @config.alert = $form.find("input.alert").val()
+        @config.title = $form.find("input.title").val()
 
         selected = []
         passtargets = {}
 
-        $rows = $form.find("table.multiple_select").find(".graph-target")
-        $rows.each (idx, tr) =>
+        $rows = $form.find("table.multiple_select tbody tr")
+        for tr in $rows
             $tr = $(tr)
-            grp = $tr.data("groupData")
-            checked = $tr.find(".shiftcb").attr("checked")
+            $checkbox   = $tr.find('input.shiftcb')
+            $passtarget = $tr.find('input.passtarget')
+
+            grp = $passtarget.data("test-group")
+            checked = $checkbox.attr("checked")
+
             if checked
                 selected.push(grp)
+
             target = parseInt($tr.find(".passtarget").val())
             if not target > 0
                 target = 0
+
             passtargets[group_key(grp)] = parseInt(target)
+
         @config.groups = selected
         @config.passtargets = passtargets
 
         #console.log selected
+        #console.log @config
 
         cb?()
 
@@ -383,13 +416,20 @@ class RadarChart
 
 
 group_key = (grp) ->
-    "#{grp.release};#{grp.hardware};#{grp.profile};#{grp.testtype}"
+    "#{grp.release};#{grp.hardware};#{grp.profile};#{grp.testtype}".replace('.',':')
 
 same_group = (g1, g2) ->
     group_key(g1) == group_key(g2)
 
 contains_group = (arr) -> (grp) ->
-    _(arr).any (g) ->
-        same_group(g, grp)
+    for g in arr
+        return true if same_group(g,grp)
+    return false
+
+remove_group = (arr, grp) ->
+    for i,g of arr
+        if same_group(g,grp)
+            arr.splice(i,1)
+            return
 
 return PassRateChart

@@ -685,13 +685,10 @@ save_widgets = (cb) ->
 
     $tabs = $p.tab_list.find('li.tab')
 
-    old = current_user.dashboard
-
     dashboard =
         tabs: _($tabs).map serialize_tab
-        undo: old.undo
 
-    #console.log dashboard
+    console.log dashboard
 
     $.post "/user/dashboard/save", dashboard, cb
 
