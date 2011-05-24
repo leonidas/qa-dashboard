@@ -237,12 +237,14 @@ init_widget_dom_events = (dom) ->
             obj = $dom.data("widgetObj")
             obj.render_settings_view ->
                 balance_columns()
+                $dom.find('.widget_edit_content .cancel').unbind()
                 $dom.find('.widget_edit_content .cancel').click ->
                     $this.removeClass 'active'
                     $widget = $(this).closest(".widget")
                     updateWidgetElement $widget
                     return false
 
+                $dom.find('.widget_edit_content form').unbind()
                 $dom.find('.widget_edit_content form').submit ->
                     $form   = $(this)
                     $widget = $form.closest(".widget")
