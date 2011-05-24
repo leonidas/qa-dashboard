@@ -722,3 +722,5 @@ $ () ->
     $('#logout_btn').click submit_user_logout
 
     initialize_application()
+
+window.balance_columns = balance_columns

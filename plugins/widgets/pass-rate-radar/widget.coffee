@@ -40,21 +40,26 @@ class PassRateChart extends WidgetBase
     format_settings_groups: ($trow, $dst) ->
 
     format_settings_view: ($t, cb) ->
-        hw  = @config.hwproduct
-        ver = @config.release
+        init_hw  = @config.hwproduct
+        init_ver = @config.release
+
+        selected = contains_group @config.groups
 
         createRadioButtons = (parent, data, checked, func) ->
             # Generate Radio Buttons from Templates
             rel = parent
-            inputTmpl = rel.find("input").first().clone().removeAttr "id"
-            labelTmpl = rel.find("label").first().clone().removeAttr "for"
+            inputTmpl = rel.find("input").first().clone().die().removeAttr "id"
+            labelTmpl = rel.find("label").first().clone().die().removeAttr "for"
+            inputTmpl.removeAttr "checked"
             rel.empty()
+            found = false
             for k of data
                 do (k) ->
                     i = inputTmpl.clone()
                     l = labelTmpl.clone()
                     if k == checked
                         i.attr('checked','checked')
+                        found = true
                     i.val k
                     l.text k
                     i.appendTo rel
@@ -62,19 +67,55 @@ class PassRateChart extends WidgetBase
                     l.click ->
                         i.click()
                         func?(k)
+            if not found
+                parent.find("input").first().click()
+
+        createTestSets = (parent, data) ->
+            body = parent.find("tbody")
+            tmpl = body.find("tr").first().clone().die()
+            body.empty()
+
+            for g in data
+                do (g) ->
+                    row = tmpl.clone()
+                    row.find('input.shiftcb').val group_key g
+                    row.find('span.target').text g.profile
+                    row.find('strong.testtype').text g.testtype
+
+                    row.appendTo body
+
+            balance_columns()
+
 
         cached.get "/query/qa-reports/groups", (data) =>
+            currentHw  = () -> hwsel.find("input:checked").val()
+            currentVer = () -> relsel.find("input:checked").val()
+
+            selectRelease = (ver) ->
+                hw = currentHw()
+                createRadioButtons hwsel, data[ver], hw, selectHw
+                hw = currentHw()
+                createTestSets sets, data[ver][hw]
+
+            selectHw = (hw) ->
+                ver = currentVer()
+                createTestSets sets, data[ver][hw]
+
+
             # set title
             $t.find("form input.title").val @config.title
 
             # Generate Release Radio Buttons
-            rel = $t.find("form div.release")
-            createRadioButtons rel, data, ver
+            relsel = $t.find("form div.release")
+            createRadioButtons relsel, data, init_ver, selectRelease
 
             # Generate Handware Radio Buttons
-            rel = $t.find("form div.hardware")
-            createRadioButtons rel, data[ver], hw
+            hwsel = $t.find("form div.hardware")
+            createRadioButtons hwsel, data[init_ver], init_hw, selectHw
 
+            # Generate List of Test Sets
+            sets = $t.find("form table.multiple_select")
+            createTestSets sets, data[init_ver][init_hw]
 
             ###
             targets = @config.passtargets
