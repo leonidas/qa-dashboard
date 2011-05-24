@@ -55,6 +55,7 @@ class WidgetBase
     format_main_view: ($t, cb) -> cb $t
     format_small_view: ($t, cb) -> cb $t
     format_settings_view: ($t, cb) -> cb $t
+    format_help_view: ($t, cb) -> cb $t
 
     render_header: (cb) ->
         selector = @template.find ".widget_header"
@@ -105,6 +106,16 @@ class WidgetBase
         else
             @render_view ".content_settings", @format_settings_view, cb
 
+    render_help_view: (cb) ->
+        @dom.find(".widget_content").hide()
+        @dom.find(".content_help").show()
+        if @is_help_view_ready()
+            if cb
+                cb()
+        else
+            @render_view ".content_help", @format_help_view, cb
+
+
     render: (cb) ->
         if @dom.parents('.sidebar').length > 0
             @render_small_view cb
@@ -119,5 +130,9 @@ class WidgetBase
 
     is_settings_view_ready: ->
         @dom.find(".content_settings .loading").length == 0
+
+    is_help_view_ready: ->
+        @dom.find(".content_help .loading").length == 0
+
 
 window.WidgetBase = WidgetBase

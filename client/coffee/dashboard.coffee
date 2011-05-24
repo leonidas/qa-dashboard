@@ -230,19 +230,23 @@ init_widget_dom_events = (dom) ->
 
         $settings = $dom.find('.content_settings')
         if $this.hasClass "active"
-            $this.toggleClass 'active'
+            $this.removeClass 'active'
             updateWidgetElement $dom
         else
-            $this.toggleClass 'active'
+            $dom.find(".action .active").removeClass("active")
+            $this.addClass "active"
+
             obj = $dom.data("widgetObj")
             obj.render_settings_view ->
                 balance_columns()
+                $dom.find('.widget_edit_content .cancel').unbind()
                 $dom.find('.widget_edit_content .cancel').click ->
                     $this.removeClass 'active'
                     $widget = $(this).closest(".widget")
                     updateWidgetElement $widget
                     return false
 
+                $dom.find('.widget_edit_content form').unbind()
                 $dom.find('.widget_edit_content form').submit ->
                     $form   = $(this)
                     $widget = $form.closest(".widget")
@@ -259,6 +263,21 @@ init_widget_dom_events = (dom) ->
         balance_columns()
 
         return false
+
+    $dom.find('.widget_help').click ->
+        $this   = $(this)
+        if $this.hasClass "active"
+            $this.removeClass 'active'
+            updateWidgetElement $dom
+        else
+            $dom.find(".action .active").removeClass("active")
+            $this.addClass 'active'
+            obj = $dom.data("widgetObj")
+            obj.render_help_view ->
+                balance_columns()
+                return false
+
+
 
     $m = $dom.find('.widget_move')
     $m.bind 'mouseover', -> $dom.addClass('move_mode')
