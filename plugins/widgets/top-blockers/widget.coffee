@@ -1,71 +1,27 @@
-class TopBlockers extends WidgetBase
+class TopBlockers extends QAReportsWidget
 
     get_default_config: (cb) ->
         hw = "N900"
-        cached.get "/query/qa-reports/groups/#{hw}", (data) =>
+        cached.get "/query/qa-reports/groups", (data) =>
+            targets = {}
+            ver = _.last _(data).keys()
+            #hw  = _.first _(data[ver]).keys()
+
+            groups = []
+            for grp in data[ver][hw]
+                groups.push grp
             cb
-                groups: data
-                hwproduct: "N900"
-                title: "Top Blockers: N900"
+                groups: groups
+                release: ver
+                hwproduct: hw
+                title: "Top Blockers: #{hw}"
                 num: 5
-
-    same_group: (g1, g2) ->
-        g1.hardware == g2.hardware && g1.testtype == g2.testtype && g1.profile == g2.profile
-
-    contains_group: (arr, grp) -> _(arr).any (g) => @same_group(g,grp)
 
     format_main_view: ($t, cb) ->
         @format_bug_table $t, cb
 
     format_small_view: ($t, cb) ->
         @format_bug_table $t, cb
-
-    format_settings_view: ($t, cb) ->
-        hw = @config.hwproduct
-        cached.get "/query/qa-reports/groups/#{hw}", (data) =>
-            # set hardware
-            $t.find("form .hwproduct").val(hw)
-
-            # set selected groups
-            # generate a new row for each item in "data"
-            #   select example row as template
-            #   set check box according to selected groups in config
-            #   set pass rate target
-            $table = $t.find("table.multiple_select")
-            $trow = $table.find("tr.row-template").removeClass("row-template").addClass("graph-target")
-
-            #$trow.detach()
-            _(data).each (grp) =>
-                checked = @contains_group(@config.groups, grp)
-
-                $row = $trow.clone()
-                $row.find(".target").text(grp.profile)
-                $row.find(".testtype").text(grp.testtype)
-                $row.find(".shiftcb").attr("checked", checked)
-                $row.data("groupData", grp)
-
-                $row.insertBefore $trow
-
-            $trow.remove()
-            if cb
-                cb $t
-
-    process_save_settings: ($form, cb) ->
-        @config = {}
-        @config.hwproduct = $form.find(".hwproduct").val()
-
-        selected = []
-
-        $rows = $form.find("table.multiple_select").find(".graph-target")
-        $rows.each (idx, tr) =>
-            $tr = $(tr)
-            grp = $tr.data("groupData")
-            checked = $tr.find(".shiftcb").attr("checked")
-            if checked
-                selected.push(grp)
-        @config.groups = selected
-
-        cb?()
 
     format_bug_table: ($t, cb) ->
         @get_top_bugs (bugs) ->
@@ -82,7 +38,6 @@ class TopBlockers extends WidgetBase
                 $row.insertBefore $trow
             $trow.remove()
             cb $t
-
 
     get_top_bugs: (cb) ->
         hw = @config.hwproduct or "N900"
