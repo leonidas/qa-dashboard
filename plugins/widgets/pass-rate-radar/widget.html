@@ -55,18 +55,26 @@
                 <div class="widget_edit_right_column">
                     <label for="">Test sets</label>
                     <table class="multiple_select">
-                        <thead>
-                        <tr>
-                            <th></th>
-                            <th colspan="2" style="text-align:right">Target pass rate</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr class="row-template">
-                            <td><input type="checkbox" class="shiftcb" value="1" name="test_set"/></td>
-                            <td><span class="target">Handset</span> <strong class="testtype">Acceptance</strong></td>
-                            <td><input class="passtarget" type="text" value="90" /></td>
-                        </tr>
+                        <tbody class="title-group">
+                            <tr>
+                                <td colspan="3"><strong>Test sets</strong>
+                                <input type="text" class="filters" name="filters" style="display: block; width: 260px;" />
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tbody class="selected-group">
+                            <tr>
+                                <td><span class="target">Handset</span> <strong class="testtype">Acceptance</strong></td>
+                                <td><input class="passtarget" type="text" value="90" /></td>
+                                <td><input type="checkbox" class="shiftcb" value="1" name="test_set" checked/></td>
+                            </tr>
+                        </tbody>
+                        <tbody class="suggestion-group">
+                            <tr>
+                                <td><span class="target">Handset</span> <strong class="testtype">Acceptance</strong></td>
+                                <td><input class="passtarget" type="text" value="90" /></td>
+                                <td><input type="checkbox" class="shiftcb" value="1" name="test_set" checked/></td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
