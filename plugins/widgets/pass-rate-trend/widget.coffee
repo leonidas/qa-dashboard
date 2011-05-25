@@ -28,10 +28,6 @@ class PassRateTrend extends WidgetBase
                 passtargets: targets
                 title: "Pass trends: #{hw}"
 
-    format_header: ($t, cb) ->
-        $t.find("h1 span.title").text @config.title
-        cb? $t
-
     format_main_view: ($t, cb) ->
         targets = @config.passtargets
 
@@ -75,9 +71,6 @@ class PassRateTrend extends WidgetBase
             # set hardware
             $t.find("form .hwproduct").val(hw)
 
-            # set title
-            $t.find("form .title").val @config.title
-
             # set alert limit
             $t.find("form .alert").val(""+@config.alert)
 
@@ -116,7 +109,6 @@ class PassRateTrend extends WidgetBase
         @config = {}
 
         @config.hwproduct = $form.find(".hwproduct").val()
-        @config.title = $form.find(".title").val()
 
         selected = []
         passtargets = {}
