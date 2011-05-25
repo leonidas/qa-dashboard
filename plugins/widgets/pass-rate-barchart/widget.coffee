@@ -29,10 +29,6 @@ class PassRateBarChart extends WidgetBase
                 passtargets: targets
                 title: "Pass rate: #{hw}"
 
-    format_header: ($t, cb) ->
-        $t.find("h1 span.title").text @config.title
-        cb? $t
-
     format_main_view: ($t, cb) ->
         targets = @config.passtargets
         @get_reports @config.groups, (reports) =>
@@ -139,9 +135,6 @@ class PassRateBarChart extends WidgetBase
             # set hardware
             $t.find("form .hwproduct").val(hw)
 
-            # set title
-            $t.find("form .title").val @config.title
-
             # set alert limit
             $t.find("form .alert").val(""+@config.alert)
 
@@ -181,7 +174,6 @@ class PassRateBarChart extends WidgetBase
 
         @config.hwproduct = $form.find(".hwproduct").val()
         @config.alert = parseInt($form.find(".alert").val())
-        @config.title = $form.find(".title").val()
 
         selected = []
         passtargets = {}
