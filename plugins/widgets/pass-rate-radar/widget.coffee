@@ -26,17 +26,16 @@ class PassRateChart extends QAReportsWidget
                 title: "Pass rate: #{hw}"
 
     format_main_view: ($t, cb) ->
-        @get_reports @config.groups, (reports) =>
+        @get_reports @config.groups, 1, (reports) =>
             @reports = reports
             @render_chart $t.find(".radar-chart")
             cb? $t
 
     format_small_view: ($t, cb) ->
-        @get_reports @config.groups, (reports) =>
+        @get_reports @config.groups, 1, (reports) =>
             @reports = reports
             @render_small_chart $t.find(".radar-chart")
             cb? $t
-
 
     render_chart: (@chart_elem) ->
         @chart = new RadarChart @chart_elem, @width, @height

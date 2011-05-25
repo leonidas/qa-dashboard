@@ -353,7 +353,7 @@ class QAReportsWidget extends WidgetBase
             # Set Alert Limit
             if use_alert
                 $t.find("div.alert").show()
-                $t.find("form input.alert").val(""+@config.alert)
+                $t.find("form input.alert").val(""+cfg.alert)
             else
                 $t.find("div.alert").hide()
 
@@ -397,12 +397,16 @@ class QAReportsWidget extends WidgetBase
 
         cb?()
 
-    get_reports: (groups, cb) ->
-        url = "/query/qa-reports/latest/#{@config.release}/#{@config.hwproduct}"
+    get_reports: (groups, num, cb) ->
+        url = "/query/qa-reports/latest/#{@config.release}/#{@config.hwproduct}?num=#{num}"
         groups = _(@config.groups).toArray()
         f = contains_group groups
         cached.get url, (data) ->
-            cb _(data).filter f
+            if num == 1
+                cb _(data).filter f
+            else
+                cb _(data).filter (rs) ->
+                    f rs[0]
 
 group_key = (grp) ->
     "#{grp.profile} #{grp.testtype}".replace('.',':')

@@ -1,5 +1,7 @@
 
-class PassRateBarChart extends WidgetBase
+class PassRateBarChart extends QAReportsWidget
+    use_alert: true
+    use_passtargets: true
 
     bar_width: 130
     bar_height: 14
@@ -16,22 +18,25 @@ class PassRateBarChart extends WidgetBase
         "#{grp.profile} #{grp.testtype}"
 
     get_default_config: (cb) ->
-        hw = "N900"
-        cached.get "/query/qa-reports/groups/#{hw}", (data) =>
+        cached.get "/query/qa-reports/groups", (data) ->
             targets = {}
-            _(data).each (grp) =>
-                targets[@group_key(grp)] = 90
+            ver = _.last _(data).keys()
+            hw  = _.first _(data[ver]).keys()
+
+            groups = []
+            for grp in data[ver][hw]
+                groups.push grp
             cb
-                type:"radar"
-                hwproduct:hw
-                groups: data
+                hwproduct: hw
+                release: ver
+                groups: groups
                 alert:30
                 passtargets: targets
                 title: "Pass rate: #{hw}"
 
     format_main_view: ($t, cb) ->
         targets = @config.passtargets
-        @get_reports @config.groups, (reports) =>
+        @get_reports @config.groups, @history_num, (reports) =>
             @reports = reports
             tr = $t.find('tbody tr')
 
@@ -97,7 +102,7 @@ class PassRateBarChart extends WidgetBase
 
     format_small_view: ($t, cb) ->
         targets = @config.passtargets
-        @get_reports @config.groups, (reports) =>
+        @get_reports @config.groups, @history_num, (reports) =>
             @reports = reports
             tr = $t.find('tbody tr')
 
@@ -128,83 +133,6 @@ class PassRateBarChart extends WidgetBase
                 row.insertBefore tr
             tr.remove()
             cb? $t
-
-    format_settings_view: ($t, cb) ->
-        hw = @config.hwproduct
-        cached.get "/query/qa-reports/groups/#{hw}", (data) =>
-            # set hardware
-            $t.find("form .hwproduct").val(hw)
-
-            # set alert limit
-            $t.find("form input.alert").val(""+@config.alert)
-
-            targets = @config.passtargets
-            # set selected groups
-            # generate a new row for each item in "data"
-            #   select example row as template
-            #   set check box according to selected groups in config
-            #   set pass rate target
-            $table = $t.find("table.multiple_select")
-            $trow = $table.find("tr.row-template").removeClass("row-template").addClass("graph-target")
-
-            #$trow.detach()
-            _(data).each (grp) =>
-                checked = @contains_group(@config.groups, grp)
-
-                $row = $trow.clone()
-                $row.find(".target").text(grp.profile)
-                $row.find(".testtype").text(grp.testtype)
-                $row.find(".passtarget").val(""+targets[@group_key(grp)])
-                $row.find(".shiftcb").attr("checked", checked)
-                $row.data("groupData", grp)
-
-                $row.insertBefore $trow
-
-            $trow.remove()
-            if cb
-                cb $t
-
-    same_group: (g1, g2) ->
-        g1.hardware == g2.hardware && g1.testtype == g2.testtype && g1.profile == g2.profile
-
-    contains_group: (arr, grp) -> _(arr).any (g) => @same_group(g,grp)
-
-    process_save_settings: ($form, cb) ->
-        @config = {}
-
-        @config.hwproduct = $form.find(".hwproduct").val()
-        @config.alert = parseInt($form.find(".alert").val())
-
-        selected = []
-        passtargets = {}
-
-        $rows = $form.find("table.multiple_select").find(".graph-target")
-        $rows.each (idx, tr) =>
-            $tr = $(tr)
-            grp = $tr.data("groupData")
-            checked = $tr.find(".shiftcb").attr("checked")
-            if checked
-                selected.push(grp)
-            target = parseInt($tr.find(".passtarget").val())
-            if not target > 0
-                target = 0
-            passtargets[@group_key(grp)] = parseInt(target)
-        @config.groups = selected
-        @config.passtargets = passtargets
-
-        #console.log selected
-
-        cb?()
-
-    get_reports: (groups, cb) ->
-        url = "/query/qa-reports/latest/#{@config.hwproduct}?num=#{@history_num}"
-        cached.get url, (data) ->
-            reports  = _ data
-            selected = _ groups
-            cb reports.filter (rs) ->
-                r = rs[0]
-                selected.any (s) ->
-                    s.hardware == r.hardware && s.testtype ==  r.testtype && s.profile == r.profile
 
 
     draw_graph: (report, target, max_total, elem) ->
