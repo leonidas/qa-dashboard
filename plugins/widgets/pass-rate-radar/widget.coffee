@@ -31,13 +31,13 @@ class PassRateChart extends WidgetBase
     format_main_view: ($t, cb) ->
         @get_reports @config.groups, (reports) =>
             @reports = reports
-            #@render_chart $t.find(".radar-chart")
+            @render_chart $t.find(".radar-chart")
             cb? $t
 
     format_small_view: ($t, cb) ->
         @get_reports @config.groups, (reports) =>
             @reports = reports
-            #@render_small_chart $t.find(".radar-chart")
+            @render_small_chart $t.find(".radar-chart")
             cb? $t
 
     format_settings_groups: ($trow, $dst) ->
@@ -49,6 +49,11 @@ class PassRateChart extends WidgetBase
         init_ver = cfg.release
 
         groups   = cfg.groups
+
+        g_ = _(groups)
+        if not g_.isArray()
+            cfg.groups = groups = g_.toArray()
+
         selected = contains_group groups
 
         createRadioButtons = (parent, data, checked, func) ->
@@ -206,10 +211,11 @@ class PassRateChart extends WidgetBase
         cb?()
 
     get_reports: (groups, cb) ->
-        cached.get "/query/qa-reports/latest/#{@config.hwproduct}", (data) =>
-            reports  = _ data
-            selected = _ groups
-            cb reports.filter contains_group selected
+        url = "/query/qa-reports/latest/#{@config.release}/#{@config.hwproduct}"
+        groups = _(@config.groups).toArray()
+        f = contains_group groups
+        cached.get url, (data) ->
+            cb _(data).filter f
 
     render_chart: (@chart_elem) ->
         @chart = new RadarChart @chart_elem, @width, @height
@@ -416,10 +422,9 @@ class RadarChart
 
 
 group_key = (grp) ->
-    "#{grp.release};#{grp.hardware};#{grp.profile};#{grp.testtype}".replace('.',':')
+    "#{grp.profile} #{grp.testtype}".replace('.',':')
 
-same_group = (g1, g2) ->
-    group_key(g1) == group_key(g2)
+same_group = (g1, g2) -> group_key(g1) == group_key(g2)
 
 contains_group = (arr) -> (grp) ->
     for g in arr

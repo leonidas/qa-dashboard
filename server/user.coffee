@@ -80,10 +80,10 @@ exports.init_user = (app, db) ->
 
     app.post "/user/dashboard/save", (req, res) ->
         username = req.session.username
-        console.log "column"
-        console.log req.body.tabs[0].column
-        console.log "sidebar"
-        console.log req.body.tabs[0].sidebar
+        #console.log "column"
+        #console.log req.body.tabs[0].column
+        #console.log "sidebar"
+        #console.log req.body.tabs[0].sidebar
 
         q = users.find({username:username}).update $set: dashboard: req.body
         q.run (err) ->

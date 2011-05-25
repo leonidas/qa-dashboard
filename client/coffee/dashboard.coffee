@@ -688,7 +688,7 @@ save_widgets = (cb) ->
     dashboard =
         tabs: _($tabs).map serialize_tab
 
-    console.log dashboard
+    #console.log dashboard
 
     $.post "/user/dashboard/save", dashboard, cb
 

@@ -174,6 +174,15 @@ exports.register_plugin = (db) ->
                 else
                     res.send arr
 
+        "/latest/:ver/:hw": (req, res) ->
+            num = parseInt(req.param("num") ? "1")
+            api.latest_reports num, req.params.ver, req.params.hw, (err,arr) ->
+                if err?
+                    console.log err
+                    res.send 500
+                else
+                    res.send arr
+
         "/groups/:hw": (req,res) ->
             api.groups_for_hw("1.2", req.params.hw) (err,arr) ->
                 if err?
