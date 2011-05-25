@@ -29,7 +29,7 @@ class WidgetBase
         @init_new()
 
     create_dom: ->
-        $t = $('#widget-base-template').clone()
+        $t = $('#widget-base-template').clone().removeAttr "id"
         $t.find(".widget_content").hide()
         $t.data("widgetObj", this)
         return $t
@@ -51,19 +51,22 @@ class WidgetBase
 
     get_default_config: (cb) -> cb {}
 
-    format_header: ($t, cb) -> cb $t
+    format_header: ($t, cb) ->
+        $t.find("h1 span.title").text @config.title
+        cb? $t
+
     format_main_view: ($t, cb) -> cb $t
     format_small_view: ($t, cb) -> cb $t
     format_settings_view: ($t, cb) -> cb $t
 
     render_header: (cb) ->
-        selector = @template.find ".widget_header"
+        #selector = @template.find ".widget_header"
+        selector = "#widget-base-template .widget_header"
         $t = $(selector).clone(true)
         @get_config (cfg) =>
             @format_header $t, (dom) =>
                 @dom.find(".widget_header").replaceWith(dom)
-                if cb
-                    cb()
+                cb?()
 
 
     render_view: (cls, formatfunc, cb) ->
@@ -99,11 +102,20 @@ class WidgetBase
     render_settings_view: (cb) ->
         @dom.find(".widget_content").hide()
         @dom.find(".content_settings").show()
+
         if @is_settings_view_ready()
-            if cb
-                cb()
+            @inputify_header()
+            cb?()
         else
-            @render_view ".content_settings", @format_settings_view, cb
+            @render_view ".content_settings", @format_settings_view, =>
+                @inputify_header()
+                cb?()
+
+    inputify_header: () ->
+        title = @dom.find(".widget_header .title")
+        old = title.text()
+        title.empty()
+        title.append $('<input class="title">').val old
 
     render: (cb) ->
         if @dom.parents('.sidebar').length > 0
@@ -119,5 +131,12 @@ class WidgetBase
 
     is_settings_view_ready: ->
         @dom.find(".content_settings .loading").length == 0
+
+    save_settings: ($form, cb) ->
+        @process_save_settings $form, =>
+            title = @dom.find(".widget_header .title")
+            @config.title = t = title.find("input").val()
+            cb?()
+
 
 window.WidgetBase = WidgetBase

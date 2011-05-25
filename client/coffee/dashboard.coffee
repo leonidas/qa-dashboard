@@ -217,31 +217,32 @@ init_widget_dom_events = (dom) ->
 
         $settings = $dom.find('.content_settings')
         if $this.hasClass "active"
-            $this.toggleClass 'active'
-            updateWidgetElement $dom
+            $this.removeClass 'active'
+
+            $form   = $dom.find(".widget_edit_content form")
+            $widget = $form.closest(".widget")
+            obj     = $widget.data("widgetObj")
+
+            $widget.find(".action .widget_edit").toggleClass("active")
+
+            obj.save_settings $form, ->
+                obj.reset_dom()
+                save_widgets()
+                updateWidgetElement $widget
         else
-            $this.toggleClass 'active'
+            $this.addClass 'active'
             obj = $dom.data("widgetObj")
             obj.render_settings_view ->
                 balance_columns()
+                ###
                 $dom.find('.widget_edit_content .cancel').click ->
                     $this.removeClass 'active'
                     $widget = $(this).closest(".widget")
                     updateWidgetElement $widget
                     return false
+                ###
 
-                $dom.find('.widget_edit_content form').submit ->
-                    $form   = $(this)
-                    $widget = $form.closest(".widget")
-                    obj     = $widget.data("widgetObj")
-
-                    $widget.find(".action .widget_edit").toggleClass("active")
-
-                    obj.process_save_settings $form, ->
-                        obj.reset_dom()
-                        save_widgets()
-                        updateWidgetElement $widget
-                    return false
+                $dom.find('.widget_edit_content form').submit -> return false
 
         balance_columns()
 

@@ -23,10 +23,6 @@ class PassRateChart extends WidgetBase
                 passtargets: targets
                 title: "Pass rate: #{hw}"
 
-    format_header: ($t, cb) ->
-        $t.find("h1 span.title").text @config.title
-        cb? $t
-
     format_main_view: ($t, cb) ->
         @get_reports @config.groups, (reports) =>
             @reports = reports
@@ -145,7 +141,7 @@ class PassRateChart extends WidgetBase
             tmpl.appendTo(body).hide()
 
             normalize = (s) ->
-                $.trim(s).replace(/\s+/, " ")
+                $.trim(s).toLowerCase().replace(/\s+/, " ")
 
             filter = parent.find("input.filters")
             expr  = normalize filter.val()
@@ -167,8 +163,9 @@ class PassRateChart extends WidgetBase
                     hilights = []
                     if expr != ""
                         return if not regexp.test(key)
+                        kl = key.toLowerCase()
                         for w in words
-                            i = key.search(w)
+                            i = kl.search(w)
                             hilights.push
                                 start: i
                                 end: i + w.length
@@ -216,9 +213,6 @@ class PassRateChart extends WidgetBase
                 ver = currentVer()
                 createTestSets data[ver][hw]
 
-            # set title
-            $t.find("form input.title").val cfg.title
-
             # Generate Release Radio Buttons
             relsel = $t.find("form div.release")
             createRadioButtons relsel, data, init_ver, selectRelease
@@ -238,7 +232,6 @@ class PassRateChart extends WidgetBase
         @config.release = $form.find("div.release input:checked").val()
         @config.hwproduct = $form.find("div.hardware input:checked").val()
         @config.alert = $form.find("input.alert").val()
-        @config.title = $form.find("input.title").val()
 
         selected = []
         passtargets = {}
