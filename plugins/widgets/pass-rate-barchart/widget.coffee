@@ -136,7 +136,7 @@ class PassRateBarChart extends WidgetBase
             $t.find("form .hwproduct").val(hw)
 
             # set alert limit
-            $t.find("form .alert").val(""+@config.alert)
+            $t.find("form input.alert").val(""+@config.alert)
 
             targets = @config.passtargets
             # set selected groups

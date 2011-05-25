@@ -138,6 +138,7 @@ class WidgetBase
 
 class QAReportsWidget extends WidgetBase
     use_passtargets: false
+    use_alert: false
 
     render_settings_view: (cb) ->
         @dom.find(".widget_content").hide()
@@ -164,7 +165,8 @@ class QAReportsWidget extends WidgetBase
         groups   = cfg.groups
         targets  = cfg.passtargets
 
-        use_pass = @use_passtargets
+        use_pass  = @use_passtargets
+        use_alert = @use_alert
 
         g_ = _(groups)
         if not g_.isArray()
@@ -348,6 +350,13 @@ class QAReportsWidget extends WidgetBase
             # Generate List of Test Sets
             createTestSets data[init_ver][init_hw]
 
+            # Set Alert Limit
+            if use_alert
+                $t.find("div.alert").show()
+                $t.find("form input.alert").val(""+@config.alert)
+            else
+                $t.find("div.alert").hide()
+
             cb? $t
 
     process_save_settings: ($form, cb) ->
@@ -355,7 +364,8 @@ class QAReportsWidget extends WidgetBase
 
         @config.release = $form.find("div.release input:checked").val()
         @config.hwproduct = $form.find("div.hardware input:checked").val()
-        @config.alert = $form.find("input.alert").val()
+        if @use_alert
+            @config.alert = $form.find("input.alert").val()
 
         selected = []
         passtargets = {}
