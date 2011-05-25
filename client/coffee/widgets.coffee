@@ -75,8 +75,7 @@ class WidgetBase
                 $t = $(@template).find(cls).clone(true)
                 formatfunc.apply(this, [$t, (dom) =>
                     @dom.find(cls).replaceWith(dom)
-                    if cb
-                        cb()
+                    cb?()
                 ])
 
     render_main_view: (cb) ->
@@ -84,8 +83,7 @@ class WidgetBase
         @dom.find(".content_main").show()
         @dom.find(".widget_edit").removeClass "active"
         if @is_main_view_ready()
-            if cb
-                cb()
+            cb?()
         else
             @render_view ".content_main", @format_main_view, cb
 
@@ -94,8 +92,7 @@ class WidgetBase
         @dom.find(".content_small").show()
         @dom.find(".widget_edit").removeClass "active"
         if @is_small_view_ready()
-            if cb
-                cb()
+            cb?()
         else
             @render_view ".content_small", @format_small_view, cb
 
@@ -141,6 +138,22 @@ class WidgetBase
 
 class QAReportsWidget extends WidgetBase
     use_passtargets: false
+
+    render_settings_view: (cb) ->
+        @dom.find(".widget_content").hide()
+        @dom.find(".content_settings").show()
+
+        if @is_settings_view_ready()
+            @inputify_header()
+            cb?()
+        else
+            @get_config (cfg) =>
+                @render_header =>
+                    $t = $('#hidden_templates .common_edit_content').clone(true)
+                    @format_settings_view $t, (dom) =>
+                        @dom.find('.content_settings').replaceWith(dom)
+                        @inputify_header()
+                        cb?()
 
     format_settings_view: ($t, cb) ->
         cfg = @config
@@ -354,8 +367,8 @@ class QAReportsWidget extends WidgetBase
             $passtarget = $tr.find('input.passtarget')
 
             grp = $tr.data("test-group")
-            if not grp?
-                continue
+            continue if not grp?
+
             selected.push(grp)
 
             if @use_passtargets
