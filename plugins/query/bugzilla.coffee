@@ -48,10 +48,6 @@ exports.register_plugin = (db) ->
         reports_api.latest_for_group(1, fields) grp, (err, r) ->
             return cb? err if err?
 
-            console.log "bug_count_for_group"
-            console.log grp
-            console.log r
-
             bugcounts = {}
             for fea in r.features
                 for c in fea.cases
