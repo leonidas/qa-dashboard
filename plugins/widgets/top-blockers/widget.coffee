@@ -14,10 +14,6 @@ class TopBlockers extends WidgetBase
 
     contains_group: (arr, grp) -> _(arr).any (g) => @same_group(g,grp)
 
-    format_header: ($t, cb) ->
-        $t.find("h1 span.title").text @config.title
-        cb? $t
-
     format_main_view: ($t, cb) ->
         @format_bug_table $t, cb
 
@@ -29,9 +25,6 @@ class TopBlockers extends WidgetBase
         cached.get "/query/qa-reports/groups/#{hw}", (data) =>
             # set hardware
             $t.find("form .hwproduct").val(hw)
-
-            # set title
-            $t.find("form .title").val @config.title
 
             # set selected groups
             # generate a new row for each item in "data"
@@ -60,7 +53,6 @@ class TopBlockers extends WidgetBase
     process_save_settings: ($form, cb) ->
         @config = {}
         @config.hwproduct = $form.find(".hwproduct").val()
-        @config.title = $form.find(".title").val()
 
         selected = []
 
