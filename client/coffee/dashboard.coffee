@@ -128,6 +128,10 @@ load_dashboard = (callback) ->
     $.getJSON "/user", (data) ->
         callback? data
 
+reset_dashboard = () ->
+    $('#wrap').removeClass('shared').removeClass('shared-anon')
+    $p.tab_list.find('li.tab').remove()
+
 init_shared_dashboard = (tab) ->
     if current_user?
         $('#wrap').addClass 'shared'
@@ -140,6 +144,15 @@ init_shared_dashboard = (tab) ->
     $('#tab_navi').css('visibility','visible')
     load_tab(tab) (err) ->
         set_current_tab $p.tab_list.find('li.tab')[0]
+
+    $p.add_shared_tab.click () ->
+        shared_copy = deepcopy tab
+        reset_dashboard()
+        init_user_dashboard current_user.dashboard, (err) ->
+            shared_copy.name = make_unique_tab_name(shared_copy.name)
+            load_tab(shared_copy) (err) ->
+                save_widgets()
+                set_current_tab_by_name(shared_copy.name)
 
 
 init_user_dashboard = (dashboard, cb) ->
@@ -234,14 +247,6 @@ init_widget_dom_events = (dom) ->
             obj = $dom.data("widgetObj")
             obj.render_settings_view ->
                 balance_columns()
-                ###
-                $dom.find('.widget_edit_content .cancel').click ->
-                    $this.removeClass 'active'
-                    $widget = $(this).closest(".widget")
-                    updateWidgetElement $widget
-                    return false
-                ###
-
                 $dom.find('.widget_edit_content form').submit -> return false
 
         balance_columns()
@@ -298,9 +303,13 @@ add_tab_element = (title) ->
     $dom.find('.tab_title').text(title)
     $dom.data('tab-content', $('#hidden_templates .tab_content').clone())
     $dom.insertBefore $p.tab_list.find('.share_info')
-    if not $('#wrap').hasClass 'shared'
+    if not is_shared()
         init_tab_events $dom
     return $dom
+
+is_shared = () ->
+    w = $('#wrap')
+    w.hasClass('shared') or w.hasClass('shared-anon')
 
 unique_tab_name = (tabname) ->
     $tabs = $p.tab_list.find('li.tab').find('.tab_title')
@@ -389,6 +398,7 @@ init_tab_events = ($dom) ->
                 $dom.find('.tab_title').text(old)
 
             init_tab_events $dom
+            set_current_tab $dom
 
             if title != old
                 save_widgets()
@@ -470,7 +480,7 @@ set_current_tab_by_name = (name) ->
             return set_current_tab $tab
 
 initialize_sortable_columns = () ->
-    return if $('#wrap').hasClass 'shared'
+    return if is_shared()
 
     # Enable sorting tabs
     $p.tab_list.sortable
@@ -713,6 +723,8 @@ $ () ->
     $p.add_tab_btn       = $('#tab_navi .add')
 
     $p.custom_styles     = $('#custom_styles')
+
+    $p.add_shared_tab    = $('.add_shared_tab')
 
     $p.login_form.appendTo('.form_container')
     $p.login_form.find('form').submit submit_login_form

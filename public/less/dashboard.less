@@ -1127,7 +1127,7 @@ span.alert {
 	display: none;
 }
 
-#wrap.shared-anon #tab_nave .add {
+#wrap.shared-anon #tab_navi .add {
 		display: none;
 }
 
@@ -1145,17 +1145,22 @@ span.alert {
 	.add {
 		display: none;
 	}
+	ul {
+		background-image: none;
+	}
 	.share_info {
 		background: transparent;
-		display: inline;
+		display: inline-block;
 		color: #b7b7b7;
 		font-weight: bold;
-		width: 350px;
+		width: auto;
 		padding: 0.90em;
 		text-shadow: -1px -1px 1px #404040;
 		height: 1.083em;
 		.user {
 			color: #fff;
+			max-width: 500px;
+			overflow: hidden;
 		}
 		a {
 			display: inline-block;
