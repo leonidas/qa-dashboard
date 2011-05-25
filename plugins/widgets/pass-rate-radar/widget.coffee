@@ -14,7 +14,6 @@ class PassRateChart extends WidgetBase
 
             groups = []
             for grp in data[ver][hw]
-                targets[group_key(grp)] = 90
                 groups.push grp
             cb
                 hwproduct: hw
@@ -49,6 +48,7 @@ class PassRateChart extends WidgetBase
         init_ver = cfg.release
 
         groups   = cfg.groups
+        targets  = cfg.passtargets
 
         g_ = _(groups)
         if not g_.isArray()
@@ -59,15 +59,18 @@ class PassRateChart extends WidgetBase
         createRadioButtons = (parent, data, checked, func) ->
             # Generate Radio Buttons from Templates
             rel = parent
-            inputTmpl = rel.find("input").first().clone().die().removeAttr "id"
-            labelTmpl = rel.find("label").first().clone().die().removeAttr "for"
+            inputTmpl = rel.find("input").first().clone().unbind().removeAttr "id"
+            labelTmpl = rel.find("label").first().clone().unbind().removeAttr "for"
             inputTmpl.removeAttr "checked"
             rel.empty()
+            inputTmpl.appendTo(rel).hide()
+            labelTmpl.appendTo(rel).hide()
+
             found = false
             for k of data
                 do (k) ->
-                    i = inputTmpl.clone()
-                    l = labelTmpl.clone()
+                    i = inputTmpl.clone().show()
+                    l = labelTmpl.clone().show()
                     if k == checked
                         i.attr('checked','checked')
                         found = true
@@ -81,39 +84,121 @@ class PassRateChart extends WidgetBase
             if not found
                 parent.find("input").first().click()
 
-        createTestSets = (parent, data) ->
-            body = parent.find("tbody")
-            tmpl = body.find("tr").first().clone().die()
+        updateSelectedSets = (data) ->
+            parent = $t.find("table.multiple_select")
+            body   = parent.find("tbody.selected-group")
+            tmpl   = body.find("tr").first().clone().unbind()
             body.empty()
+            tmpl.appendTo(body).hide()
 
             for g in data
                 do (g) ->
-                    row = tmpl.clone()
+                    return if not selected g
+
+                    row = tmpl.clone().show()
                     key = group_key g
 
                     checkbox = row.find('input.shiftcb')
-                    checkbox.removeAttr("checked").val key
-                    checkbox.die()
+                    checkbox.attr("checked", "checked").val key
+                    checkbox.unbind()
 
                     row.find('span.target').text g.profile
                     row.find('strong.testtype').text g.testtype
 
                     passtarget = row.find('input.passtarget')
-                    passtarget.val "90"
+                    pt = targets[key] ? "0"
+                    passtarget.val pt
                     passtarget.data "test-group", g
 
-                    if selected g
-                        checkbox.attr("checked", "checked")
-
                     checkbox.click ->
-                        status = checkbox.attr "checked"
-                        if status
-                            groups.push g
-                        else
-                            remove_group groups, g
+                        remove_group groups, g
+                        updateSelectedSets(data)
+                        updateSuggestions(data)
 
                     row.appendTo body
 
+            balance_columns()
+
+        $hilight = $('<span class="hilight"/>')
+        hilight_span = (span, text, hilights, i) ->
+            span.empty()
+            cur = 0
+            for h in hilights
+                start = h.start - i
+                end   = h.end - i
+                if start < 0 or start >= text.length
+                    continue
+                else
+                    $h = $hilight.clone()
+                    if start > cur
+                        span.append text.slice(cur,start)
+                    span.append $h.text text.slice(start, end)
+                    cur = end
+            span.append text.slice(cur)
+
+
+        updateSuggestions = (data) ->
+            parent = $t.find("table.multiple_select")
+            body   = parent.find("tbody.suggestion-group")
+            tmpl   = body.find("tr").first().clone().unbind()
+            body.empty()
+            tmpl.appendTo(body).hide()
+
+            normalize = (s) ->
+                $.trim(s).replace(/\s+/, " ")
+
+            filter = parent.find("input.filters")
+            expr  = normalize filter.val()
+            words = expr.split(" ")
+
+            pattern = words.join(".*")
+            regexp  = new RegExp(pattern, "i")
+
+            filter.unbind().keydown ->
+                f = () ->
+                    updateSuggestions(data) if normalize filter.val() != expr
+                setTimeout f, 1
+
+            for g in data
+                do (g) ->
+                    return if selected g
+                    key = group_key g
+
+                    hilights = []
+                    if expr != ""
+                        return if not regexp.test(key)
+                        for w in words
+                            i = key.search(w)
+                            hilights.push
+                                start: i
+                                end: i + w.length
+
+                    row = tmpl.clone().show()
+
+                    checkbox = row.find('input.shiftcb')
+                    checkbox.removeAttr("checked").val key
+                    checkbox.unbind()
+
+                    span = row.find('span.target')
+                    hilight_span span, g.profile, hilights, 0
+
+                    span = row.find('strong.testtype')
+                    hilight_span span, g.testtype, hilights, g.profile.length+1
+
+                    checkbox.click ->
+                        groups.push g
+                        updateSelectedSets(data)
+                        updateSuggestions(data)
+
+                    row.appendTo body
+
+            balance_columns()
+
+
+
+        createTestSets = (data) ->
+            updateSelectedSets(data)
+            updateSuggestions(data)
             balance_columns()
 
 
@@ -125,11 +210,11 @@ class PassRateChart extends WidgetBase
                 hw = currentHw()
                 createRadioButtons hwsel, data[ver], hw, selectHw
                 hw = currentHw()
-                createTestSets sets, data[ver][hw]
+                createTestSets data[ver][hw]
 
             selectHw = (hw) ->
                 ver = currentVer()
-                createTestSets sets, data[ver][hw]
+                createTestSets data[ver][hw]
 
             # set title
             $t.find("form input.title").val cfg.title
@@ -143,34 +228,8 @@ class PassRateChart extends WidgetBase
             createRadioButtons hwsel, data[init_ver], init_hw, selectHw
 
             # Generate List of Test Sets
-            sets = $t.find("form table.multiple_select")
-            createTestSets sets, data[init_ver][init_hw]
+            createTestSets data[init_ver][init_hw]
 
-            ###
-            targets = @config.passtargets
-            # set selected groups
-            # generate a new row for each item in "data"
-            #   select example row as template
-            #   set check box according to selected groups in config
-            #   set pass rate target
-            $table = $t.find("table.multiple_select")
-            $trow = $table.find("tr.row-template").removeClass("row-template").addClass("graph-target")
-
-            #$trow.detach()
-            for grp in data
-                checked = @contains_group(@config.groups, grp)
-
-                $row = $trow.clone()
-                $row.find(".target").text(grp.profile)
-                $row.find(".testtype").text(grp.testtype)
-                $row.find(".passtarget").val(""+(targets[group_key(grp)] ? 90))
-                $row.find(".shiftcb").attr("checked", checked)
-                $row.data("groupData", grp)
-
-                $row.insertBefore $trow
-
-            $trow.remove()
-            ###
             cb? $t
 
     process_save_settings: ($form, cb) ->
@@ -184,17 +243,16 @@ class PassRateChart extends WidgetBase
         selected = []
         passtargets = {}
 
-        $rows = $form.find("table.multiple_select tbody tr")
+        $rows = $form.find("table.multiple_select tbody.selected-group tr")
         for tr in $rows
             $tr = $(tr)
             $checkbox   = $tr.find('input.shiftcb')
             $passtarget = $tr.find('input.passtarget')
 
             grp = $passtarget.data("test-group")
-            checked = $checkbox.attr("checked")
-
-            if checked
-                selected.push(grp)
+            if not grp?
+                continue
+            selected.push(grp)
 
             target = parseInt($tr.find(".passtarget").val())
             if not target > 0
