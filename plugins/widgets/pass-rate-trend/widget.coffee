@@ -14,10 +14,11 @@ class PassRateTrend extends QAReportsWidget
     history_num_sidebar: 8
 
     get_default_config: (cb) ->
+        hw = "N900"
         cached.get "/query/qa-reports/groups", (data) ->
             targets = {}
             ver = _.last _(data).keys()
-            hw  = _.first _(data[ver]).keys()
+            #hw  = _.first _(data[ver]).keys()
 
             groups = []
             for grp in data[ver][hw]
