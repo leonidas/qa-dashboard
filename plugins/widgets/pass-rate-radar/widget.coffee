@@ -23,7 +23,7 @@ class PassRateChart extends QAReportsWidget
                 groups: groups
                 alert:30
                 passtargets: targets
-                title: "Pass rate: #{hw}"
+                title: "Pass Rates: #{hw}"
 
     format_main_view: ($t, cb) ->
         @get_reports @config.groups, 1, (reports) =>

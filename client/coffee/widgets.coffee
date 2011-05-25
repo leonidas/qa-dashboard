@@ -41,6 +41,8 @@ class WidgetBase
         @dom.find(".content_small").replaceWith empty.find(".content_small")
         @dom.find(".content_settings").replaceWith empty.find(".content_settings")
 
+    in_sidebar: -> @dom.parents('.sidebar').length > 0
+
     get_config: (cb) ->
         if not @config?
             @get_default_config (cfg) =>
@@ -115,7 +117,7 @@ class WidgetBase
         title.append $('<input/>').addClass("title").val old
 
     render: (cb) ->
-        if @dom.parents('.sidebar').length > 0
+        if @in_sidebar()
             @render_small_view cb
         else
             @render_main_view cb
