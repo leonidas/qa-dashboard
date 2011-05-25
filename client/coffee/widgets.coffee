@@ -49,6 +49,9 @@ class WidgetBase
                 @config = cfg
                 cb cfg
         else
+            if not @config.release?
+                # Backward compatibility hack
+                @config.release = "1.2"
             cb @config
 
     get_default_config: (cb) -> cb {}
