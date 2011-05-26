@@ -59,7 +59,7 @@ create_app = (settings, db) ->
     require('query-api' ).init_query_plugins basedir, app, db
     require('user').init_user app, db
     require('authentication').init_authentication app, db
-    require('ldap_shellauth').init_ldap_shellauth basedir
+    require('ldap_shellauth').init_ldap_shellauth settings
 
     widgetdir = basedir+"/plugins/widgets"
     require('widgets').initialize_widgets widgetdir, app, db

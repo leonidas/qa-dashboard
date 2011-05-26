@@ -20,22 +20,20 @@
 fs   = require('fs')
 exec = require('child_process').exec
 
-LDAP_SERVER_FILE = "/ldap_server.json"
-
-
-ldap_server = ""
-exports.init_ldap_shellauth = (basedir) ->
-    ldap_server = JSON.parse fs.readFileSync(basedir + LDAP_SERVER_FILE)
+auth = ""
+exports.init_ldap_shellauth = (settings) ->
+    auth = settings.auth
 
 exports.ldap_shellauth = (username, password) -> (callback) ->
+    #TODO: return error if ldap is disabled in settings
 
     # escape special characters in input
     username = username.replace(/([^\w\d])/g, "\\$1")
     password = password.replace(/([^\w\d])/g, "\\$1")
 
     # construct ldapsearch command
-    fulldn = "uid=" + username + "," + ldap_server.dn_base
-    ldapcmd = "ldapsearch -xLLL -H " + ldap_server.ldapuri + " -b " + fulldn + " -D " + fulldn + " -w " + password + " " + ldap_server.filters + " dn" 
+    fulldn = "uid=" + username + "," + auth.ldap.dn_base
+    ldapcmd = "ldapsearch -xLLL -H " + auth.ldap.uri + " -b " + fulldn + " -D " + fulldn + " -w " + password + " " + auth.ldap.filters + " dn"
     #console.log(ldapcmd) #debug
 
     exec ldapcmd, (error,stdout,stderr) ->
@@ -45,4 +43,4 @@ exports.ldap_shellauth = (username, password) -> (callback) ->
         callback? error, (error == null && stdout != "")
 
 exports.in_use = () ->
-    ldap_server.useldap
+    auth.useldap
