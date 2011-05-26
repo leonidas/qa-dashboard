@@ -9,7 +9,8 @@ HOUR  = 60*60*1000
 DAY   = 24*HOUR
 MONTH = 30*DAY
 
-create_app = (basedir, db) ->
+create_app = (settings, db) ->
+    basedir = settings.app.root
 
     PUBLIC = basedir + "/public"
     COFFEE = basedir + "/client/coffee"

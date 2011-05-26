@@ -1,0 +1,20 @@
+{
+ "server": {
+    "host": "localhost",
+    "port": 3030,
+    "url" : "http://localhost:3030"
+  },
+
+  "app": {
+    "name": "qa-dashboard"
+  },
+
+  "auth": {
+    "useldap": false,
+    "ldap"   : {
+        "uri"    : "ldap://localhost:389",
+        "dn_base": "ou=people,dc=my-domain,dc=com",
+        "filters": "myProperty=value"
+    }
+  }
+}
