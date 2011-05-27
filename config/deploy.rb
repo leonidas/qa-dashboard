@@ -1,7 +1,7 @@
 # Must be set before requiring multistage
 set :default_stage, "staging"
 require 'capistrano/ext/multistage'
-require 'yaml'
+require 'json'
 
 set :user, "www-data"
 set :use_sudo, false
@@ -13,14 +13,14 @@ set :deploy_via, :remote_cache
 
 set :public_children, %w(img css js)
 set :start_script, "./run-server.sh"
-
+set :settings_file, "settings.json"
 
 ssh_options[:forward_agent] = true
 ssh_options[:user] = "www-data"
 
 after "deploy:finalize_update", "deploy:install_node_packages"
-after "deploy:setup", "deploy:auth:setup"
-after "deploy:symlink", "deploy:auth:symlink"
+after "deploy:setup", "deploy:settings:setup"
+after "deploy:symlink", "deploy:settings:symlink"
 
 namespace :deploy do
   desc "Restart the app server"
@@ -43,16 +43,28 @@ namespace :deploy do
     run "cd #{release_path} && npm install --unsafe"
   end
 
-  namespace :auth do
-    desc "Upload LDAP server config to shared path."
+  namespace :settings do
+
+    desc "Setup settings file and upload to shared folder"
     task :setup do
-      top.upload "./ldap_server.json", "#{shared_path}/ldap_server.json"
+      settings = JSON.parse File.read("./#{settings_file}")
+      settings["app"]["name"]    = app_name
+      settings["server"]["host"] = server_host
+      settings["server"]["port"] = server_port
+      settings["server"]["url"]  = "http://" + server_host
+      put JSON.pretty_generate(settings), "#{shared_path}/#{settings_file}"
     end
 
-    desc "Link LDAP server config from shared dir to current path."
+    desc "Symlink settings from shared folder"
     task :symlink do
-      run "rm -f #{current_path}/ldap_server.json && ln -nfs #{shared_path}/ldap_server.json #{current_path}/ldap_server.json"
+      run "rm -f #{current_path}/#{settings_file} && ln -nfs #{shared_path}/#{settings_file} #{current_path}/#{settings_file}"
+    end
+
+    desc "Update settings file"
+    task :update do
+      deploy.settings.setup
+      deploy.settings.symlink
+      deploy.restart
     end
   end
-
 end

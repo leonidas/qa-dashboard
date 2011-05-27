@@ -1,13 +1,17 @@
-set :application, "qa-dashboard.leonidasoy.fi"
+set :app_name, "qa-dashboard"
+set :server_host, "#{app_name}.leonidasoy.fi"
+set :server_port, 3030
+
+set :application, server_host
 set :deploy_to, "/home/#{user}/#{application}"
 set :node_env, "production"
 
 ssh_options[:port] = 43398
 
-server "qa-dashboard.leonidasoy.fi", :app, :web, :db, :primary => true
+server server_host, :app, :web, :db, :primary => true
 
 after "deploy:symlink" do
-  # Allow robots to index 
+  # Allow robots to index
   run "rm #{current_path}/public/robots.txt"
   run "touch #{current_path}/public/robots.txt"
 end
