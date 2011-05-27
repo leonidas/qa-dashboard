@@ -4,7 +4,7 @@ supervisor="node_modules/supervisor/lib/cli-wrapper.js"
 forever="node_modules/forever/bin/forever"
 app="qadash.coffee"
 
-run_cmd=$supervisor" -w qadash.coffee,server,plugins/query,plugins/import -x "$coffee" "$app
+run_cmd=$supervisor" -w qadash.coffee,server,plugins/query,plugins/import,settings.json -x "$coffee" "$app
 
 usage=$0" <options>\n
 Default:\n
