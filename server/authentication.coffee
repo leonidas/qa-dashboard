@@ -33,6 +33,7 @@ generate_new_token = (username) -> (callback) ->
 authenticate = (username, password) -> (callback) ->
     if ldap.in_use()
         ldap.ldap_shellauth(username,password) (err, ok) ->
+            console.log err if err?
             callback? err, ok
     else
         ok = username == "guest" and password == "guest"

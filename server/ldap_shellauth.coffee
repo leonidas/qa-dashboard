@@ -21,11 +21,14 @@ fs   = require('fs')
 exec = require('child_process').exec
 
 auth = ""
-exports.init_ldap_shellauth = (settings) ->
+init_ldap_shellauth = (settings) ->
     auth = settings.auth
 
-exports.ldap_shellauth = (username, password) -> (callback) ->
-    #TODO: return error if ldap is disabled in settings
+in_use = () ->
+    auth.useldap
+
+ldap_shellauth = (username, password) -> (callback) ->
+    return callback? "Error: LDAP disabled in settings", false if not in_use()
 
     # escape special characters in input
     username = username.replace(/([^\w\d])/g, "\\$1")
@@ -37,10 +40,12 @@ exports.ldap_shellauth = (username, password) -> (callback) ->
     #console.log(ldapcmd) #debug
 
     exec ldapcmd, (error,stdout,stderr) ->
-        #console.log("stdout: " + stdout)
-        #console.log("stderr: " + stderr)
-        #console.log(error)
-        callback? error, (error == null && stdout != "")
+        #console.log("stdout: " + stdout) #debug
+        #console.log("stderr: " + stderr) #debug
+        #console.log(error) #debug
+        error = error?.message
+        callback? error, (!error? && stdout != "")
 
-exports.in_use = () ->
-    auth.useldap
+exports.init_ldap_shellauth = init_ldap_shellauth
+exports.in_use              = in_use
+exports.ldap_shellauth      = ldap_shellauth
