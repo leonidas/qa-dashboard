@@ -78,6 +78,8 @@ handle_fragment_path = () ->
             tab = res.result if res.status == 'ok'
             # TODO: handle error
             $('.share_info .user').text f.user
+            $('.share_link a').text window.location.host
+            $('.share_link a').attr "href","#{window.location.protocol}//#{window.location.host}"
             init_shared_dashboard tab
 
 initialize_application = () ->
