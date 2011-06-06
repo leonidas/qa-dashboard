@@ -691,6 +691,7 @@ load_widgets = (cb) ->
 
         cb? dashb
 
+_save_queue = []
 save_widgets = (cb) ->
     ## TODO: save requests need to be synchronized via a queued so that we
     ##       don't accidentally overwrite newer state with older state if
@@ -703,7 +704,21 @@ save_widgets = (cb) ->
 
     #console.log dashboard
 
-    $.post "/user/dashboard/save", dashboard, cb
+    empty = _save_queue.length == 0
+
+    _save_queue.push dashboard
+
+    f = ->
+        l = _save_queue.length
+        return if l == 0
+        db = _save_queue[l-1] # save only the latest version
+        _save_queue = []
+        $.post "/user/dashboard/save", db, ->
+            f()
+            cb?()
+
+    f() if empty
+
 
 $ () ->
     CFInstall?.check()
