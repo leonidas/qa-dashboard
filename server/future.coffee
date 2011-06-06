@@ -25,6 +25,8 @@ inBrowser = window?
 if not inBrowser
     EventEmitter = require('events').EventEmitter
     async = require('async')
+else
+    async = window.async
 
 class Future
     constructor: () ->
@@ -45,11 +47,7 @@ class Future
         f = () => callback @error, @value
 
         if @error? or @value?
-            if inBrowser
-                nextTick f
-            else
-                async.nextTick f
-            return
+           async.nextTick f
 
         if inBrowser
             @event.bind "ready", f
