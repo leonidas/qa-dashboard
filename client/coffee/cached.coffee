@@ -32,18 +32,19 @@ window.cached.get = (url, cb) ->
 window.cached.post = (url, data, cb) ->
     json = if data? then JSON.stringify(data) else null
     key = url + "##" + json
-    cached = _cache[key]
-    if cached?
-        cb? cached
-    else
+    fut  = _cache[key]
+    if not fut?
+        fut = new future.Future()
+        _cache[key] = fut
+        f = (data) ->
+            fut.callback data
         config =
             url: url
             type: "POST"
             data: json
             dataType: "json"
             contentType: "application/json; charset=utf-8"
-            success: (response) ->
-                _cache[key] = response
-                cb? response
+            success: f
 
         $.ajax config
+    fut.get cb
