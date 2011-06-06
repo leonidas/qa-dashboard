@@ -693,9 +693,6 @@ load_widgets = (cb) ->
 
 _save_queue = []
 save_widgets = (cb) ->
-    ## TODO: save requests need to be synchronized via a queued so that we
-    ##       don't accidentally overwrite newer state with older state if
-    ##       asynchronious save requests get processed in different order
 
     $tabs = $p.tab_list.find('li.tab')
 
