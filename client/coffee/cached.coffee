@@ -23,13 +23,11 @@ _post_cache = {}
 
 window.cached = {}
 window.cached.get = (url, cb) ->
-    data = _cache[url]
-    if data == undefined
-        $.getJSON url, (data) ->
-            _cache[url] = data
-            cb data
-    else
-        cb data
+    fut = _cache[url]
+    if not fut?
+        fut = future.call $.getJSON, url
+        _cache[url] = fut
+    fut.get cb
 
 window.cached.post = (url, data, cb) ->
     json = if data? then JSON.stringify(data) else null
