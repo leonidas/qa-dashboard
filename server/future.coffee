@@ -20,26 +20,39 @@
 
 # Asynchronous Future Value
 
-EventEmitter = require('events').EventEmitter
-async = require('async')
+inBrowser = window?
+
+if not inBrowser
+    EventEmitter = require('events').EventEmitter
+    async = require('async')
 
 class Future
     constructor: () ->
-        @event = new EventEmitter()
+        if inBrowser
+            @event = $({})
+        else
+            @event = new EventEmitter()
         @callback = (error, value) =>
             throw "Future callback already called" if @error? or @value?
             @error = error
             @value = value
-            @event.emit "ready"
+            if inBrowser
+                @event.trigger "ready"
+            else
+                @event.emit "ready"
 
     get: (callback) ->
         if @error? or @value?
             async.nextTick =>
-               callback @error, @value 
+               callback @error, @value
             return
 
-        @event.once "ready", =>
-            callback @error, @value
+        f = () => callback @error, @value
+
+        if inBrowser
+            @event.bind "ready", f
+        else
+            @event.once "ready", f
 
 call = (func) ->
     Array::unshift.call arguments, null
@@ -52,7 +65,13 @@ callThis = (ths, func) ->
     func.apply(null, args)
     return fut
 
-exports.Future   = Future
-exports.call     = call
-exports.callThis = callThis
-    
+if inBrowser
+    future = {}
+    future.Future   = Future
+    future.call     = call
+    future.callThis = callThis
+    window.future = future
+else
+    exports.Future   = Future
+    exports.call     = call
+    exports.callThis = callThis
