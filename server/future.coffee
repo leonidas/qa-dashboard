@@ -42,12 +42,14 @@ class Future
                 @event.emit "ready"
 
     get: (callback) ->
-        if @error? or @value?
-            async.nextTick =>
-               callback @error, @value
-            return
-
         f = () => callback @error, @value
+
+        if @error? or @value?
+            if inBrowser
+                nextTick f
+            else
+                async.nextTick f
+            return
 
         if inBrowser
             @event.bind "ready", f
