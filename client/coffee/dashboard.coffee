@@ -239,6 +239,7 @@ init_widget_dom_events = (dom) ->
             obj     = $widget.data("widgetObj")
 
             $widget.find(".action .widget_edit").toggleClass("active")
+            $widget.removeClass("edit_mode_active")
 
             obj.save_settings $form, ->
                 obj.reset_dom()
@@ -246,6 +247,7 @@ init_widget_dom_events = (dom) ->
                 updateWidgetElement $widget
         else
             $this.addClass 'active'
+            $this.closest(".widget").addClass("edit_mode_active")
             obj = $dom.data("widgetObj")
             obj.render_settings_view ->
                 balance_columns()
