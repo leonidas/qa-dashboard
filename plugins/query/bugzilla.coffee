@@ -49,10 +49,11 @@ exports.register_plugin = (db) ->
             return cb? err if err?
 
             bugcounts = {}
-            for fea in r.features
-                for c in fea.cases
-                    for b in c.bugs
-                        bugcounts[b] = (bugcounts[b] ? 0) + 1
+            if r?
+                for fea in r.features
+                    for c in fea.cases
+                        for b in c.bugs
+                            bugcounts[b] = (bugcounts[b] ? 0) + 1
 
             cb? null, bugcounts
 
