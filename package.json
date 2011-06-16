@@ -18,7 +18,9 @@
     "supervisor": "0.1.2",
     "forever": "0.4.0",
     "eyes": "0.1.6",
-    "connect-mongo": "0.1.1"
+    "connect-mongo": "0.1.1",
+    "soda": "0.2.4",
+    "cucumis": "1.0.17"
   },
   "private": "true"
 }
