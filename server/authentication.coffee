@@ -18,7 +18,10 @@
 # 02110-1301 USA
 #
 crypto = require('crypto')
-ldap = require ('ldap_shellauth')
+ldap  = require('ldap_shellauth')
+mysql = require('mysql_auth')
+
+settings = null
 
 sha = (data) ->
     s = crypto.createHash('sha1')
@@ -31,13 +34,20 @@ generate_new_token = (username) -> (callback) ->
     callback? null, sha(data)
 
 authenticate = (username, password) -> (callback) ->
-    if ldap.in_use()
-        ldap.ldap_shellauth(username,password) (err, ok) ->
-            console.log err if err?
-            callback? err, ok
-    else
-        ok = username == "guest" and password == "guest"
-        callback? null, ok
+    switch settings.auth.method
+        when "ldap"
+            ldap.ldap_shellauth(username,password) (err, ok) ->
+                console.log err if err?
+                callback? err, ok
+
+        when "mysql"
+            mysql.auth_user(username,password) (err, ok) ->
+                console.log.err if err?
+                callback? err, ok
+
+        else
+            ok = username == "guest" and password == "guest"
+            callback? null, ok
 
 exports.get_token = (db) ->
     users = db.collection("users")
@@ -89,6 +99,9 @@ exports.init_authentication = (app, db) ->
     users = db.collection("users")
     users.ensureIndex("username").unique().run()
     users.ensureIndex("token").run()
+
+    # TODO: there should be a nicer way to do this
+    settings = app.dashboard_settings
 
     app.post "/auth/login", (req,res) ->
         login = req.body
