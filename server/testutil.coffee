@@ -28,9 +28,24 @@ monmon   = require('monmon').monmon
 TEST_SETTINGS =
     "server":
         "host": "localhost",
-        "port": 3133
+        "port": 3130
     "app":
         "root": __dirname + "/.."
+    "auth":
+        "useldap": false
+
+test_server_app = ""
+
+test_server_start = (callback) ->
+    console.log "\x1b[44mStarting test server (port:#{TEST_SETTINGS.server.port})..."
+    dbm = monmon.env('test')
+    test_server_app = app.create_app TEST_SETTINGS, dbm
+    test_server_app.listen TEST_SETTINGS.server.port, callback
+
+test_server_close = (callback) ->
+    console.log "\x1b[44mClosing test server..."
+    test_server_app.close()
+    callback()
 
 read_all = (res, callback) ->
     data = ""
@@ -83,3 +98,5 @@ test_server = (env, tests) ->
     return testCase tests
 
 exports.test_server = test_server
+exports.test_server_start = test_server_start
+exports.test_server_close = test_server_close
