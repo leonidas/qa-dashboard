@@ -40,6 +40,7 @@
     width: 135px;
     background: transparent url('/widgets/pass-rate-trend/tooltip-arrow.png') no-repeat center top;
     text-align: center;
+    z-index: 99999;
 }
 .widget_pass_rate_trend .tooltip .tooltip_content {
     background-color: #000;

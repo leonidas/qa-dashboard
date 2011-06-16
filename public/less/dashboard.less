@@ -33,6 +33,7 @@ body{
 .left_column {
 	min-height: 30em;
 	padding-top: 23px !important;
+	overflow: visible !important;
 }
 
 /**** TYPOGRAPHY ****/
@@ -176,6 +177,7 @@ label {
 /**** PAGE STRUCTURE ****/
 #wrap {
 	position: relative;
+	padding-bottom: 30px;
 }
 
 #upper_header {
@@ -364,6 +366,23 @@ aside.one {
 
 .radar-chart svg {
 	width: 100%;
+}
+
+.widget.edit_mode_active {
+	background-color: #f0f0f0;
+	background-image: -webkit-gradient(linear,left top,left 80, color-stop(0, #fff),
+	    color-stop(0.2, #f0f0f0));
+	background-image: -moz-linear-gradient(center top, #f0f0f0 0%, #fff 20%);
+	.widget_header {
+		.title {
+			vertical-align: top;
+			input {
+				width: 250px;
+				border: 1px solid #ddd;
+				font-size: 15px;
+			}
+		}
+	}
 }
 
 .widget_edit_content {

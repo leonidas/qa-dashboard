@@ -49,6 +49,10 @@ exports.register_plugin = (db) ->
                 doc = req.body.report
                 return if not valid_request_format(doc,res)
 
-                q = reports.find({'qa_id':doc.qa_id}).upsert().update(doc)
-                run_db_query q, res
+                reports.find({'qa_id':doc.qa_id}).run (err, arr) ->
+                    if new Date(doc.updated_at) > new Date(arr[0].updated_at)
+                        q = reports.find({'qa_id':doc.qa_id}).upsert().update(doc)
+                        run_db_query q, res
+                    else
+                        res.send {status:"ok", msg:"ignored, more recent report found in db"}
 
