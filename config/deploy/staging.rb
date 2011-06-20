@@ -1,12 +1,12 @@
-set :app_name, "qa-dashboard"
-set :server_host, "#{app_name}.qa.leonidasoy.fi"
+set :app_name, "qa-dashboard-dev"
+set :server_host, "#{app_name}"
 set :server_port, 3030
 
 set :application, server_host
 set :deploy_to, "/home/#{user}/#{application}"
 set :node_env, "staging"
 
-ssh_options[:port] = 31915
+#ssh_options[:port] = 23
 
 server server_host, :app, :web, :db, :primary => true
 
