@@ -24,12 +24,7 @@ auth = ""
 init_ldap_shellauth = (settings) ->
     auth = settings.auth
 
-in_use = () ->
-    auth.useldap
-
 ldap_shellauth = (username, password) -> (callback) ->
-    return callback? "Error: LDAP disabled in settings", false if not in_use()
-
     # escape special characters in input
     username = username.replace(/([^\w\d])/g, "\\$1")
     password = password.replace(/([^\w\d])/g, "\\$1")
@@ -47,5 +42,4 @@ ldap_shellauth = (username, password) -> (callback) ->
         callback? error, (!error? && stdout != "")
 
 exports.init_ldap_shellauth = init_ldap_shellauth
-exports.in_use              = in_use
 exports.ldap_shellauth      = ldap_shellauth
