@@ -1,6 +1,6 @@
 set :app_name, "qa-dashboard-dev"
 set :server_host, "#{app_name}"
-set :server_port, 3030
+set :server_port, 8000
 
 set :application, server_host
 set :deploy_to, "/home/#{user}/#{application}"
