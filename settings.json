@@ -10,11 +10,20 @@
   },
 
   "auth": {
-    "useldap": false,
+    "method": "ldap",
+
     "ldap"   : {
-        "uri"    : "ldap://localhost:389",
-        "dn_base": "ou=people,dc=my-domain,dc=com",
-        "filters": "myProperty=value"
+      "uri": "ldap://localhost:389",
+      "dn_base": "ou=people,dc=qa-dashboard,dc=qa,dc=my-domain,dc=com",
+      "filters": ""
+    },
+
+    "mysql": {
+      "host": "",
+      "port": "",
+      "database": "",
+      "username": "",
+      "password": ""
     }
   }
 }
