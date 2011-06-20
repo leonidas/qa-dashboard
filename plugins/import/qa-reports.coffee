@@ -49,8 +49,9 @@ exports.register_plugin = (db) ->
                 doc = req.body.report
                 return if not valid_request_format(doc,res)
 
-                reports.find({'qa_id':doc.qa_id}).run (err, arr) ->
-                    if new Date(doc.updated_at) > new Date(arr[0].updated_at)
+                reports.find({'qa_id':doc.qa_id}).one().run (err, old) ->
+                    res.send {status:"error", error:err} if err?
+                    if not old? || (new Date(doc.updated_at) > new Date(old.updated_at))
                         q = reports.find({'qa_id':doc.qa_id}).upsert().update(doc)
                         run_db_query q, res
                     else
