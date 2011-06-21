@@ -10,7 +10,7 @@ md5 = (s) ->
 client = null
 settings = null
 
-init_mysql_auth = (settings) ->
+exports.init_mysql_auth = (settings) ->
     settings = m = settings.auth.mysql
     client = new Client()
     client.host = m.host
