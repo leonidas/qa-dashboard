@@ -22,7 +22,7 @@ init_mysql_auth = (settings) ->
 
 sql = "SELECT pass FROM users WHERE user = ?"
 
-auth_user = (username, password) -> (callback) ->
+exports.auth_user = (username, password) -> (callback) ->
     client.query sql, [username], (err, results, fields) ->
         return callback err if err?
         ok = results.length > 0 and results[0][0] == md5(password)
