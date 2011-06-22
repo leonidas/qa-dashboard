@@ -10,3 +10,4 @@ public/css/dashboard.css
 public/*.js
 server/js
 log
+features/step_definitions/*.js
