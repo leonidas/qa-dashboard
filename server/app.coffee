@@ -18,6 +18,8 @@ create_app = (settings, db) ->
 
     app = express.createServer()
 
+    app.dashboard_settings = settings
+
     store = new MongoStore(db:"qadash-sessions")
 
     app.configure ->
