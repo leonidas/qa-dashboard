@@ -10,17 +10,17 @@ md5 = (s) ->
 client = null
 settings = null
 
-exports.init_mysql_auth = (settings) ->
+exports.init_mysql_auth = (settings, callback) ->
     settings = m = settings.auth.mysql
     client = new Client()
     client.host = m.host
     client.port = m.port
     client.username = m.username
     client.password = m.password
-    client.connect()
+    client.connect(callback)
 
 
-sql = "SELECT pass FROM users WHERE user = ?"
+sql = "SELECT pass FROM users WHERE name = ?"
 
 exports.auth_user = (username, password) -> (callback) ->
     client.query sql, [username], (err, results, fields) ->
