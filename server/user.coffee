@@ -33,7 +33,7 @@ get_user = (db) ->
                     dashboard: {}
                 users.insert(doc).run (err) ->
                     return callback? err if err?
-                    callback? doc
+                    callback? null, doc
 
 exports.init_user = (app, db) ->
     users = db.collection("users")
