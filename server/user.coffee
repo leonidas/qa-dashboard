@@ -32,7 +32,9 @@ get_user = (db) ->
                     username: username
                     dashboard: {}
                 users.insert(doc).run (err) ->
-                    return callback? err if err?
+                    if err?
+                        console.log "ERROR: #{err}"
+                        return callback? err
                     callback? null, doc
 
 exports.init_user = (app, db) ->
