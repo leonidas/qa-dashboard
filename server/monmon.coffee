@@ -274,7 +274,7 @@ class MongoMonad
 
                 opts = {}
                 opts.sparse = cfg.sparse if cfg.sparse
-                opts.unique = cfg.unique ? false
+                opts.unique = cfg.unique if cfg.unique
                 opts.dropDups = cfg.dropDups if cfg.dropDups
 
                 c.ensureIndex cfg.key, opts, callback
