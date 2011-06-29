@@ -97,8 +97,8 @@ exports.secure = (db) ->
 
 exports.init_authentication = (app, db) ->
     users = db.collection("users")
-    users.ensureIndex("token").run()
     users.unique().ensureIndex("username").run()
+    users.sparse().ensureIndex("token").run()
 
     # TODO: there should be a nicer way to do this
     settings = app.dashboard_settings

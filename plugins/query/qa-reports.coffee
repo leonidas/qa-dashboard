@@ -25,8 +25,7 @@ exports.register_plugin = (db) ->
     reports = db.collection('qa-reports')
 
     reports.unique().ensureIndex([['qa_id',1]]).run()
-    reports.ensureIndex([["release",-1], ["hardware",1], ["profile","1"], ["testtype",1]])
-
+    reports.ensureIndex([["release",-1], ["hardware",1], ["profile","1"], ["testtype",1]]).run()
 
     api = {}
 
