@@ -11,7 +11,7 @@ POLLING_PERIOD = 60 #in secs
 EXPORT_RANGE   = 3  #in days
 
 LAST_EXPORT_DUMP = Dir.pwd + "/bugzilla_last_export_array.yml"
-            
+
 BUGZILLA_CONFIG  = YAML.load_file("bugzilla_config.yml")
 POST_API_CONFIG  = YAML.load_file("qa-dashboard_config.yml")
 
@@ -35,9 +35,9 @@ def daemonize
             # calculate delta since last export
             delta = data_array - read_array_from_file(LAST_EXPORT_DUMP)
 
-            # send data 
+            # send data
             if not delta.empty?
-                puts delta.size.to_s + " bug reports to update" 
+                puts delta.size.to_s + " bug reports to update"
                 postdata = { "token" => POST_API_CONFIG['apitoken'], "bugs" => delta }
                 #puts postdata.to_json unless fromdate == "" #debug
                 response = RestClient.post POST_API_CONFIG['uri'], postdata.to_json, :content_type => :json, :accept => :json
@@ -64,9 +64,15 @@ def export_bugzilla_csv(fromdate, todate="Now")
 
     # Export bugzilla CSV
     content = ""
-    @http = Net::HTTP.new(BUGZILLA_CONFIG['server'], BUGZILLA_CONFIG['port'])
-    @http.use_ssl = BUGZILLA_CONFIG['use_ssl']
-    @http.start() do |http|
+
+    if BUGZILLA_CONFIG['proxy_server'].present?
+      http = Net::HTTP.Proxy(BUGZILLA_CONFIG['proxy_server'], BUGZILLA_CONFIG['proxy_port']).new(BUGZILLA_CONFIG['server'], BUGZILLA_CONFIG['port'])
+    else
+      http = Net::HTTP.new(BUGZILLA_CONFIG['server'], BUGZILLA_CONFIG['port'])
+    end
+
+    http.use_ssl = BUGZILLA_CONFIG['use_ssl']
+    http.start() do |http|
         req = Net::HTTP::Get.new(uri)
         if not BUGZILLA_CONFIG['http_username'].nil?
             req.basic_auth BUGZILLA_CONFIG['http_username'], BUGZILLA_CONFIG['http_password']
@@ -77,9 +83,8 @@ def export_bugzilla_csv(fromdate, todate="Now")
     content
 end
 
-
 def parse_bugzilla_csv(content)
-    data_array = []    
+    data_array = []
     FasterCSV.parse(content, :headers => true) do |row|
         row = row.to_hash
         #customize data
@@ -93,7 +98,7 @@ end
 
 def read_array_from_file(filename)
     return [] if not File.exist?(filename)
-    stored_array = YAML.load(File.open(filename)) 
+    stored_array = YAML.load(File.open(filename))
 end
 
 
