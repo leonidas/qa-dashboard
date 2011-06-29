@@ -52,6 +52,7 @@ class MongoMonad
 
     _bind: (cfg) ->
         new_cfg = _.extend(_.clone(@cfg), cfg)
+        console.log new_cfg
         new MongoMonad(new_cfg, @acts)
 
     _bind_action: (cfg) ->
@@ -276,6 +277,9 @@ class MongoMonad
                 opts.sparse = cfg.sparse if cfg.sparse
                 opts.unique = cfg.unique if cfg.unique
                 opts.dropDups = cfg.dropDups if cfg.dropDups
+
+                console.log cfg
+                console.log opts
 
                 c.ensureIndex cfg.key, opts, callback
 
