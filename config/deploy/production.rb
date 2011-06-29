@@ -6,7 +6,7 @@ set :application, server_host
 set :deploy_to, "/home/#{user}/#{application}"
 set :node_env, "production"
 
-#ssh_options[:port] = 23
+set :branch, "fea-new-server-deployment"
 
 server server_host, :app, :web, :db, :primary => true
 

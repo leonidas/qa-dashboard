@@ -10,8 +10,6 @@ set :branch, "fea-new-server-deployment"
 
 set :keep_releases, 2
 
-#ssh_options[:port] = 23
-
 server server_host, :app, :web, :db, :primary => true
 
 namespace :db do
