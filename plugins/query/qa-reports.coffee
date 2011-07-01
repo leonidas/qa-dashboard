@@ -27,7 +27,6 @@ exports.register_plugin = (db) ->
     reports.unique().ensureIndex([['qa_id',1]]).run()
     reports.ensureIndex([["release",-1], ["hardware",1], ["profile","1"], ["testtype",1]]).run()
 
-
     api = {}
 
     api.reports_for_bug = (hw, id, cb) ->

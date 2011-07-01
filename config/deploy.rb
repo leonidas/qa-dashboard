@@ -3,7 +3,7 @@ set :default_stage, "staging"
 require 'capistrano/ext/multistage'
 require 'json'
 
-set :user, "www-data"
+set :user, "jenkins"
 set :use_sudo, false
 set :copy_compression, :zip
 
@@ -16,7 +16,9 @@ set :start_script, "./run-server.sh"
 set :settings_file, "settings.json"
 
 ssh_options[:forward_agent] = true
-ssh_options[:user] = "www-data"
+ssh_options[:keys] = [File.join(ENV["HOME"], ".ssh", "jenkins_rsa")]
+ssh_options[:user] = "jenkins"
+set :gateway, "jenkins@access.meego.com"
 
 after "deploy:finalize_update", "deploy:install_node_packages"
 after "deploy:setup", "deploy:settings:setup"
@@ -40,7 +42,7 @@ namespace :deploy do
 
   desc "Install node packages"
   task :install_node_packages, roles => :app do
-    run "cd #{release_path} && npm install --unsafe"
+    run "cd #{release_path} && npm install --unsafe --proxy=http://proxy:3128"
   end
 
   namespace :settings do

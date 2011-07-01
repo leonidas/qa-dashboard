@@ -1,12 +1,14 @@
-set :app_name, "qa-dashboard"
-set :server_host, "#{app_name}.qa.leonidasoy.fi"
-set :server_port, 3030
+set :app_name, "qa-dashboard-dev"
+set :server_host, "#{app_name}"
+set :server_port, 8000
 
 set :application, server_host
 set :deploy_to, "/home/#{user}/#{application}"
 set :node_env, "staging"
 
-ssh_options[:port] = 31915
+#set :branch, "fea-new-server-deployment"
+
+set :keep_releases, 5
 
 server server_host, :app, :web, :db, :primary => true
 
