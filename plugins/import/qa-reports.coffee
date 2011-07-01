@@ -51,7 +51,7 @@ exports.register_plugin = (db) ->
 
                 reports.find({'qa_id':doc.qa_id}).one().run (err, old) ->
                     res.send {status:"error", error:err} if err?
-                    if not old? || (new Date(doc.updated_at) > new Date(old.updated_at))
+                    if not old? || (new Date(doc.updated_at) >= new Date(old.updated_at))
                         q = reports.find({'qa_id':doc.qa_id}).upsert().update(doc)
                         run_db_query q, res
                     else
