@@ -57,3 +57,35 @@ exports.register_plugin = (db) ->
                     else
                         res.send {status:"ok", msg:"ignored, more recent report found in db"}
 
+            "/massupdate": (req, res) ->
+                reports = req.body
+                async.map reports,
+                    # parse qa-reports and return the db query function
+                    (report, cb) ->
+                        # do parsing and format checking here
+                        if not report.qa_id?
+                            err = "invalid document format"
+                            cb err, null
+                        else
+                            cb null, (callback) ->
+                                # define db query function for the qa-report
+                                reports.find({'qa_id':report.qa_id}).one().run (err, old) ->
+                                    callback err, null if err?
+                                    if not old? || (new Date(report.updated_at) >= new Date(old.updated_at))
+                                        q = reports.find({'qa_id':report.qa_id}).upsert().update(report)
+                                        q.run (err) ->
+                                            if err?
+                                                callback err, null
+                                            else
+                                                callback null, null
+                    (err, q_arr) ->
+                        if err?
+                            res.send {status: "error", error: err} #parse error
+                        else
+                            # run database queries
+                            async.series q_arr, (err) ->
+                                if err?
+                                    res.send {status: "error", error: err } #error in db query
+                                else
+                                    res.send {status: "ok"}
+
