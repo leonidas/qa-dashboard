@@ -6,9 +6,9 @@ set :application, server_host
 set :deploy_to, "/home/#{user}/#{application}"
 set :node_env, "staging"
 
-set :branch, "fea-new-server-deployment"
+#set :branch, "fea-new-server-deployment"
 
-set :keep_releases, 2
+set :keep_releases, 5
 
 server server_host, :app, :web, :db, :primary => true
 
