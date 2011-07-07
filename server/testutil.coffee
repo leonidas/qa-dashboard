@@ -31,6 +31,8 @@ TEST_SETTINGS =
         "port": 3133
     "app":
         "root": __dirname + "/.."
+    "auth":
+        "method": "dummy"
 
 read_all = (res, callback) ->
     data = ""
@@ -63,7 +65,7 @@ test_server = (env, tests) ->
         tests.app.listen TEST_SETTINGS.server.port, callback
 
     closeApp = ->
-        tests.app.close()
+        tests.app.close() if tests.app?
 
     tests.setUp = (callback) ->
         @get = get
