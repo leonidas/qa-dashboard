@@ -16,7 +16,7 @@ set :start_script, "./run-server.sh"
 set :settings_file, "settings.json"
 
 ssh_options[:forward_agent] = true
-ssh_options[:keys] = [File.join(ENV["HOME"], ".ssh", "jenkins_rsa")]
+ssh_options[:keys] = [File.join(ENV["HOME"], ".ssh", "jenkins_rsa"), File.join(ENV["HOME"], ".ssh", "id_rsa")]
 ssh_options[:user] = "jenkins"
 set :gateway, "jenkins@access.meego.com"
 
