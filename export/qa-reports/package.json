@@ -1,0 +1,12 @@
+{
+  "name": "qa-reports-export",
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=0.4.5"
+  },
+  "dependencies":{
+      "daemon": "0.3.0"
+  },
+  "private": "true"
+}
+
