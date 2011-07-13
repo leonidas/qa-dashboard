@@ -58,7 +58,7 @@ exports.register_plugin = (db) ->
                         res.send {status:"ok", msg:"ignored, more recent report found in db"}
 
             "/massupdate": (req, res) ->
-                reports = req.body
+                reports = req.body.reports
                 async.map reports,
                     # parse qa-reports and return the db query function
                     (report, cb) ->

@@ -1,0 +1,6 @@
+{
+    "reportsUrl":     "http://qa-reports.qa.leonidasoy.fi",
+    "maxReportCount": 1,
+    "dashboardUrl":   "http://localhost:3030",
+    "dashboardToken": ""
+}
