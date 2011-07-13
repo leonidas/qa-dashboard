@@ -5,7 +5,10 @@
     "node": ">=0.4.5"
   },
   "dependencies":{
-      "daemon": "0.3.0"
+      "daemon": "0.3.0",
+      "async": "0.1.9",
+      "get": "0.4.1",
+      "request": "1.9.8"
   },
   "private": "true"
 }
