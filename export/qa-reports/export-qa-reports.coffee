@@ -17,7 +17,7 @@ launchDaemon = (basedir, cfg) ->
     fetchCount = cfg.reports.fetchCount
 
     fmtDate = (date) ->
-        "#{date.getFullYear()}-#{date.getMonth()}-#{date.getDay()} #{date.getHours()}:#{date.getMinutes()}:#{date.getSeconds()}"
+        escape "#{date.getFullYear()}-#{date.getMonth()+1}-#{date.getDate()} #{date.getHours()}:#{date.getMinutes()}:#{date.getSeconds()}"
 
     fetchReports = (since, callback) ->
 
@@ -28,25 +28,27 @@ launchDaemon = (basedir, cfg) ->
         opts =
             uri:    url
             method: "GET"
+        console.log "GET: #{url}"
         proxy = cfg.reports.proxy
+        auth = proxy.basicAuth
+        opts.auth = auth if auth? and auth != ""
         if proxy.enabled
             opts.proxy =
                 uri: proxy.url
             auth = proxy.basicAuth
             opts.proxy.auth = auth if auth? and auth != ""
         request opts, (err, res, body) ->
-            console.log body
             return callback err if err?
             return callback res.statusCode if res.statusCode != 200
             return callback null, JSON.parse(body)
 
     pushReports  = (reports, callback) ->
         console.log "..received #{reports.length} reports"
-        url = "#{cfg.dashboardUrl}/import/qa-reports/massupdate"
+        url = "#{cfg.dashboard.url}/import/qa-reports/massupdate"
         request {
-            uri:    cfg.dashboardUrl
+            uri:    url
             method: "POST"
-            json:   {reports: reports, token: cfg.dashboardToken}
+            json:   {reports: reports, token: cfg.dashboard.token}
             }, (err, res, body) ->
                 return callback err if err?
                 return callback body.error if body.status == "error"
@@ -56,15 +58,16 @@ launchDaemon = (basedir, cfg) ->
     readSinceFile = (callback) ->
         fs.readFile SINCEFILE, "utf-8", (err, s) ->
             return callback null, null if err?
-            return callback null, Date.parse(s)
+            return callback null, new Date(s)
 
     writeSinceFile = (reports, callback) ->
+        return callback null, reports if reports.length == 0
         since = _.last(reports).updated_at
         fs.writeFile SINCEFILE, since.toString(), (err) ->
             callback null, reports
 
     scheduleNextPoll = (reports, callback) ->
-        if reports.length < cfg.maxReportCount
+        if reports.length < fetchCount
             # There are no more reports for now
             waitTime = 1*HOURS
         else
@@ -87,7 +90,7 @@ launchDaemon = (basedir, cfg) ->
                 console.log "ERROR: #{err}"
                 setTimeout pollReports, 5*MINUTES
 
-            callback err
+            callback? err
 
     pollReports()
 

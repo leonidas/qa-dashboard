@@ -1,20 +1,21 @@
 {
     "reports": {
         "url": "http://qa-reports.qa.leonidasoy.fi",
+        "basicAuth": "",
         "proxy": {
             "enabled": false,
             "url": ""
         },
-        "fetchCount": 10
+        "fetchCount": 20
     },
 
     "dashboard": {
         "url": "http://localhost:3030",
-        "token": "",
+        "token": "b0fc86a1e99680451b9c8456098a43f2ce97b0ad",
+        "basicAuth": "",
         "proxy": {
             "enabled": false,
             "url": ""
-
         }
     }
 
