@@ -2,7 +2,6 @@
 require.paths.unshift './node_modules'
 
 async   = require('async')
-get     = require('get')
 request = require('request')
 fs      = require('fs')
 _       = require('underscore')
@@ -15,18 +14,27 @@ HOURS   = 60*MINUTES
 launchDaemon = (basedir, cfg) ->
 
     SINCEFILE = "#{basedir}/last-report.txt"
+    fetchCount = cfg.reports.fetchCount
 
     fmtDate = (date) ->
         "#{date.getFullYear()}-#{date.getMonth()}-#{date.getDay()} #{date.getHours()}:#{date.getMinutes()}:#{date.getSeconds()}"
 
     fetchReports = (since, callback) ->
 
-        console.log "fetching next #{cfg.maxReportCount} reports since #{since}"
-        url = "#{cfg.reportsUrl}/api/reports?limit_amount=#{cfg.maxReportCount}"
+        console.log "fetching next #{fetchCount} reports since #{since}"
+        url = "#{cfg.reports.url}/api/reports?limit_amount=#{fetchCount}"
         if since?
             url += "&begin_time=#{fmtDate since}"
-        console.log url
-        request {uri: url, method:"GET"}, (err, res, body) ->
+        opts =
+            uri:    url
+            method: "GET"
+        proxy = cfg.reports.proxy
+        if proxy.enabled
+            opts.proxy =
+                uri: proxy.url
+            auth = proxy.basicAuth
+            opts.proxy.auth = auth if auth? and auth != ""
+        request opts, (err, res, body) ->
             console.log body
             return callback err if err?
             return callback res.statusCode if res.statusCode != 200

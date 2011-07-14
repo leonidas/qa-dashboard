@@ -1,6 +1,21 @@
 {
-    "reportsUrl":     "http://qa-reports.qa.leonidasoy.fi",
-    "maxReportCount": 1,
-    "dashboardUrl":   "http://localhost:3030",
-    "dashboardToken": ""
+    "reports": {
+        "url": "http://qa-reports.qa.leonidasoy.fi",
+        "proxy": {
+            "enabled": false,
+            "url": ""
+        },
+        "fetchCount": 10
+    },
+
+    "dashboard": {
+        "url": "http://localhost:3030",
+        "token": "",
+        "proxy": {
+            "enabled": false,
+            "url": ""
+
+        }
+    }
+
 }
