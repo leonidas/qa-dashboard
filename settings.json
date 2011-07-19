@@ -10,7 +10,7 @@
   },
 
   "auth": {
-    "method": "ldap",
+    "method": "dummy",
 
     "ldap"   : {
       "uri": "ldap://localhost:389",

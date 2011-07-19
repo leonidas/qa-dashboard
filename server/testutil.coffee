@@ -33,7 +33,7 @@ TEST_SETTINGS =
     "app":
         "root": __dirname + "/.."
     "auth":
-        "useldap": false
+        "method": "dummy"
 
 test_server_app = ""
 
@@ -54,7 +54,6 @@ test_db_closeAll = (callback) ->
     monmon.closeAll (err, res) ->
         throw err if err?
         callback()
-
 
 read_all = (res, callback) ->
     data = ""
@@ -87,7 +86,7 @@ test_server = (env, tests) ->
         tests.app.listen TEST_SETTINGS.server.port, callback
 
     closeApp = ->
-        tests.app.close()
+        tests.app.close() if tests.app?
 
     tests.setUp = (callback) ->
         @get = get

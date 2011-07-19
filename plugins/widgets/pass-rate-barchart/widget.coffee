@@ -22,7 +22,8 @@ class PassRateBarChart extends QAReportsWidget
         cached.get "/query/qa-reports/groups", (data) ->
             targets = {}
             ver = _.last _(data).keys()
-            #hw  = _.first _(data[ver]).keys()
+            if not data[ver][hw]?
+                hw  = _.first _(data[ver]).keys()
 
             groups = []
             for grp in data[ver][hw]

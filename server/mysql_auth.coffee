@@ -10,20 +10,21 @@ md5 = (s) ->
 client = null
 settings = null
 
-init_mysql_auth = (settings) ->
+exports.init_mysql_auth = (settings, callback) ->
     settings = m = settings.auth.mysql
     client = new Client()
     client.host = m.host
     client.port = m.port
-    client.username = m.username
+    client.user = m.username
     client.password = m.password
-    client.connect()
+    client.database = m.database
+    client.connect(callback)
 
 
-sql = "SELECT pass FROM users WHERE user = ?"
+sql = "SELECT pass FROM users WHERE name = ?"
 
-auth_user = (username, password) -> (callback) ->
+exports.auth_user = (username, password) -> (callback) ->
     client.query sql, [username], (err, results, fields) ->
         return callback err if err?
-        ok = results.length > 0 and results[0][0] == md5(password)
+        ok = results.length > 0 and results[0]['pass'] == md5(password)
         callback null, ok
