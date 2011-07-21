@@ -24,29 +24,33 @@ testutil = require('testutil')
 
 DEBUG = false
 
-if not browser?
-    browser = soda.createClient
-        host: 'localhost'
-        port: 4444
-        url: 'http://localhost:3130'
-        browser: "firefox"
+# Soda helpers
+# TODO: write helpers here (extend the prototype), for frequently used functions
 
-    if DEBUG
-        browser.on 'command', (cmd, args) ->
-          console.log ' \x1b[33m%s\x1b[0m: %s', cmd, args.join(', ')
+# Browser functions
+browser = null #only one module global browser instance
+open_browser = () ->
+    if not browser?
+        browser = soda.createClient
+            host: 'localhost'
+            port: 4444
+            url: 'http://localhost:3130'
+            browser: "firefox"
+        if DEBUG
+            browser.on 'command', (cmd, args) ->
+              console.log ' \x1b[33m%s\x1b[0m: %s', cmd, args.join(', ')
+    browser
 
 close_browser = (cb) ->
-    if browser
+    if browser?
         browser
             .chain
             .testComplete()
             .end (err) ->
+               browser = null
                cb err
     else
         cb null
-
-exports.browser       = browser
-exports.close_browser = close_browser
 
 # CSS selectors
 selectors =
@@ -56,5 +60,7 @@ selectors =
     user_password :'css=#user_password'
     logged_user   :'css=#logged_user'
 
-exports.selectors = selectors
-
+# exports
+exports.browser       = open_browser()
+exports.close_browser = close_browser
+exports.selectors     = selectors
