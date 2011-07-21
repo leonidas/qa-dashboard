@@ -7,19 +7,10 @@ assert   = require('assert')
 should   = require('should')
 soda     = require('soda')
 coffee   = require('coffee-script')
+sodautil = require('sodautil')
 testutil = require('testutil')
 
-DEBUG = false
-if !browser?
-    browser = soda.createClient
-        host: 'localhost'
-        port: 4444
-        url: 'http://localhost:3130'
-        browser: "firefox"
-
-    if DEBUG
-        browser.on 'command', (cmd, args) ->
-          console.log ' \x1b[33m%s\x1b[0m: %s', cmd, args.join(', ')
+browser = sodautil.browser
 
 #CSS selectors
 logout_btn    = 'css=#logout_btn'
@@ -28,23 +19,13 @@ user_login    = 'css=#user_login'
 user_password = 'css=#user_password'
 logged_user   = 'css=#logged_user'
 
-close_browser = (cb) ->
-    if browser
-        browser
-            .chain
-            .testComplete()
-            .end (err) ->
-               cb err
-    else
-        cb null
-
 Steps.Runner.on 'beforeTest', (run) ->
     testutil.test_server_start (err) ->
         console.log "\x1b[33mServer started...\x1b[0m"
         run()
 
 Steps.Runner.on 'afterTest', (done) ->
-    close_browser (err) ->
+    sodautil.close_browser (err) ->
         throw err if err?
         testutil.test_server_close () ->
             console.log "\x1b[33mServer closed...\x1b[0m"
