@@ -49,8 +49,12 @@ exports.browser       = browser
 exports.close_browser = close_browser
 
 # CSS selectors
-exports.logout_btn    = 'css=#logout_btn'
-exports.login_btn     = 'css=#user_submit'
-exports.user_login    = 'css=#user_login'
-exports.user_password = 'css=#user_password'
-exports.logged_user   = 'css=#logged_user'
+selectors =
+    logout_btn    :'css=#logout_btn'
+    login_btn     :'css=#user_submit'
+    user_login    :'css=#user_login'
+    user_password :'css=#user_password'
+    logged_user   :'css=#logged_user'
+
+exports.selectors = selectors
+

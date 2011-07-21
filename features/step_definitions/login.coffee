@@ -11,13 +11,7 @@ sodautil = require('sodautil')
 testutil = require('testutil')
 
 browser = sodautil.browser
-
-#CSS selectors
-logout_btn    = 'css=#logout_btn'
-login_btn     = 'css=#user_submit'
-user_login    = 'css=#user_login'
-user_password = 'css=#user_password'
-logged_user   = 'css=#logged_user'
+sel     = sodautil.selectors
 
 Steps.Runner.on 'beforeTest', (run) ->
     testutil.test_server_start (err) ->
@@ -62,7 +56,7 @@ Steps.Given /^I am on the front page$/, (ctx) ->
 Steps.Given /^I am not logged in$/, (ctx) ->
     browser
         .chain
-        .clickAndWait(logout_btn)
+        .clickAndWait(sel.logout_btn)
         .end (err) ->
             throw err if err
             ctx.done()
@@ -70,9 +64,9 @@ Steps.Given /^I am not logged in$/, (ctx) ->
 Steps.When /^I login with username "([^"]*?)" and password "([^"]*?)"$/, (ctx, username, password) ->
     browser
         .chain
-        .type(user_login, username)
-        .type(user_password, password)
-        .click(login_btn)
+        .type(sel.user_login, username)
+        .type(sel.user_password, password)
+        .click(sel.login_btn)
         .end (err) ->
             throw err if err
             ctx.done()
@@ -80,7 +74,7 @@ Steps.When /^I login with username "([^"]*?)" and password "([^"]*?)"$/, (ctx, u
 Steps.Then /^I should be logged in$/, (ctx) ->
     browser
         .chain
-        .assertVisible(logout_btn)
+        .assertVisible(sel.logout_btn)
         .end (err) ->
             throw err if err
             ctx.done()
@@ -88,7 +82,7 @@ Steps.Then /^I should be logged in$/, (ctx) ->
 Steps.Then /^I should see "([^"]*?)" as logged user$/, (ctx, username) ->
     browser
         .chain
-        .getText logged_user, (user) ->
+        .getText sel.logged_user, (user) ->
             user.should.equal(username)
         .end (err) ->
             throw err if err
