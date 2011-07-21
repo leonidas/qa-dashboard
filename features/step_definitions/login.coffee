@@ -53,6 +53,12 @@ Steps.Runner.on 'afterTest', (done) ->
                 testutil.test_db_closeAll () ->
                     console.log "\x1b[33mDatabase connections closed...\x1b[0m"
                     done()
+                    # hack to force exit (dashboard has pending callbacks even after db and server close)
+                    setTimeout () ->
+                            console.log "\x1b[33mExiting...\x1b[0m"
+                            process.exit()
+                        ,6000
+                    # TODO: remove hack when found how dashboard can be shut down more gracefully
 
 Steps.Given /^I have a browser session open$/, (ctx) ->
     browser
