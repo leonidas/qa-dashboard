@@ -15,9 +15,10 @@ sel     = sodautil.selectors
 Steps.Given /^I have a browser session open$/, (ctx) ->
     browser
         .chain
+        # TODO: only open browser session once in 'before test' after timeout issue in cucumis module has been solved
         .session()
         .setTimeout(15000)
-        .setSpeed(100)
+        .setSpeed(50)
         .end (err) ->
             throw err if err
             ctx.done()
