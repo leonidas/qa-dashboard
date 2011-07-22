@@ -20,6 +20,7 @@ Steps.Runner.on 'beforeTest', (run) ->
 Steps.Runner.on 'afterTest', (done) ->
     sodautil.close_browser (err) ->
         throw err if err?
+        console.log "\x1b[33mBrowser closed...\x1b[0m"
         testutil.test_server_close () ->
             console.log "\x1b[33mServer closed...\x1b[0m"
             testutil.test_db_drop () ->
@@ -33,3 +34,13 @@ Steps.Runner.on 'afterTest', (done) ->
                             process.exit()
                         ,6000
                     # TODO: remove hack when found how dashboard can be shut down more gracefully
+
+# TODO: only open browser session once in 'before test' after timeout issue in cucumis module has been solved
+Steps.Runner.on 'afterScenario', (next) ->
+    browser
+        .chain
+        .testComplete()
+        .end (err) ->
+            throw err if err?
+            #console.log "\x1b[33mBrowser session closed...\x1b[0m"
+            next()
