@@ -1,4 +1,4 @@
-Feature: Authentication
+Feature: Basic login and authentication
 	As a person interested in QA results
 	I want to be able to login to QA-Dashboard
 	So that I can personalize my dashboard
@@ -15,4 +15,11 @@ Feature: Authentication
 		Then I should be logged in
 		And I should see "guest" as logged user
 
+	Scenario: Log in with incorrect username and password
+		Given I am on the front page
+		And I am not logged in
 
+		When I login with username "unknownuser" and password "unknownpasswd"
+
+		Then I should not be logged in
+		And I should see login error "Invalid username or password"

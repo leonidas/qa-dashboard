@@ -56,6 +56,14 @@ Steps.Then /^I should be logged in$/, (ctx) ->
             throw err if err
             ctx.done()
 
+Steps.Then /^I should not be logged in$/, (ctx) ->
+    browser
+        .chain
+        .assertNotVisible(sel.logout_btn)
+        .end (err) ->
+            throw err if err
+            ctx.done()
+
 Steps.Then /^I should see "([^"]*?)" as logged user$/, (ctx, username) ->
     browser
         .chain
@@ -64,5 +72,16 @@ Steps.Then /^I should see "([^"]*?)" as logged user$/, (ctx, username) ->
         .end (err) ->
             throw err if err
             ctx.done()
+
+Steps.Then /^I should see login error "([^"]*?)"$/ , (ctx, errormsg) ->
+    browser
+        .chain
+        .assertVisible(sel.login_error)
+        .getText sel.login_error, (msg) ->
+            msg.should.equal(errormsg)
+        .end (err) ->
+            throw err if err
+            ctx.done()
+
 
 Steps.export(module)

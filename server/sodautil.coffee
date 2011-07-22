@@ -59,6 +59,7 @@ selectors =
     user_login    :'css=#user_login'
     user_password :'css=#user_password'
     logged_user   :'css=#logged_user'
+    login_error   :'css=.error p'
 
 # exports
 exports.browser       = open_browser()
