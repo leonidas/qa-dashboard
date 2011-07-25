@@ -20,12 +20,11 @@
 
 # Soda and selenium utilities
 soda     = require('soda')
-testutil = require('testutil')
 
 DEBUG = false
 
 # Soda helpers
-# TODO: write helpers here (extend the prototype), for frequently used functions
+# TODO: write helpers here (extend the prototype for frequently used functions)
 
 # Browser functions
 browser = null #only one module global browser instance
