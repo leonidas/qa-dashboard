@@ -7,7 +7,6 @@ assert   = require('assert')
 should   = require('should')
 coffee   = require('coffee-script')
 sodautil = require('sodautil')
-testutil = require('testutil')
 
 browser = sodautil.browser
 sel     = sodautil.selectors
