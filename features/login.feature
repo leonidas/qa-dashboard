@@ -5,20 +5,16 @@ Feature: Basic login and authentication
 
 	Background:
 		Given I have a browser session open
-
-	Scenario: Log in with correct username and password
-		Given I am on the front page
+		And I am on the front page
 		And I am not logged in
 
+	Scenario: Log in with correct username and password
 		When I login with username "guest" and password "guest"
 
 		Then I should be logged in
 		And I should see "guest" as logged user
 
 	Scenario: Log in with incorrect username and password
-		Given I am on the front page
-		And I am not logged in
-
 		When I login with username "unknownuser" and password "unknownpasswd"
 
 		Then I should not be logged in
