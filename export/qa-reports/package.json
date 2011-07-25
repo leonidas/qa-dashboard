@@ -1,0 +1,16 @@
+{
+  "name": "qa-reports-export",
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=0.4.5"
+  },
+  "dependencies":{
+      "forever": "0.6.0",
+      "async": "0.1.9",
+      "request": "1.9.9",
+      "underscore": "1.1.6",
+      "coffee-script": "1.1.1"
+  },
+  "private": "true"
+}
+

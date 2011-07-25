@@ -20,6 +20,7 @@
 
 exports.register_plugin = (db) ->
     reports = db.collection('qa-reports')
+    async   = require('async')
 
     valid_request_format = (doc,res) ->
         if not doc? or not doc.qa_id?
@@ -58,8 +59,8 @@ exports.register_plugin = (db) ->
                         res.send {status:"ok", msg:"ignored, more recent report found in db"}
 
             "/massupdate": (req, res) ->
-                reports = req.body
-                async.map reports,
+                doc = req.body.reports
+                async.map doc,
                     # parse qa-reports and return the db query function
                     (report, cb) ->
                         # do parsing and format checking here
