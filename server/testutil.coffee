@@ -23,37 +23,16 @@
 app      = require('app')
 testCase = require('nodeunit').testCase
 http     = require('http')
-monmon   = require('monmon')
+monmon   = require('monmon').monmon
 
-TEST_DB       = monmon.monmon.use('qadash').env('test')
 TEST_SETTINGS =
     "server":
         "host": "localhost",
-        "port": 3130
+        "port": 3133
     "app":
         "root": __dirname + "/.."
     "auth":
         "method": "dummy"
-
-test_server_app = ""
-
-test_server_start = (callback) ->
-    test_server_app = app.create_app TEST_SETTINGS, TEST_DB
-    test_server_app.listen TEST_SETTINGS.server.port, callback
-
-test_server_close = (callback) ->
-    test_server_app.close()
-    callback()
-
-test_db_drop = (callback) ->
-    TEST_DB.dropDatabase().run (err) ->
-        throw err if err?
-        callback()
-
-test_db_closeAll = (callback) ->
-    monmon.closeAll (err, res) ->
-        throw err if err?
-        callback()
 
 read_all = (res, callback) ->
     data = ""
@@ -69,7 +48,7 @@ test_server = (env, tests) ->
     orig_setUp    = tests.setUp
     orig_tearDown = tests.tearDown
 
-    dbm = monmon.monmon.env(env)
+    dbm = monmon.env(env)
 
     get = (url, callback) ->
         opts =
@@ -106,7 +85,3 @@ test_server = (env, tests) ->
     return testCase tests
 
 exports.test_server = test_server
-exports.test_server_start = test_server_start
-exports.test_server_close = test_server_close
-exports.test_db_drop      = test_db_drop
-exports.test_db_closeAll  = test_db_closeAll
