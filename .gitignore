@@ -11,3 +11,4 @@ public/*.js
 server/js
 log
 features/step_definitions/*.js
+selenium-server*
