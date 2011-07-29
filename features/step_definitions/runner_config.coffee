@@ -15,7 +15,15 @@ sel     = sodautil.selectors
 Steps.Runner.on 'beforeTest', (run) ->
     testserver.start (err) ->
         console.log "\x1b[33mServer started...\x1b[0m"
-        run()
+        browser
+            .chain
+            .session()
+            .setTimeout(15000)
+            .setSpeed(50)
+            .end (err) ->
+                throw err if err
+                console.log "\x1b[33mBrowser session opened...\x1b[0m"
+                run()
 
 Steps.Runner.on 'afterTest', (done) ->
     sodautil.close_browser (err) ->
@@ -39,11 +47,3 @@ Steps.Runner.on 'afterScenario', (next) ->
     testserver.db_drop () ->
         console.log "\x1b[33mDatabase dropped...\x1b[0m"
         next()
-        # TODO: only open browser session once in 'before test' after timeout issue in cucumis module has been solved
-        browser
-            .chain
-            .testComplete()
-            .end (err) ->
-                throw err if err?
-                console.log "\x1b[33mBrowser session closed...\x1b[0m"
-                next()
