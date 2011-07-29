@@ -23,8 +23,15 @@ soda     = require('soda')
 
 DEBUG = false
 
-# Soda helpers
-# TODO: write helpers here (extend the prototype for frequently used functions)
+# CSS selectors
+selectors =
+    logout_btn    :'css=#logout_btn'
+    login_btn     :'css=#user_submit'
+    user_login    :'css=#user_login'
+    user_password :'css=#user_password'
+    logged_user   :'css=#logged_user'
+    login_error   :'css=.error p'
+    login_form    :'css=.login_form'
 
 # Browser functions
 browser = null #only one module global browser instance
@@ -51,14 +58,11 @@ close_browser = (cb) ->
     else
         cb null
 
-# CSS selectors
-selectors =
-    logout_btn    :'css=#logout_btn'
-    login_btn     :'css=#user_submit'
-    user_login    :'css=#user_login'
-    user_password :'css=#user_password'
-    logged_user   :'css=#logged_user'
-    login_error   :'css=.error p'
+# Soda helpers
+soda.prototype.isLoggedIn = (cb) ->
+    this.isVisible selectors.login_form, (loginform_visible) ->
+        return cb true if loginform_visible == "false"
+        return cb false
 
 # exports
 exports.browser       = open_browser()

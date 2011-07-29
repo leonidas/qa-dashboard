@@ -20,17 +20,15 @@ Steps.Given /^I am on the front page$/, (ctx) ->
             ctx.done()
 
 Steps.Given /^I am not logged in$/, (ctx) ->
-    logged_in = true
+    logged_in = null
     browser
         .chain
-        .isVisible "css=.login_form", (loginform_visible) ->
-            logged_in = false if loginform_visible == "true"
- #           console.log "logged_in:#{logged_in}"
+        .isLoggedIn (logged) ->
+            logged_in = logged
         .end (err) ->
             throw err if err
             return ctx.done() if not logged_in
             # -> log out
-            console.log "-> log out"
             browser
                 .chain
                 .clickAndWait(sel.logout_btn)
@@ -39,12 +37,11 @@ Steps.Given /^I am not logged in$/, (ctx) ->
                     ctx.done()
 
 Steps.Given /^I am logged in$/, (ctx) ->
-    logged_in = true
+    logged_in = null
     browser
         .chain
-        .isVisible "css=.login_form", (loginform_visible) ->
-            logged_in = false if loginform_visible == "true"
-#            console.log "logged_in:#{logged_in}"
+        .isLoggedIn (logged) ->
+            logged_in = logged
         .end (err) ->
             throw err if err
             return ctx.done() if logged_in
@@ -72,7 +69,7 @@ Steps.When /^I login with username "([^"]*?)" and password "([^"]*?)"$/, (ctx, u
 Steps.Then /^I should be logged in$/, (ctx) ->
     browser
         .chain
-        .assertVisible(sel.logout_btn)
+        .assertNotVisible(sel.login_form)
         .end (err) ->
             throw err if err
             ctx.done()
@@ -80,7 +77,7 @@ Steps.Then /^I should be logged in$/, (ctx) ->
 Steps.Then /^I should not be logged in$/, (ctx) ->
     browser
         .chain
-        .assertNotVisible(sel.logout_btn)
+        .assertVisible(sel.login_form)
         .end (err) ->
             throw err if err
             ctx.done()
