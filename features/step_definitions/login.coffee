@@ -38,6 +38,26 @@ Steps.Given /^I am not logged in$/, (ctx) ->
             throw err if err
             ctx.done()
 
+Steps.Given /^I am logged in$/, (ctx) ->
+    logged_in = false
+    browser
+        .chain
+        .isVisible "css=.login_form", (loginform_visible) ->
+            console.log "loginform_visible: #{loginform_visible}"
+            logged_in = true if not loginform_visible
+        .end (err) ->
+            throw err if err
+            return ctx.done() if logged_in
+            # Not logged in -> log in
+            browser
+                .chain
+                .type(sel.user_login, "guest")
+                .type(sel.user_password, "guest")
+                .click(sel.login_btn)
+                .end (err) ->
+                    throw err if err
+                    ctx.done()
+
 Steps.When /^I login with username "([^"]*?)" and password "([^"]*?)"$/, (ctx, username, password) ->
     browser
         .chain

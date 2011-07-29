@@ -18,7 +18,7 @@
     "forever": "0.4.0",
     "eyes": "0.1.6",
     "connect-mongo": "0.1.1",
-    "soda": "0.2.4",
+    "soda": "https://github.com/ruxkor/soda/tarball/master",
     "cucumis": "1.0.17",
     "mysql": "0.9.1"
   },
