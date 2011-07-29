@@ -20,24 +20,36 @@ Steps.Given /^I am on the front page$/, (ctx) ->
             ctx.done()
 
 Steps.Given /^I am not logged in$/, (ctx) ->
-    browser
-        .chain
-        .clickAndWait(sel.logout_btn)
-        .end (err) ->
-            throw err if err
-            ctx.done()
-
-Steps.Given /^I am logged in$/, (ctx) ->
-    logged_in = false
+    logged_in = true
     browser
         .chain
         .isVisible "css=.login_form", (loginform_visible) ->
-            console.log "loginform_visible: #{loginform_visible}"
-            logged_in = true if not loginform_visible
+            logged_in = false if loginform_visible == "true"
+ #           console.log "logged_in:#{logged_in}"
+        .end (err) ->
+            throw err if err
+            return ctx.done() if not logged_in
+            # -> log out
+            console.log "-> log out"
+            browser
+                .chain
+                .clickAndWait(sel.logout_btn)
+                .end (err) ->
+                    throw err if err
+                    ctx.done()
+
+Steps.Given /^I am logged in$/, (ctx) ->
+    logged_in = true
+    browser
+        .chain
+        .isVisible "css=.login_form", (loginform_visible) ->
+            logged_in = false if loginform_visible == "true"
+#            console.log "logged_in:#{logged_in}"
         .end (err) ->
             throw err if err
             return ctx.done() if logged_in
-            # Not logged in -> log in
+            # -> log in
+            console.log "-> log in"
             browser
                 .chain
                 .type(sel.user_login, "guest")
