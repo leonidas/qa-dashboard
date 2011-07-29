@@ -35,12 +35,15 @@ Steps.Runner.on 'afterTest', (done) ->
                         ,6000
                     # TODO: remove hack when found how dashboard can be shut down more gracefully
 
-# TODO: only open browser session once in 'before test' after timeout issue in cucumis module has been solved
 Steps.Runner.on 'afterScenario', (next) ->
-    browser
-        .chain
-        .testComplete()
-        .end (err) ->
-            throw err if err?
-            #console.log "\x1b[33mBrowser session closed...\x1b[0m"
-            next()
+    testserver.db_drop () ->
+        console.log "\x1b[33mDatabase dropped...\x1b[0m"
+        next()
+        # TODO: only open browser session once in 'before test' after timeout issue in cucumis module has been solved
+        browser
+            .chain
+            .testComplete()
+            .end (err) ->
+                throw err if err?
+                console.log "\x1b[33mBrowser session closed...\x1b[0m"
+                next()
