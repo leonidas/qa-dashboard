@@ -4,8 +4,7 @@ Feature: Basic login and authentication
 	So that I can personalize my dashboard
 
 	Background:
-		Given I have a browser session open
-		And I am on the front page
+		Given I am on the front page
 		And I am not logged in
 
 	Scenario: Log in with correct username and password
