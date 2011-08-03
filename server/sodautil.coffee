@@ -25,13 +25,22 @@ DEBUG = false
 
 # CSS selectors
 selectors =
-    logout_btn    :'css=#logout_btn'
-    login_btn     :'css=#user_submit'
-    user_login    :'css=#user_login'
-    user_password :'css=#user_password'
-    logged_user   :'css=#logged_user'
-    login_error   :'css=.error p'
-    login_form    :'css=.login_form'
+    logout_btn    :"css=#logout_btn"
+    login_btn     :"css=#user_submit"
+    user_login    :"css=#user_login"
+    user_password :"css=#user_password"
+    logged_user   :"css=#logged_user"
+    login_error   :"css=.error p"
+    login_form    :"css=.login_form"
+
+    widget_bar        : "css=#widget_bar"
+    add_widgets       : "css=#add_widgets_btn"
+    close_widget_bar  : "css=.close_widget_bar"
+    widget_bar_select : (widget_title) -> "css=#widget_bar .widget_info:contains('#{widget_title}')"
+
+    "left column" : "css=.left_column"
+    left_column   : "css=.left_column"
+    sidebar       : "css=.sidebar"
 
 # Browser functions
 browser = null #only one module global browser instance
