@@ -17,7 +17,9 @@ Steps.Given /^I am on the front page$/, (ctx) ->
         .open('/')
         .end (err) ->
             throw err if err
-            ctx.done()
+            setTimeout () ->
+                    ctx.done()
+                ,1000
 
 Steps.Given /^I am not logged in$/, (ctx) ->
     logged_in = null
@@ -32,9 +34,12 @@ Steps.Given /^I am not logged in$/, (ctx) ->
             browser
                 .chain
                 .clickAndWait(sel.logout_btn)
+                .waitForVisible(sel.login_form)
                 .end (err) ->
                     throw err if err
-                    ctx.done()
+                    setTimeout () ->
+                            ctx.done()
+                        ,1000
 
 Steps.Given /^I am logged in$/, (ctx) ->
     logged_in = null
@@ -46,7 +51,6 @@ Steps.Given /^I am logged in$/, (ctx) ->
             throw err if err
             return ctx.done() if logged_in
             # -> log in
-            console.log "-> log in"
             browser
                 .chain
                 .type(sel.user_login, "guest")
@@ -54,7 +58,10 @@ Steps.Given /^I am logged in$/, (ctx) ->
                 .click(sel.login_btn)
                 .end (err) ->
                     throw err if err
-                    ctx.done()
+                    setTimeout () ->
+                            ctx.done()
+                        ,2000
+
 
 Steps.When /^I login with username "([^"]*?)" and password "([^"]*?)"$/, (ctx, username, password) ->
     browser
