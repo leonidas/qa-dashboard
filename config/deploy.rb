@@ -42,7 +42,7 @@ namespace :deploy do
 
   desc "Install node packages"
   task :install_node_packages, roles => :app do
-    run "cd #{release_path} && npm install --unsafe --proxy=http://proxy:3128"
+    run "cd #{release_path} && npm install --unsafe --proxy=http://proxy:3128 --mongodb:native"
   end
 
   namespace :settings do
