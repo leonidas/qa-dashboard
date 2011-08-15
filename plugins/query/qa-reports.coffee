@@ -145,6 +145,7 @@ exports.register_plugin = (db) ->
         api.all_releases (err, arr) ->
             return callback? err if err?
             releases = {}
+            arr?.sort()
             for v in arr
                 releases[v] = api.hw_groups_for_release(v)
             async.parallel releases, callback
