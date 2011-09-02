@@ -1,17 +1,26 @@
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE OverloadedStrings, DeriveDataTypeable #-}
 
 import Control.Applicative
 import Control.Arrow
+import Control.Exception
 import Control.Monad
-import Data.String
+import Data.Maybe
+import Data.Typeable
 import Network.Browser
 import Network.HTTP
 import Network.HTTP.Auth
 import Network.HTTP.Proxy
 import Network.URI
 import Network.Stream
+import System.IO
+import System.Directory
 import Text.JSON
 import Text.JSON.Pretty
+
+import qualified Data.ByteString.UTF8 as UTF8
+import qualified Data.String as S
+
+sinceFilePath = "last-report.txt"
 
 type URL = String
 
@@ -29,6 +38,9 @@ type Token      = String
 
 type DateString = String
 
+data ReportError = ReportError deriving (Show, Typeable)
+instance Exception ReportError
+
 newtype ReportExport a = ReportExport
     { runRE :: Config -> IO a }
 
@@ -41,9 +53,12 @@ instance Monad ReportExport where
         a' <- runRE a cfg
         runRE (f a') cfg
 
-data Report = Report JSValue DateString
+data Report = Report
+    { reportSrc  :: JSValue
+    , reportDate :: DateString
+    }
 
-instance IsString JSString where
+instance S.IsString JSString where
     fromString = toJSString
 
 instance JSON Config where
@@ -83,13 +98,6 @@ instance JSON ProxyConfig where
         (valFromObj "url" o) <*>
         (optVal "basicAuth" o)
 
-
-{-
-timeFormat = "%F %T"
-formatTime = T.formatTime T.defaultTimeLocale timeFormat
-parseTime  = T.readTime  T.defaultTimeLocale timeFormat
--}
-
 maybeOk (Ok a) = Just a
 maybeOk _      = Nothing
 
@@ -117,14 +125,44 @@ proxy :: ProxyConfig -> Proxy
 proxy (ProxyConfig url authCfg) = Proxy url auth' where
     auth' = auth <$> authCfg
 
-fetchURL :: ServiceConfig -> URL -> ReportExport String
-fetchURL (ServiceConfig _ authCfg proxyCfg) url = ReportExport $ \cfg -> do
+browseService :: ServiceConfig -> BrowserAction t ()
+browseService (ServiceConfig _ authCfg proxyCfg) = do
+    case proxyCfg of
+        Just cfg -> setProxy $ proxy $ cfg
+        _        -> return ()
+    case authCfg of
+        Just cfg -> addAuthority $ auth $ cfg
+        _        -> return ()
+
+getURL :: ServiceConfig -> URL -> ReportExport String
+getURL cfg url = ReportExport $ \_ -> do
     (uri, rsp) <- browse $ do
-        case proxyCfg of
-            Just cfg -> setProxy $ proxy $ cfg
-            _        -> return ()
+        browseService cfg
         request $ getRequest url
     getResponseBody $ Right rsp
+
+postJSON :: JSON j => ServiceConfig -> URL -> j -> ReportExport ()
+postJSON cfg url body = ReportExport $ \_ -> do
+    let content = UTF8.fromString $ encode body
+    (uri, rsp) <- browse $ do
+        browseService cfg
+        request $ Request
+            { rqURI     = fromJust $ parseURI url
+            , rqMethod  = POST
+            , rqBody    = content
+            , rqHeaders =
+                [ Header HdrContentType "application/json"
+                , Header HdrContentEncoding "utf-8"
+                , Header HdrContentLength $ show $ UTF8.length content
+                ]
+            }
+    resdata <- fmap (decode . UTF8.toString) $ getResponseBody $ Right rsp
+    case resdata of
+        (Ok (JSObject o)) -> case valFromObj "status" o of
+            (Ok (JSString "error")) -> throw ReportError
+            _ -> return ()
+        _ -> throw ReportError
+
 
 parseReports :: String -> [Report]
 parseReports = mapj parseReport . fromOk . decode where
@@ -140,5 +178,23 @@ fetchReports since = do
         time_param = case since of
             Nothing -> ""
             Just s  -> "&begin_time=" ++ (escapeURIString isUnescapedInURI s)
-    fmap parseReports $ fetchURL servCfg (url' ++ time_param)
+    fmap parseReports $ getURL servCfg (url' ++ time_param)
 
+pushReports :: [Report] -> ReportExport ()
+pushReports reports = do
+    (Config _ (DashboardConfig servCfg token)) <- getConfig
+    let (ServiceConfig url _ _) = servCfg
+        url' = url ++ "/import/qa-reports/massupdate"
+    postJSON servCfg url' $ map reportSrc reports
+
+readSince :: ReportExport (Maybe DateString)
+readSince = ReportExport $ \_ -> do
+    exists <- doesFileExist sinceFilePath
+    if exists
+        then fmap Just $ withFile sinceFilePath ReadMode $ \h -> hGetLine h
+        else return Nothing
+
+main = do
+    cfg <- fmap (fromOk.decode) $ readFile "config.json"
+    let op = readSince >>= fetchReports
+    runRE op cfg >>= mapM_ (print . pp_value . reportSrc)
