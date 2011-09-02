@@ -5,6 +5,7 @@ import Control.Arrow
 import Control.Exception
 import Control.Monad
 import Data.Maybe
+import Data.List
 import Data.Typeable
 import Network.Browser
 import Network.HTTP
@@ -64,7 +65,7 @@ instance S.IsString JSString where
 instance JSON Config where
     showJSON = undefined
     readJSON (JSObject o) = Config <$>
-        (readVal "reports" o) <*>
+        (valFromObj "reports" o) <*>
         (valFromObj "dashboard" o)
 
 instance JSON ReportsConfig where
@@ -98,12 +99,7 @@ instance JSON ProxyConfig where
         (valFromObj "url" o) <*>
         (optVal "basicAuth" o)
 
-maybeOk (Ok a) = Just a
-maybeOk _      = Nothing
-
 fromOk (Ok a) = a
-
-readVal k o = valFromObj k o >>= readJSON
 
 optVal :: JSON a => String -> JSObject JSValue -> Text.JSON.Result (Maybe a)
 optVal k o = case valFromObj k o of
@@ -170,6 +166,10 @@ parseReports = mapj parseReport . fromOk . decode where
     parseReport obj = Report obj $ fromOk $ parseUpdatedDate obj
     parseUpdatedDate (JSObject o) = valFromObj "updated_at" o
 
+fmtDate :: DateString -> DateString
+fmtDate s = date ++ " " ++ (init $ tail time) where
+    (date, time) = break (=='T') s
+
 fetchReports :: Maybe DateString -> ReportExport [Report]
 fetchReports since = do
     (Config (ReportsConfig servCfg count) _) <- getConfig
@@ -194,7 +194,13 @@ readSince = ReportExport $ \_ -> do
         then fmap Just $ withFile sinceFilePath ReadMode $ \h -> hGetLine h
         else return Nothing
 
+writeSince :: DateString -> ReportExport ()
+writeSince s = ReportExport $ \_ -> writeFile sinceFilePath s
+
 main = do
     cfg <- fmap (fromOk.decode) $ readFile "config.json"
-    let op = readSince >>= fetchReports
-    runRE op cfg >>= mapM_ (print . pp_value . reportSrc)
+    let op = do
+        reports <- fmap (fmap fmtDate) readSince >>= fetchReports
+        pushReports reports
+        writeSince $ reportDate $ last reports
+    runRE op cfg
