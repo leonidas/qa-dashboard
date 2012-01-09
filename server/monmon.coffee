@@ -201,7 +201,7 @@ class MongoMonad
                 opts.sort   = cfg.sort   if cfg.sort?
                 opts.fields = cfg.fields if cfg.fields?
                 if cfg.find?
-                    c.find cfg.find, opts, cursor_callback
+                    c.find fix_id(cfg.find), opts, cursor_callback
                 else
                     c.find {}, opts, cursor_callback
 
