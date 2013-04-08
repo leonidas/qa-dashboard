@@ -1,10 +1,6 @@
 APPROOT       = __dirname
 SETTINGS_FILE = "#{APPROOT}/settings.json"
 
-require.paths.unshift './node_modules'
-require.paths.push 'server'
-require.paths.push 'server/js'
-
 mysql  = require('mysql_auth')
 fs     = require('fs')
 

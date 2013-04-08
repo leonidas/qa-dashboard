@@ -8,6 +8,10 @@ if [ "$1" = "--stopselenium" ]; then
     exit
 fi
 
+if [ ! -d log ]; then
+    mkdir log
+fi
+
 # Check if Selenium server is already running
 sel=$(curl --silent 'http://localhost:4444/wd/hub/status' | grep -c 'selenium')
 if [ $sel -eq 0 ]; then
@@ -26,4 +30,4 @@ fi
 
 # Run tests
 ./node_modules/coffee-script/bin/coffee -c ./features/step_definitions
-NODE_ENV=test node_modules/cucumis/bin/cucumis -t 15000
+NODE_PATH=server NODE_ENV=test node_modules/.bin/cucumis -t 15000

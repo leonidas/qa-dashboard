@@ -1,7 +1,4 @@
 
-require.paths.unshift __dirname + '/../node_modules'
-require.paths.push(__dirname + "/../server")
-
 vows   = require('vows')
 assert = require('assert')
 should = require('should')
@@ -10,7 +7,7 @@ suite = vows.describe('MongoMonad')
 
 # basic smoke-test
 suite.addBatch
-    "the module": 
+    "the module":
         topic: -> require('monmon')
 
         "can be imported": (monmon) ->
@@ -18,7 +15,7 @@ suite.addBatch
 
         "contains the monad instance":
             topic: (monmon) -> monmon.monmon
-            
+
             "which can be accessed": (monmon) ->
                 should.exist monmon
 
@@ -31,7 +28,7 @@ suite.addBatch
 # basic insertion
 suite.addBatch
     "test db 'foo'":
-        topic: -> 
+        topic: ->
             foo = require('monmon').monmon.env('test-monmon').use('foo')
             foo.dropDatabase().run (err,res) =>
                 this.callback err, res, foo
@@ -58,7 +55,7 @@ suite.addBatch
 
                 "without errors": (err, arr, m) ->
                     assert.isNull err
-                
+
                 "result has single item": (err, arr, m) ->
                     should.exist arr
                     arr.should.have.lengthOf 1

@@ -1,8 +1,4 @@
 # Unit Tests for Promises
-
-require.paths.unshift __dirname + '/../node_modules'
-require.paths.push(__dirname + "/../server")
-
 testCase = require('nodeunit').testCase
 
 exports["promise module can be imported"] = (test) ->

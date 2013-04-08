@@ -1,7 +1,3 @@
-
-require.paths.unshift __dirname + '/../node_modules'
-require.paths.push(__dirname + "/../server")
-
 async = require('async')
 _     = require('underscore')
 

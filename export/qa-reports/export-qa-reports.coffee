@@ -1,6 +1,4 @@
 # QA-Reports export daemon
-require.paths.unshift './node_modules'
-
 async   = require('async')
 request = require('request')
 fs      = require('fs')

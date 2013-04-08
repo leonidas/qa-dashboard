@@ -126,9 +126,6 @@ class MongoMonad
     insert: (doc) ->
         @_bind_action {insert: doc, cmd:"insert"}
 
-    insertAll: (docs) ->
-        @_bind_action {insert:docs, cmd:"insertAll"}
-
     ensureIndex: (key) ->
         @_bind_action {key:key, cmd:"ensureIndex"}
 
@@ -260,15 +257,6 @@ class MongoMonad
                 doc = cfg.insert
                 c.insert doc, opts, callback
 
-            insertAll: (err, c) ->
-                return callback? err if err?
-
-                opts   = {}
-                opts.safe   = cfg.safe   if cfg.safe?
-
-                docs = cfg.insert
-                c.insertAll docs, opts, callback
-
             ensureIndex: (err, c) ->
                 return callback? err if err?
 
@@ -313,7 +301,7 @@ class DBConnection
         # TODO: read these from configuration file
         server      = new mongo.Server("localhost",
                           mongo.Connection.DEFAULT_PORT, {} )
-        @db         = new mongo.Db dbname, server, {native_parser:true}
+        @db         = new mongo.Db dbname, server, {native_parser:true, journal:true}
         @db_is_open = false
         @open_event = new EventEmitter()
         @opening    = false

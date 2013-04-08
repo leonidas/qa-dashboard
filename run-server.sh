@@ -14,12 +14,12 @@ Options:\n
 \t--forever stop\tStop daemonized process\n"
 
 if [ $# -eq 0 ]; then
-    $run_cmd
+    NODE_PATH=server $run_cmd
 elif [ $# -eq 2 ] && [ "$1" = "--forever" ]; then
     [ -d log ] || mkdir log
     sleep 6
     run_cmd=$forever" "$2" -p log -c "$coffee" "$app
-    $run_cmd
+    NODE_PATH=server $run_cmd
     sleep 6
 else
     echo $usage

@@ -1,8 +1,4 @@
 # Test monmon API
-
-require.paths.unshift __dirname + '/../node_modules'
-require.paths.push(__dirname + "/../server")
-
 async = require('async')
 _     = require('underscore')
 
@@ -27,7 +23,7 @@ exports["environments are separate"] = (test) ->
                                 test.strictEqual arr[0].foo, "bar"
                     q.run (err) ->
                         test.equal err, null
-                        cb()        
+                        cb()
 
                 test2 = (cb) ->
                     q = db2.find({foo:"bar"}).do (err, arr) ->
@@ -36,7 +32,7 @@ exports["environments are separate"] = (test) ->
                                 test.strictEqual arr.length, 0
                     q.run (err) ->
                         test.equal err, null
-                        cb()        
+                        cb()
 
                 async.parallel [test1, test2], ->
                     test.done()
@@ -45,7 +41,7 @@ exports["multiple queued commands work correctly"] = (test) ->
     test.expect(3)
 
     db = mm.env("test").use("test-monmon").collection("test")
-    
+
     q = db.dropDatabase()
           .insert({foo:"bar"})
           .insert({foo:"asdf"})
@@ -61,7 +57,7 @@ exports["run callback can catch the result of last action"] = (test) ->
     test.expect(2)
 
     db = mm.env("test").use("test-monmon").collection("test")
-    
+
     q = db.dropDatabase()
           .insert({foo:"bar"})
           .insert({foo:"asdf"})
@@ -84,7 +80,7 @@ TEST_DOCS = [
 exports["basic features"] = testCase
     setUp: (callback) ->
         @db = mm.env("test").use("test-monmon").collection("test")
-        @db.dropDatabase().insertAll(TEST_DOCS).run(callback)
+        @db.dropDatabase().insert(TEST_DOCS).run(callback)
 
     "test count all": (test) ->
         test.expect(2)
@@ -127,7 +123,7 @@ exports["basic features"] = testCase
 
     "test update": (test) ->
         test.expect(4)
-        new_doc = 
+        new_doc =
             city: "Tampere"
             population: 250000
             region:"Pirkanmaa"
@@ -146,7 +142,7 @@ exports["basic features"] = testCase
 
     "test upsert update": (test) ->
         test.expect(4)
-        new_doc = 
+        new_doc =
             city: "Tampere"
             population: 250000
             region:"Pirkanmaa"
@@ -165,7 +161,7 @@ exports["basic features"] = testCase
 
     "test upsert insert": (test) ->
         test.expect(4)
-        new_doc = 
+        new_doc =
             city: "Ikaalinen"
             population: 7422
             region:"Pirkanmaa"

@@ -1,8 +1,4 @@
 # Unit Tests for Future
-
-require.paths.unshift __dirname + '/../node_modules'
-require.paths.push(__dirname + "/../server")
-
 async = require('async')
 
 testCase = require('nodeunit').testCase
@@ -70,7 +66,7 @@ exports["value can be requested several times"] = (test) ->
             test.equal err, null
             cb() )
     ], (-> test.done())
-    
+
 exports["throws exception if callback is called multiple times"] = (test) ->
     test.expect(1)
     Future = require('future').Future
