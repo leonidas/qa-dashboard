@@ -5,7 +5,7 @@ testCase = require('nodeunit').testCase
 
 test_server = require('testutil').test_server
 
-exports["http tests"] = test_server "test-http"
+exports["http tests"] = test_server "test-http",
     "index page works": (test) ->
         test.expect(2)
 
