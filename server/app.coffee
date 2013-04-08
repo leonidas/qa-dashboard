@@ -2,6 +2,8 @@
 express = require('express')
 http    = require('http')
 _       = require('underscore')
+ccs     = require('connect-coffee-script')
+cless   = require('connect-less')
 
 MongoStore = require('connect-mongo')(express)
 
@@ -16,21 +18,20 @@ create_app = (settings, db) ->
     COFFEE = basedir + "/client/coffee"
     LESS   = basedir + "/client/less"
 
-    app = express.createServer()
+    app = express()
 
     app.dashboard_settings = settings
 
     store = new MongoStore(db:"qadash-sessions")
 
     app.configure ->
-        app.use express.compiler
-            src: COFFEE
-            dest: PUBLIC
-            enable: ['coffeescript']
-        app.use express.compiler
-            src: LESS
-            dest: PUBLIC
-            enable: ['less']
+        app.use ccs
+            src:    COFFEE
+            dest:   PUBLIC
+            force:  true
+        app.use cless
+            src:    LESS
+            dst:    PUBLIC
 
         app.use express.cookieParser()
         app.use express.bodyParser()
@@ -69,6 +70,6 @@ create_app = (settings, db) ->
     widgetdir = basedir+"/plugins/widgets"
     require('widgets').initialize_widgets widgetdir, app, db
 
-    return app
+    return http.createServer app
 
 exports.create_app = create_app
