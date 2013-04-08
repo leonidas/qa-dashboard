@@ -214,6 +214,7 @@ class QAReportsWidget extends WidgetBase
             body.empty()
             tmpl.appendTo(body).hide()
 
+            return balance_columns() unless data?
             for g in data
                 do (g) ->
                     return if not selected g
@@ -286,6 +287,7 @@ class QAReportsWidget extends WidgetBase
                     updateSuggestions(data) if normalize filter.val() != expr
                 setTimeout f, 1
 
+            return balance_columns() unless data?
             for g in data
                 do (g) ->
                     return if selected g
