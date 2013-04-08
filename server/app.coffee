@@ -3,7 +3,7 @@ express = require('express')
 http    = require('http')
 _       = require('underscore')
 
-MongoStore = require('connect-mongo')
+MongoStore = require('connect-mongo')(express)
 
 HOUR  = 60*60*1000
 DAY   = 24*HOUR
