@@ -19,12 +19,12 @@
   },
 
   "devDependencies": {
-    "vows": "0.5.8",
+    "vows": "0.7.0",
     "nodeunit": "0.8.0",
-    "should": "0.1.0",
-    "supervisor": "0.1.2",
-    "soda": "0.2.4",
-    "eyes": "0.1.6",
+    "should": "1.2.2",
+    "supervisor": "0.5.2",
+    "soda": "0.2.5",
+    "eyes": "0.1.8",
     "cucumis": "1.0.17"
   },
 

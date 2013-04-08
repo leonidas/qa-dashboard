@@ -150,7 +150,7 @@ exports["basic features"] = testCase
                 test.done()
 
     "test upsert update": (test) ->
-        test.expect(4)
+        test.expect(5)
         new_doc =
             city: "Tampere"
             population: 250000
@@ -165,6 +165,7 @@ exports["basic features"] = testCase
             q = db.find({city:"Tampere"}).run (err, arr) ->
                 test.equal err, null
                 test.equal arr.length, 1
+                test.ok arr[0]
                 test.equal arr[0].population, 250000
                 test.done()
 
