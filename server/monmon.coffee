@@ -23,17 +23,17 @@
 mongo   = require('mongodb')
 _       = require('underscore')
 async   = require('async')
-future  = require('future')
 
 EventEmitter = require('events').EventEmitter
 
+ObjectID = null
 
 conn_pool = {}
-connect = (dbname, callback) ->
-    conn = conn_pool[dbname]
+connect = (dburl, callback) ->
+    conn = conn_pool[dburl]
     if not conn?
-        conn = new DBConnection(dbname)
-        conn_pool[dbname] = conn
+        conn = new DBConnection(dburl)
+        conn_pool[dburl] = conn
     conn.connect(callback)
 
 class Action
@@ -69,11 +69,16 @@ class MongoMonad
         acts[acts.length-1] = last.set_callback(callback, toArray)
         new MongoMonad(@cfg, acts)
 
+    mkID: (s) -> new ObjectID(s)
+
     env: (env) ->
         @_bind {env: env}
 
     use: (dbname) ->
         @_bind {dbname: dbname}
+
+    connect: (dburl) ->
+        @_bind {dburl: dburl}
 
     collection: (collection) ->
         @_bind {collection: collection}
@@ -177,7 +182,7 @@ class MongoMonad
     _run: (toArray, cb) ->
         cfg    = @cfg
         env    = cfg.env ? process.env.NODE_ENV ? "development"
-        dbname = cfg.dbname ? "qadash"
+        dburl  = cfg.dburl ? "mongodb://localhost:27017/#{cfg.dbname}-#{env}"
         monad  = this
 
         callback = (err, result) ->
@@ -232,6 +237,8 @@ class MongoMonad
 
                 query = cfg.find ? {}
                 key   = cfg.distinct
+
+                query = fix_id query
                 if not key?
                     callback? "no key defined for distinct"
                 else
@@ -240,12 +247,17 @@ class MongoMonad
             update: (err, c) ->
                 return callback? err if err?
 
-                query  = cfg.find ? null
                 update = cfg.update
+                query  = cfg.find ? {_id:update._id}
+
+                query  = fix_id query
+                update = fix_id update
+
                 opts   = {}
                 opts.upsert = cfg.upsert if cfg.upsert?
                 opts.multi  = cfg.multi  if cfg.multi?
                 opts.safe   = cfg.safe   if cfg.safe?
+
                 c.update query, update, opts, callback
 
             insert: (err, c) ->
@@ -271,6 +283,7 @@ class MongoMonad
                 return callback? err if err?
 
                 query = cfg.find ? {}
+                query = fix_id query
 
                 c.remove query, callback
 
@@ -280,7 +293,7 @@ class MongoMonad
                 c.drop callback
 
 
-        connect "#{dbname}-#{env}", (err, db) ->
+        connect dburl, (err, db) ->
             return callback? err if err?
 
             cmd = cfg.cmd
@@ -296,12 +309,19 @@ class MongoMonad
 
         return this
 
+fix_id = (obj) ->
+    if obj._id? and typeof obj._id == "string"
+        obj._id = new ObjectID(obj._id)
+    return obj
+
 class DBConnection
-    constructor: (dbname) ->
+    constructor: (@dburl) ->
         # TODO: read these from configuration file
+        ###
         server      = new mongo.Server("localhost",
                           mongo.Connection.DEFAULT_PORT, {} )
-        @db         = new mongo.Db dbname, server, {native_parser:true, journal:true}
+        @db         = new mongo.Db dbname, server, {native_parser:true}
+        ###
         @db_is_open = false
         @open_event = new EventEmitter()
         @opening    = false
@@ -318,7 +338,9 @@ class DBConnection
                 callback? t.err, t.db
         else
             @opening = true
-            @db.open (err, db) ->
+            mongo.connect @dburl, {native_parser:true, journal:true}, (err, db) ->
+                t.db = db
+                ObjectID = db.bson_serializer.ObjectID
                 t.err = err
                 if not err?
                     t.db_is_open = true

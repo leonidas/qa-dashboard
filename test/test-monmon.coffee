@@ -4,10 +4,13 @@ _     = require('underscore')
 
 testCase = require('nodeunit').testCase
 
-mm = require('monmon').monmon
+mm         = require('monmon').monmon
+{closeAll} = require 'monmon'
 
 exports["environments are separate"] = (test) ->
     test.expect(7)
+
+    tearDown: closeAll
 
     db1 = mm.env("test1").use("test-monmon").collection("test")
     db2 = mm.env("test2").use("test-monmon").collection("test")
@@ -40,6 +43,8 @@ exports["environments are separate"] = (test) ->
 exports["multiple queued commands work correctly"] = (test) ->
     test.expect(3)
 
+    tearDown: closeAll
+
     db = mm.env("test").use("test-monmon").collection("test")
 
     q = db.dropDatabase()
@@ -55,6 +60,8 @@ exports["multiple queued commands work correctly"] = (test) ->
 
 exports["run callback can catch the result of last action"] = (test) ->
     test.expect(2)
+
+    tearDown: closeAll
 
     db = mm.env("test").use("test-monmon").collection("test")
 
@@ -81,6 +88,8 @@ exports["basic features"] = testCase
     setUp: (callback) ->
         @db = mm.env("test").use("test-monmon").collection("test")
         @db.dropDatabase().insert(TEST_DOCS).run(callback)
+
+    tearDown: closeAll
 
     "test count all": (test) ->
         test.expect(2)
