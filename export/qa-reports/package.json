@@ -2,14 +2,14 @@
   "name": "qa-reports-export",
   "version": "0.0.1",
   "engines": {
-    "node": ">=0.4.5"
+    "node": ">= 0.8.0"
   },
   "dependencies":{
-      "forever": "0.6.0",
-      "async": "0.1.9",
-      "request": "1.9.9",
-      "underscore": "1.1.6",
-      "coffee-script": "1.1.1"
+      "forever": "0.10.0",
+      "async": "0.2.6",
+      "request": "2.16.6",
+      "underscore": "1.4.4",
+      "coffee-script": "1.6.2"
   },
   "private": "true"
 }

@@ -31,8 +31,7 @@ launchDaemon = (basedir, cfg) ->
         auth = proxy.basicAuth
         opts.auth = auth if auth? and auth != ""
         if proxy.enabled
-            opts.proxy =
-                uri: proxy.url
+            opts.proxy = proxy.url
             auth = proxy.basicAuth
             opts.proxy.auth = auth if auth? and auth != ""
         request opts, (err, res, body) ->
