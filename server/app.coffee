@@ -18,6 +18,9 @@ create_app = (settings, db) ->
     COFFEE = basedir + "/client/coffee"
     LESS   = basedir + "/client/less"
 
+    LESS_TARGET   = "#{PUBLIC}/css"
+    COFFEE_TARGET = "#{PUBLIC}/js/modules"
+
     app = express()
 
     app.dashboard_settings = settings
@@ -26,12 +29,14 @@ create_app = (settings, db) ->
 
     app.configure ->
         app.use ccs
-            src:    COFFEE
-            dest:   PUBLIC
-            force:  true
+            src:        COFFEE
+            dest:       COFFEE_TARGET
+            force:      true
         app.use cless
-            src:    LESS
-            dst:    PUBLIC
+            src:        LESS
+            dst:        LESS_TARGET
+            dstRoot:    PUBLIC
+            compress:   true
 
         app.use express.cookieParser()
         app.use express.bodyParser()
