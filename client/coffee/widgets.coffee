@@ -186,14 +186,14 @@ class QAReportsWidget extends WidgetBase
             labelTmpl = rel.find("label").first().clone().unbind().removeAttr "for"
             inputTmpl.removeAttr "checked"
             rel.empty()
-            inputTmpl.appendTo(rel).hide()
-            labelTmpl.appendTo(rel).hide()
+            inputTmpl.appendTo(rel)#.hide()
+            labelTmpl.appendTo(rel)#.hide()
 
             found = false
             for k of data
                 do (k) ->
-                    i = inputTmpl.clone().show()
-                    l = labelTmpl.clone().show()
+                    i = inputTmpl.clone()#.show()
+                    l = labelTmpl.clone()#.show()
                     if k == checked
                         i.attr('checked','checked')
                         found = true
