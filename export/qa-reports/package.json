@@ -11,6 +11,10 @@
       "underscore": "1.4.4",
       "coffee-script": "1.6.2"
   },
+
+  "scripts": {
+    "start": "coffee export-qa-reports.coffee"
+  },
+
   "private": "true"
 }
-

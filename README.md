@@ -30,7 +30,7 @@ $ npm install --mongodb:native
 
 ### Get development data
 
-QA Dashboard does not currently have any data to put to database for development purposes. One option to get some is to use QA Reports exporter (TODO: why is this called export? It fetches data from QA Reports and stores to QA Dashboard DB so isn't it more like an import tool?) in `export/qa-reports`. It will fetch reports from [http://qa-reports.qa.leonidasoy.fi](http://qa-reports.qa.leonidasoy.fi).
+QA Dashboard does not currently have any data to put to database for development purposes. One option to get some is to use QA Reports exporter in `export/qa-reports`. It will fetch reports from [http://qa-reports.qa.leonidasoy.fi](http://qa-reports.qa.leonidasoy.fi) and send them to your local QA Dashboard.
 
 * Get a token for the guest user by opening [http://localhost:3030/user/token](http://localhost:3030/user/token)
 * Put the token in `export/qa-reports/config.json`
@@ -39,7 +39,7 @@ QA Dashboard does not currently have any data to put to database for development
 ```bash
 $ cd export/qa-reports
 $ npm install
-$ node_modules/.bin/coffee export-qa-reports.coffee
+$ npm start
 ```
 
 * Hit `Ctrl-C` once you have enough reports. The script fetches reports in batches of 20 and it starts from the oldest report found.
