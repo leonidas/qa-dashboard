@@ -32,6 +32,7 @@ create_app = (settings, db) ->
         app.use ccs
             src:        COFFEE
             dest:       COFFEE_TARGET
+            prefix:     COFFEE_TARGET.substring(PUBLIC.length)
             force:      true
         app.use cless
             src:        LESS
