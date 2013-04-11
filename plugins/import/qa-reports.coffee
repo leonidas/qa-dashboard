@@ -54,7 +54,7 @@ exports.register_plugin = (db) ->
                     return res.send status: "error", error: err if err?
 
                     if not old? || (new Date(doc.updated_at) >= new Date(old.updated_at))
-                        reports.update {qa_id: doc.qa_id}, doc, true, (err) ->
+                        reports.update {qa_id: doc.qa_id}, doc, {upsert: true}, (err) ->
                             return res.send status: "error", error: err if err?
                             res.send status: 'ok'
                     else
@@ -75,7 +75,7 @@ exports.register_plugin = (db) ->
                                     return callback err, null if err?
 
                                     if not old? || (new Date(report.updated_at) >= new Date(old.updated_at))
-                                        reports.update {qa_id: report.qa_id}, report, true, callback
+                                        reports.update {qa_id: report.qa_id}, report, {upsert: true}, callback
                     (err, q_arr) ->
                         return res.send status: 'error', error: err if err?
                         # run database queries

@@ -34,7 +34,7 @@ exports.register_plugin = (db) ->
                         cb err, null
                     else
                         cb null, (callback) ->
-                            bugreports.update {bug_id: bug.bug_id}, bug, true, (err) ->
+                            bugreports.update {bug_id: bug.bug_id}, bug, {upsert: true}, (err) ->
                                 if err?
                                     callback err, null
                                 else
