@@ -34,10 +34,7 @@ exports.register_plugin = (db) ->
                         cb err, null
                     else
                         cb null, (callback) ->
-                            # define db query function for the bugreport
-                            #console.log "building db upsert function for bug id: " + bug.bug_id #debug
-                            q = bugreports.find({'bug_id':bug.bug_id}).upsert().update(bug)
-                            q.run (err) ->
+                            bugreports.update {bug_id: bug.bug_id}, bug, true, (err) ->
                                 if err?
                                     callback err, null
                                 else

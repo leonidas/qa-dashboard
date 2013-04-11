@@ -23,12 +23,15 @@
 app      = require('app')
 testCase = require('nodeunit').testCase
 http     = require('http')
-monmon   = require('monmon').monmon
+mongo    = require('mongodb-wrapper')
 
 TEST_SETTINGS =
     "server":
         "host": "localhost",
         "port": 3133
+    "db":
+        "host": "localhost"
+        "port": 27017
     "app":
         "root": __dirname + "/.."
     "auth":
@@ -48,7 +51,7 @@ test_server = (env, tests) ->
     orig_setUp    = tests.setUp
     orig_tearDown = tests.tearDown
 
-    dbm = monmon.env(env)
+    db = mongo.db TEST_SETTINGS.db.host, TEST_SETTINGS.db.port, "qadash-#{env}"
 
     get = (url, callback) ->
         opts =
@@ -61,7 +64,7 @@ test_server = (env, tests) ->
             read_all res, callback
 
     createApp = (callback) ->
-        tests.app = app.create_app TEST_SETTINGS, dbm
+        tests.app = app.create_app TEST_SETTINGS, db
         tests.app.listen TEST_SETTINGS.server.port, callback
 
     closeApp = ->

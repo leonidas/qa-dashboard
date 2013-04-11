@@ -24,14 +24,15 @@ _    = require('underscore')
 get_user = (db) ->
     users = db.collection("users")
     (username) ->
-        query = users.find({username:username}).one()
         (callback) ->
-            query.run (err, user) ->
+            users.findOne username: username, (err, user) ->
                 return callback? err, user if err? or user?
+
+                # Create user dashboard
                 doc =
-                    username: username
+                    username:  username
                     dashboard: {}
-                users.insert(doc).run (err) ->
+                users.insert doc, (err) ->
                     if err?
                         console.log "ERROR: #{err}"
                         return callback? err
@@ -73,8 +74,7 @@ exports.init_user = (app, db) ->
         if not username?
             res.send {}
         else
-            q = users.find({username:username}).fields({dashboard:1}).one()
-            q.run (err, user) ->
+            users.findOne {username: username}, {dashboard: 1}, (err, user) ->
                 if err
                     res.send {status:"error", error:err}
                 else
@@ -82,13 +82,8 @@ exports.init_user = (app, db) ->
 
     app.post "/user/dashboard/save", (req, res) ->
         username = req.session.username
-        #console.log "column"
-        #console.log req.body.tabs[0].column
-        #console.log "sidebar"
-        #console.log req.body.tabs[0].sidebar
 
-        q = users.find({username:username}).update $set: dashboard: req.body
-        q.run (err) ->
+        users.update {username: username}, {$set: dashboard: req.body}, (err) ->
             if err?
                 res.send 500
                 #res.send {status:"error", error:err}
@@ -96,8 +91,7 @@ exports.init_user = (app, db) ->
                 res.send {status:"ok"}
 
     app.get "/shared/:user/:tab", (req,res) ->
-        q = users.find({username:req.params.user}).fields({"dashboard.tabs":1}).one()
-        q.run (err, user) ->
+        users.findOne {username: req.params.user}, {'dashboard.tabs': 1}, (err, user) ->
             return res.send {status:"error", error:err} if err?
             return res.send {status:"error", error:"No dashboard for user: #{req.params.user}"} if !user? or !user.dashboard? or !user.dashboard.tabs?
 

@@ -18,10 +18,15 @@
 # 02110-1301 USA
 #
 
+mongo = require('mongodb-wrapper')
+
 TEST_SETTINGS =
     "server":
         "host": "localhost",
         "port": 3130
+    "db":
+        "host": "localhost"
+        "port": 27017
     "app":
         "root": __dirname + "/.."
     "auth":
@@ -30,8 +35,8 @@ TEST_SETTINGS =
 class TestServer
     constructor: () ->
         @settings   = TEST_SETTINGS
-        @monmon     = require('monmon')
-        @db         = @monmon.monmon.use('qadash').env('test')
+        env         = process.env.NODE_ENV || 'test'
+        @db         = mongo.db settings.db.host, settings.db.port, "qadash-#{env}"
         @server_app = require('app').create_app @settings, @db
 
     start: (callback) ->
@@ -42,12 +47,7 @@ class TestServer
         callback()
 
     db_drop: (callback) ->
-        @db.dropDatabase().run (err) ->
-            throw err if err?
-            callback()
-
-    db_closeAll: (callback) ->
-        @monmon.closeAll (err, res) ->
+        @db.dropDatabase (err) ->
             throw err if err?
             callback()
 

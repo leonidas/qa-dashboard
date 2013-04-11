@@ -18,8 +18,8 @@
 # 02110-1301 USA
 #
 crypto = require('crypto')
-ldap  = require('ldap_shellauth')
-mysql = require('mysql_auth')
+ldap   = require('ldap_shellauth')
+mysql  = require('mysql_auth')
 
 settings = null
 
@@ -52,28 +52,21 @@ authenticate = (username, password) -> (callback) ->
 exports.get_token = (db) ->
     users = db.collection("users")
     (username) ->
-        user  = users.find({username:username})
-        token = user.fields({token:1}).one()
         (callback) ->
-            token.run (err, result) ->
+            users.findOne {username: username}, {token: 1}, (err, result) ->
                 return callback? err if err?
                 if result.token?
                     callback? null, result.token
                 else
-                    pw = result.password
                     generate_new_token(username) (err, token) ->
                         return callback? err if err?
-                        op = user.update
-                            $set: token: token
-                        op.run (err, result) ->
+                        users.update {username: username}, {$set: token: token}, (err, result) ->
                             callback? null, token
 
 exports.secure = (db) ->
     users = db.collection("users")
     verify_token = (token) -> (callback) ->
-        query = users.find({token:token}).fields({}).one()
-        query.run (err,result) ->
-            callback? err, result?
+        users.findOne {token: token}, {}, callback
 
     (handler) -> (req, res) ->
         if req.session.username?
@@ -97,8 +90,8 @@ exports.secure = (db) ->
 
 exports.init_authentication = (app, db) ->
     users = db.collection("users")
-    users.unique().ensureIndex("username").run()
-    users.sparse().ensureIndex("token").run()
+    users.ensureIndex "username", unique: true, ->
+    users.ensureIndex "token", sparse: true, ->
 
     # TODO: there should be a nicer way to do this
     settings = app.dashboard_settings

@@ -30,8 +30,10 @@ exports.register_plugin = (db) ->
 
     api = {}
 
-    bugs.unique().ensureIndex("bug_id").run()
-    reports.sparse().ensureIndex("features.cases.bugs").run()
+    # TODO: We will eventually need to support multiple Bugzilla servers
+    # -> bug_id cannot be unique
+    bugs.ensureIndex    "bug_id", unique: true, ->
+    reports.ensureIndex "features.cases.bugs", sparse: true, ->
 
     merge_counts = (c1, c2) ->
         merged = {}
@@ -65,7 +67,7 @@ exports.register_plugin = (db) ->
 
 
     api.bugs_by_ids = (ids, cb) ->
-        bugs.find({"bug_id":{$in:ids}}).run (err,arr) ->
+        bugs.find(bug_id: $in: ids).toArray (err, arr) ->
             return cb err if err?
             bugobjs = {}
             for item in arr

@@ -25,7 +25,8 @@ create_app = (settings, db) ->
 
     app.dashboard_settings = settings
 
-    store = new MongoStore(db:"qadash-sessions#{if process.env.NODE_ENV == 'test' then '-test'}")
+    env   = process.env.NODE_ENV || 'development'
+    store = new MongoStore db: "qadash-sessions-#{env}"
 
     app.configure ->
         app.use ccs

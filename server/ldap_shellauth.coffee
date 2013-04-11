@@ -32,12 +32,8 @@ ldap_shellauth = (username, password) -> (callback) ->
     # construct ldapsearch command
     fulldn = "uid=" + username + "," + auth.ldap.dn_base
     ldapcmd = "ldapsearch -xLLL -H " + auth.ldap.uri + " -b " + fulldn + " -D " + fulldn + " -w " + password + " " + auth.ldap.filters + " dn"
-    #console.log(ldapcmd) #debug
 
     exec ldapcmd, (error,stdout,stderr) ->
-        #console.log("stdout: " + stdout) #debug
-        #console.log("stderr: " + stderr) #debug
-        #console.log(error) #debug
         error = error?.message
         callback? error, (!error? && stdout != "")
 

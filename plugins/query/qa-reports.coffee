@@ -24,8 +24,9 @@ _     = require('underscore')
 exports.register_plugin = (db) ->
     reports = db.collection('qa-reports')
 
-    reports.unique().ensureIndex([['qa_id',1]]).run()
-    reports.ensureIndex([["release",-1], ["hardware",1], ["profile","1"], ["testtype",1]]).run()
+    reports.ensureIndex {qa_id: 1}, {unique: true}, ->
+    reports.ensureIndex {release: -1, hardware: 1, profile: 1}, {sparse: true}, ->
+    reports.ensureIndex {testtype: 1}, {sparse: true}, ->
 
     api = {}
 
@@ -82,13 +83,10 @@ exports.register_plugin = (db) ->
             cb? null,_(arr).map reformat
 
     api.targets_for_hw = (ver, hw, callback) ->
-        q = reports.find(release:ver,hardware:hw).distinct "profile"
-        q.run callback
+        reports.distinct 'profile', {release: ver, hardware: hw}, callback
 
     api.types_for_hw = (ver, hw) -> (profile, callback) ->
-        q = reports.find(release:ver,hardware:hw,profile:profile)
-        q = q.distinct "testtype"
-        q.run callback
+        reports.distinct 'testtype', {release: ver, hardware: hw, profile: profile}, callback
 
     api.groups_for_hw = (ver, hw) -> (callback) ->
         api.targets_for_hw ver, hw, (err, targets) ->
@@ -121,17 +119,17 @@ exports.register_plugin = (db) ->
             qa_id:1
             tested_at:1
             title:1
-        q = reports.find(grp).fields(fields).sort(tested_at:-1,created_at:-1).limit(n)
-        q.run (err, arr) ->
+
+        reports.find(grp, fields).sort(tested_at: -1, created_at: -1).limit(n).toArray (err, arr) ->
             return callback? err if err?
             arr = arr[0] if n == 1
             callback? null, arr
 
     api.all_releases = (callback) ->
-        reports.distinct("release").run callback
+        reports.distinct 'release', callback
 
     api.hws_for_release = (ver, callback) ->
-        reports.find({release:ver}).distinct("hardware").run callback
+        reports.distinct 'hardware', {release: ver}, callback
 
     api.hw_groups_for_release = (ver) -> (callback) ->
         api.hws_for_release ver, (err, arr) ->

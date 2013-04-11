@@ -19,7 +19,7 @@ launchDaemon = (basedir, cfg) ->
 
     fetchReports = (since, callback) ->
 
-        console.log "fetching next #{fetchCount} reports since #{since.toISOString()}"
+        console.log "fetching next #{fetchCount} reports since #{since?.toISOString()}"
         url = "#{cfg.reports.url}/api/reports?limit_amount=#{fetchCount}"
         if since?
             url += "&begin_time=#{fmtDate since}"

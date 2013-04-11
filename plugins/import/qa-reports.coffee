@@ -29,13 +29,6 @@ exports.register_plugin = (db) ->
         else
             true
 
-    run_db_query = (q,res) ->
-        q.run (err) ->
-            if err?
-                res.send {status:"error", error:err}
-            else
-                res.send {status:"ok"}
-
     name: "qa-reports"
     http:
         post:
@@ -43,18 +36,21 @@ exports.register_plugin = (db) ->
                 doc = req.body.report
                 return if not valid_request_format(doc,res)
 
-                q = reports.find({'qa_id':doc.qa_id}).remove()
-                run_db_query q, res
+                reports.remove qa_id: doc.qa_id, (err) ->
+                    return res.send status: "error", error: err if err?
+                    res.send status: 'ok'
 
             "/update": (req, res) ->
                 doc = req.body.report
                 return if not valid_request_format(doc,res)
 
-                reports.find({'qa_id':doc.qa_id}).one().run (err, old) ->
-                    res.send {status:"error", error:err} if err?
+                reports.findOne qa_id: doc.qa_id, (err, old) ->
+                    return res.send status: "error", error: err if err?
+
                     if not old? || (new Date(doc.updated_at) >= new Date(old.updated_at))
-                        q = reports.find({'qa_id':doc.qa_id}).upsert().update(doc)
-                        run_db_query q, res
+                        reports.update {qa_id: doc.qa_id}, doc, true, (err) ->
+                            return res.send status: "error", error: err if err?
+                            res.send status: 'ok'
                     else
                         res.send {status:"ok", msg:"ignored, more recent report found in db"}
 
@@ -69,24 +65,15 @@ exports.register_plugin = (db) ->
                             cb err, null
                         else
                             cb null, (callback) ->
-                                # define db query function for the qa-report
-                                reports.find({'qa_id':report.qa_id}).one().run (err, old) ->
-                                    callback err, null if err?
+                                reports.findOne qa_id: report.qa_id, (err, old) ->
+                                    return callback err, null if err?
+
                                     if not old? || (new Date(report.updated_at) >= new Date(old.updated_at))
-                                        q = reports.find({'qa_id':report.qa_id}).upsert().update(report)
-                                        q.run (err) ->
-                                            if err?
-                                                callback err, null
-                                            else
-                                                callback null, null
+                                        reports.update {qa_id: report.qa_id}, report, true, callback
                     (err, q_arr) ->
-                        if err?
-                            res.send {status: "error", error: err} #parse error
-                        else
-                            # run database queries
-                            async.series q_arr, (err) ->
-                                if err?
-                                    res.send {status: "error", error: err } #error in db query
-                                else
-                                    res.send {status: "ok"}
+                        return res.send status: 'error', error: err if err?
+                        # run database queries
+                        async.series q_arr, (err) ->
+                            return res.send status: 'error', error: err if err?
+                            res.send status: 'ok'
 
