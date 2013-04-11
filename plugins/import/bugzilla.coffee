@@ -23,6 +23,14 @@ exports.register_plugin = (db) ->
     bugreports = db.collection('bugs')
     name: "bugs"
     http:
+        get:
+            "/latest": (req, res) ->
+                bugreports.find({}, {changeddate: 1, _id: 0}).sort({changeddate: -1}).limit(1).toArray (err, arr) ->
+                    return res.status(500).send status: 'error', error: err if err?
+                    # Format to UTC, Bugzilla dates are in format yyyy-mm-dd hh:ii:mm
+                    return res.send {changeddate: "#{arr[0].changeddate.replace(' ', 'T')}Z"} if arr[0]?
+                    return res.send {changeddate: null}
+
         post: "/update": (req, res) ->
             doc = req.body
             async.map doc.bugs,
