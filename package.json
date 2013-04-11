@@ -25,5 +25,9 @@
     "supervisor": "0.5.2"
   },
 
+  "scripts": {
+    "test": "NODE_PATH=server NODE_ENV=test nodeunit test/*"
+  },
+
   "private": "true"
 }
