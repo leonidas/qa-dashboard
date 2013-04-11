@@ -24,8 +24,7 @@
     "should": "1.2.2",
     "supervisor": "0.5.2",
     "soda": "0.2.5",
-    "eyes": "0.1.8",
-    "cucumis": "1.0.17"
+    "eyes": "0.1.8"
   },
 
   "private": "true"
