@@ -18,10 +18,10 @@ $ nvm alias default 0.8
 ```bash
 $ git clone git@github.com:leonidas/qa-dashboard.git
 $ cd qa-dashboard
-$ npm install --mongodb:native
+$ npm install
 ```
 
-* Run: `./run-server.sh`
+* Run: `npm run-script dev-start`
 
 * Login at [http://localhost:3030/](http://localhost:3030/)
   * Username: `guest`
