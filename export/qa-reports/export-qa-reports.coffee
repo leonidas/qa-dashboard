@@ -52,16 +52,15 @@ launchDaemon = (basedir, cfg) ->
                 return callback res.statusCode if res.statusCode != 200
                 return callback null, reports
 
-    readSinceFile = (callback) ->
-        fs.readFile SINCEFILE, "utf-8", (err, s) ->
-            return callback null, null if err?
-            return callback null, new Date(s)
-
-    writeSinceFile = (reports, callback) ->
-        return callback null, reports if reports.length == 0
-        since = _.last(reports).updated_at
-        fs.writeFile SINCEFILE, since.toString(), (err) ->
-            callback null, reports
+    getStartDate = (callback) ->
+        request.get {
+            uri:    "#{cfg.dashboard.url}/import/qa-reports/latest",
+            qs:     {token: cfg.dashboard.token},
+            json:   true
+        }, (err, res, data) ->
+            return callback err if err?
+            return callback null, null unless data?.updated_at?
+            return callback null, new Date(data.updated_at)
 
     scheduleNextPoll = (reports, callback) ->
         if reports.length < fetchCount
@@ -76,10 +75,9 @@ launchDaemon = (basedir, cfg) ->
 
     pollReports = (callback) ->
         tasks = [
-            readSinceFile,
+            getStartDate,
             fetchReports,
             pushReports,
-            writeSinceFile,
             scheduleNextPoll ]
 
         async.waterfall tasks, (err) ->

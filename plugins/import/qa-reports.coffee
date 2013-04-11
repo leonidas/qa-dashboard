@@ -31,6 +31,12 @@ exports.register_plugin = (db) ->
 
     name: "qa-reports"
     http:
+        get:
+            # Return the latest updated at date
+            "/latest": (req, res) ->
+                reports.find({}, {updated_at: 1, _id: 0}).sort({updated_at: -1}).limit(1).toArray (err, arr) ->
+                    return res.status(500).send status: 'error', error: err if err?
+                    res.send (arr[0] || {updated_at: null})
         post:
             "/delete": (req, res) ->
                 doc = req.body.report

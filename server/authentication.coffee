@@ -72,7 +72,7 @@ exports.secure = (db) ->
         if req.session.username?
             handler req, res
         else
-            token    = req.body?.token or req.param("token")
+            token = req.body?.token or req.param("token")
             if not token?
                 return res.send 403
 
