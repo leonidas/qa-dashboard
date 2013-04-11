@@ -22,9 +22,7 @@
     "vows": "0.7.0",
     "nodeunit": "0.8.0",
     "should": "1.2.2",
-    "supervisor": "0.5.2",
-    "soda": "0.2.5",
-    "eyes": "0.1.8"
+    "supervisor": "0.5.2"
   },
 
   "private": "true"
