@@ -5,6 +5,7 @@ require 'net/https'
 require 'date'
 require 'bundler'
 require 'yaml'
+require 'csv'
 Bundler.require(:default)
 
 POLLING_PERIOD = 60 #in secs
@@ -65,7 +66,7 @@ def export_bugzilla_csv(fromdate, todate="Now")
     # Export bugzilla CSV
     content = ""
 
-    if BUGZILLA_CONFIG['proxy_server'].present?
+    if not BUGZILLA_CONFIG['proxy_server'].nil?
       http = Net::HTTP.Proxy(BUGZILLA_CONFIG['proxy_server'], BUGZILLA_CONFIG['proxy_port']).new(BUGZILLA_CONFIG['server'], BUGZILLA_CONFIG['port'])
     else
       http = Net::HTTP.new(BUGZILLA_CONFIG['server'], BUGZILLA_CONFIG['port'])
@@ -85,8 +86,11 @@ end
 
 def parse_bugzilla_csv(content)
     data_array = []
-    FasterCSV.parse(content, :headers => true) do |row|
+    CSV.parse(content, :headers => true) do |row|
         row = row.to_hash
+        row.each do |k,v|
+            row[k] = v.encode('UTF-8', 'ASCII-8BIT', :invalid => :replace, :undef => :replace, :replace => ' ').strip
+        end
         #customize data
         row["weeknum"]  = Date.parse(row["opendate"]).cweek
         row["opendate"] = Time.parse(row["opendate"]).utc

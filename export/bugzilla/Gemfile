@@ -1,6 +1,5 @@
 source 'http://rubygems.org'
 
-gem 'fastercsv'
 gem 'daemons'
 gem 'json'
 gem 'rest-client', :require => 'rest_client'
