@@ -18,7 +18,7 @@
 # 02110-1301 USA
 #
 
-mongo = require('mongodb-wrapper')
+mongodb = require('mongodb')
 
 TEST_SETTINGS =
     "server":
@@ -36,8 +36,9 @@ class TestServer
     constructor: () ->
         @settings   = TEST_SETTINGS
         env         = process.env.NODE_ENV || 'test'
-        @db         = mongo.db settings.db.host, settings.db.port, "qadash-#{env}"
-        @server_app = require('app').create_app @settings, @db
+        new mongodb.Db("qadash-#{env}", new mongodb.Server(TEST_SETTINGS.db.host, TEST_SETTINGS.db.port), {w:1}).open (err, db) =>
+            @db = db
+            @server_app = require('app').create_app @settings, @db
 
     start: (callback) ->
         @server_app.listen @settings.server.port, callback

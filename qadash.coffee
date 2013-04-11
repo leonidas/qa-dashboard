@@ -20,8 +20,8 @@
 APPROOT       = __dirname
 SETTINGS_FILE = "#{APPROOT}/settings.json"
 
-fs     = require('fs')
-mongo  = require('mongodb-wrapper')
+fs      = require('fs')
+mongodb = require('mongodb')
 
 settings          = JSON.parse fs.readFileSync(SETTINGS_FILE)
 settings.app.root = APPROOT
@@ -29,8 +29,9 @@ settings.app.root = APPROOT
 env  = process.env.NODE_ENV || 'development'
 port = process.env.PORT || settings.server.port
 
-db  = mongo.db settings.db.host, settings.db.port, "qadash-#{env}"
-app = require('app').create_app settings, db
+dbs = new mongodb.Server settings.db.host, settings.db.port
+new mongodb.Db("qadash-#{env}", dbs, w: 1).open (err, db) ->
+  app = require('app').create_app settings, db
 
-console.log "Server listening on port #{port}"
-app.listen(port)
+  console.log "Server listening on port #{port}"
+  app.listen(port)

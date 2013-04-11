@@ -23,7 +23,7 @@
 app      = require('app')
 testCase = require('nodeunit').testCase
 http     = require('http')
-mongo    = require('mongodb-wrapper')
+mongodb  = require('mongodb')
 
 TEST_SETTINGS =
     "server":
@@ -51,8 +51,6 @@ test_server = (env, tests) ->
     orig_setUp    = tests.setUp
     orig_tearDown = tests.tearDown
 
-    db = mongo.db TEST_SETTINGS.db.host, TEST_SETTINGS.db.port, "qadash-#{env}"
-
     get = (url, callback) ->
         opts =
             host: TEST_SETTINGS.server.host
@@ -64,8 +62,9 @@ test_server = (env, tests) ->
             read_all res, callback
 
     createApp = (callback) ->
-        tests.app = app.create_app TEST_SETTINGS, db
-        tests.app.listen TEST_SETTINGS.server.port, callback
+        new mongodb.Db("qadash-#{env}", new mongodb.Server(TEST_SETTINGS.db.host, TEST_SETTINGS.db.port), {w:1}).open (err, db) =>
+            tests.app = app.create_app TEST_SETTINGS, db
+            tests.app.listen TEST_SETTINGS.server.port, callback
 
     closeApp = ->
         tests.app.close() if tests.app?
