@@ -1,5 +1,0 @@
-source 'http://rubygems.org'
-
-gem 'daemons'
-gem 'json'
-gem 'rest-client', :require => 'rest_client'

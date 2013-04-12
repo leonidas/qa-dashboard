@@ -1,0 +1,42 @@
+{
+  "update_interval": "6",
+
+  "bugzilla": {
+    "url": "https://bugs.meego.com",
+    "query_uri": "/buglist.cgi?bugidtype=include&query_format=advanced&ctype=csv&columnlist=%s",
+    "columns": [
+      "bug_id", "short_desc", "bug_status", "resolution",
+      "product", "component", "version", "rep_platform",
+      "opendate", "changeddate",
+      "bug_severity", "priority"
+    ],
+    "basicAuth": {
+      "enabled":  false,
+      "username": "",
+      "password": ""
+    },
+    "bzAuth": {
+      "enabled":  false,
+      "username": "",
+      "password": ""
+    },
+    "proxy": {
+      "enabled": true,
+      "url": ""
+    }
+  },
+    
+  "dashboard": {
+    "url": "http://localhost:3030",
+    "token": "785d50c891ddb5776502d88c871a3fe0c6f1e021",
+    "basicAuth": {
+      "enabled":  false,
+      "username": "",
+      "password": ""
+    },
+    "proxy": {
+      "enabled": false,
+      "url": ""
+    }
+  }
+}

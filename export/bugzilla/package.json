@@ -1,0 +1,21 @@
+{
+  "name": "bugzilla-export",
+  "version": "0.0.1",
+  "engines": {
+    "node": ">= 0.8.0"
+  },
+
+  "dependencies": {
+    "vow": "0.3.1",
+    "request": "2.16.6",
+    "csv": "0.3.0",
+    "winston": "0.6.2",
+    "coffee-script": "1.6.2"
+  },
+
+  "scripts": {
+    "start": "coffee export-bugzilla.coffee"
+  },
+
+  "private": "true"
+}
