@@ -24,10 +24,19 @@ mysql  = require('mysql_auth')
 {ObjectID}    = require 'mongodb'
 passport      = require('passport')
 LocalStrategy = require('passport-local').Strategy
+bcrypt        = require('bcrypt')
 
 {get_user} = require 'user'
 
 settings = null
+
+encrypt_password = (pwd, cb) ->
+    bcrypt.genSalt (err, salt) ->
+        return cb? err if err
+        bcrypt.hash pwd, salt, cb
+
+verify_password = (pwd, hash, cb) -> bcrypt.compare pwd, hash, cb
+
 
 strategy   = null
 strategies =
@@ -55,22 +64,44 @@ strategies =
                         cb null, false, message: 'Incorrect username/password'
 
             'local' # Return the strategy name for authanticate() to work
+    local:
+        init: (db) ->
+            users = db.collection 'users'
+            get_or_create_user = get_user db
 
-authenticate = (username, password) -> (callback) ->
-    switch settings.auth.method
-        when "ldap"
-            ldap.ldap_shellauth(username,password) (err, ok) ->
-                console.log err if err?
-                callback? err, ok
+            # TODO: Can we use same serializers for all methods? To be seen.
+            passport.serializeUser (user, cb) ->
+                cb null, user._id.toString()
 
-        when "mysql"
-            mysql.auth_user(username,password) (err, ok) ->
-                console.log.err if err?
-                callback? err, ok
+            passport.deserializeUser (id, cb) ->
+                users.findOne _id: new ObjectID(id), (err, user) ->
+                    return cb err if err
+                    return cb "User does not exist" if not user?
+                    cb null, user
 
-        else
-            ok = username == "guest" and password == "guest"
-            callback? null, ok
+            passport.use new LocalStrategy (username, password, cb) ->
+                users.findOne username: username, (err, user) ->
+                    return cb? err, null, message: 'Login failed' if err?
+                    return cb? null, false, message: 'Incorrect username and/or password' if not user?
+
+                    verify_password password, user.password, (err, res) ->
+                        return cb? err null, message: 'Incorrect username and/or password' if err?
+                        return cb? null, false, message: 'Incorrect username and/or password' if not res
+
+                        cb? null, user
+
+            'local'
+
+# Create a new local user to database.
+exports.create_user = (db, username, password, cb) ->
+    users = db.collection 'users'
+    users.findOne username: username, (err, user) ->
+        return cb? err if err?
+        return cb? "Username is already taken" if user?
+
+        encrypt_password password, (err, hash) ->
+            return cb? err if err
+            users.insert username: username, password: hash, dashboard: {}, cb
 
 exports.secure = (db) ->
     users = db.collection("users")

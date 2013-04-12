@@ -92,7 +92,7 @@ class PassRateBarChart extends QAReportsWidget
                 # Pass Rate Bar
                 container = row.find('div.pass-rate-bar')
                 key = "#{r.profile} #{r.testtype}"
-                @draw_graph r, targets[key], max_total, container
+                @draw_graph r, targets?[key], max_total, container
 
                 # Pass Rate History
                 container = row.find('div.pass-rate-history')
