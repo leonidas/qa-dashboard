@@ -80,6 +80,7 @@ exports.init_user = (app, db) ->
                 console.log "ERROR: #{err}" if err?
                 if user?
                     delete user._id
+                    delete user.password
                     res.send user
                 else
                     res.send {}
