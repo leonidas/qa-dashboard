@@ -1,22 +1,30 @@
 {
-    "reports": {
-        "url": "http://qa-reports.qa.leonidasoy.fi",
-        "basicAuth": "",
-        "proxy": {
-            "enabled": false,
-            "url": ""
-        },
-        "fetchCount": 20
+  "reports": {
+    "url": "http://qa-reports.qa.leonidasoy.fi",
+    "basicAuth": {
+      "enabled":  false,
+      "username": "",
+      "password": ""
     },
+    "proxy": {
+      "enabled": false,
+      "url": ""
+    },
+    "fetchCount": 20,
+    "updateInterval": 3
+  },
 
-    "dashboard": {
-        "url": "http://localhost:3030",
-        "token": "b0fc86a1e99680451b9c8456098a43f2ce97b0ad",
-        "basicAuth": "",
-        "proxy": {
-            "enabled": false,
-            "url": ""
-        }
+  "dashboard": {
+    "url": "http://localhost:3030",
+    "token": "785d50c891ddb5776502d88c871a3fe0c6f1e021",
+    "basicAuth": {
+      "enabled":  false,
+      "username": "",
+      "password": ""
+    },
+    "proxy": {
+      "enabled": false,
+      "url": ""
     }
-
+  }
 }

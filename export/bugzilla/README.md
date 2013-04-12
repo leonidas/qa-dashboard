@@ -17,8 +17,8 @@ Daemon is configured in `config.json` and has the following options:
 * `dashboard`:
   * `url`: Base URL to QA Dashboard
   * `token`: Authentication token (from `/user/token` URI in QA Dashboard)
-  * `basicAuth`: Same as in Bugzilla
-  * `proxy`: Same as in Bugzilla
+  * `basicAuth`: Same as in `bugzilla`
+  * `proxy`: Same as in `bugzilla`
 
 ## Execute
 

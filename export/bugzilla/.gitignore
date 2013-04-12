@@ -1,4 +1,1 @@
-Gemfile.lock
-*.log
-*.output
-bugzilla_last_export_array.yml
+node_modules

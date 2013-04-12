@@ -156,8 +156,8 @@ launch_daemon = (settings) ->
         winston.info "Next poll in #{settings.update_interval} hours"
         setTimeout poll_bugs, settings.update_interval * HOUR
       .fail (err) ->
-        winston.error "Error when polling bugs, trying again", err
-        setTimeout poll_bugs, 5 * SECOND
+        winston.error "Error when polling bugs, trying again in 5 minutes", err
+        setTimeout poll_bugs, 5 * MINUTES
 
   poll_bugs()
 

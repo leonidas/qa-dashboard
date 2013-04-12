@@ -3,61 +3,73 @@ async   = require('async')
 request = require('request')
 fs      = require('fs')
 _       = require('underscore')
+winston = require('winston')
 
+# Initialize logger
+winston.remove winston.transports.Console
+winston.add winston.transports.Console,
+  timestamp:   true
+  colorize:    true
+  prettyPrint: true
+  level:       'info'
+winston.setLevels winston.config.syslog.levels
 
 SECONDS = 1000
 MINUTES = 60*SECONDS
 HOURS   = 60*MINUTES
 
-launchDaemon = (basedir, cfg) ->
-
-    SINCEFILE = "#{basedir}/last-report.txt"
+launchDaemon = (cfg) ->
     fetchCount = cfg.reports.fetchCount
+
+    # Get request options (basic auth, proxy)
+    __get_opts = (service) ->
+        opts = json: true
+        if service.proxy?.enabled
+            opts['proxy'] = service.proxy.url
+        if service.basicAuth?.enabled
+            opts['auth'] =
+            user: service.basicAuth.username
+            pass: service.basicAuth.password
+        opts
 
     fmtDate = (date) ->
         escape "#{date.getUTCFullYear()}-#{date.getUTCMonth()+1}-#{date.getUTCDate()} #{date.getUTCHours()}:#{date.getUTCMinutes()}:#{date.getUTCSeconds()}"
 
     fetchReports = (since, callback) ->
+        winston.info "Fetching next #{fetchCount} reports since #{since?.toISOString()}"
 
-        console.log "fetching next #{fetchCount} reports since #{since?.toISOString()}"
-        url = "#{cfg.reports.url}/api/reports?limit_amount=#{fetchCount}"
+        opts         = __get_opts(cfg.reports)
+        opts['uri']  = "#{cfg.reports.url}/api/reports?limit_amount=#{fetchCount}"
+
         if since?
-            url += "&begin_time=#{fmtDate since}"
-        opts =
-            uri:    url
-            method: "GET"
-        console.log "GET: #{url}"
-        proxy = cfg.reports.proxy
-        auth = proxy.basicAuth
-        opts.auth = auth if auth? and auth != ""
-        if proxy.enabled
-            opts.proxy = proxy.url
-            auth = proxy.basicAuth
-            opts.proxy.auth = auth if auth? and auth != ""
-        request opts, (err, res, body) ->
+            opts['uri'] += "&begin_time=#{fmtDate since}"
+
+        request.get opts, (err, res, body) ->
             return callback err if err?
             return callback res.statusCode if res.statusCode != 200
-            return callback null, JSON.parse(body)
+            return callback null, body
 
     pushReports  = (reports, callback) ->
-        console.log "..received #{reports.length} reports"
-        url = "#{cfg.dashboard.url}/import/qa-reports/massupdate"
-        request {
-            uri:    url
-            method: "POST"
-            json:   {reports: reports, token: cfg.dashboard.token}
-            }, (err, res, body) ->
-                return callback err if err?
-                return callback body.error if body.status == "error"
-                return callback res.statusCode if res.statusCode != 200
-                return callback null, reports
+        winston.info "Received #{reports.length} reports"
+
+        opts         = __get_opts(cfg.dashboard)
+        opts['uri']  = "#{cfg.dashboard.url}/import/qa-reports/massupdate"
+        opts['json'] = reports: reports, token: cfg.dashboard.token
+
+        request.post opts, (err, res, body) ->
+            return callback err if err?
+            return callback body.error if body.status == "error"
+            return callback res.statusCode if res.statusCode != 200
+            return callback null, reports
 
     getStartDate = (callback) ->
-        request.get {
-            uri:    "#{cfg.dashboard.url}/import/qa-reports/latest",
-            qs:     {token: cfg.dashboard.token},
-            json:   true
-        }, (err, res, data) ->
+        winston.info "Get the latest updated at date from QA Dashboard"
+
+        opts        = __get_opts(cfg.dashboard)
+        opts['uri'] = "#{cfg.dashboard.url}/import/qa-reports/latest"
+        opts['qs']  = token: cfg.dashboard.token
+
+        request.get opts, (err, res, data) ->
             return callback err if err?
             return callback null, null unless data?.updated_at?
             return callback null, new Date(data.updated_at)
@@ -65,13 +77,13 @@ launchDaemon = (basedir, cfg) ->
     scheduleNextPoll = (reports, callback) ->
         if reports.length < fetchCount
             # There are no more reports for now
-            waitTime = 1*HOURS
+            winston.info "Next poll in #{cfg.reports.updateInterval} hours"
+            waitTime = cfg.reports.updateInterval * HOURS
         else
             waitTime = 1*SECONDS
 
         setTimeout pollReports, waitTime
         callback null
-
 
     pollReports = (callback) ->
         tasks = [
@@ -82,12 +94,12 @@ launchDaemon = (basedir, cfg) ->
 
         async.waterfall tasks, (err) ->
             if err?
-                console.log "ERROR: #{err}"
-                setTimeout pollReports, 5*MINUTES
+                winston.error "Error when fetching reports, trying again", err
+                setTimeout pollReports, 5 * MINUTES
 
             callback? err
 
     pollReports()
 
 cfg = JSON.parse fs.readFileSync "config.json", "utf-8"
-launchDaemon __dirname, cfg
+launchDaemon cfg
