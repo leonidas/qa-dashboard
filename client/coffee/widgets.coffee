@@ -189,7 +189,7 @@ class QAReportsWidget extends WidgetBase
             labelTmpl.appendTo(rel).hide()
 
             found = false
-            for k of data
+            for k in _.keys(data).sort()
                 do (k) ->
                     i = inputTmpl.clone()
                     # Don't use show, for some reason it sets style attribute
