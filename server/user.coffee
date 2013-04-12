@@ -18,24 +18,8 @@
 # 02110-1301 USA
 #
 
-_ = require('underscore')
-
-get_user = (db) ->
-    users = db.collection("users")
-    (username) ->
-        (callback) ->
-            users.findOne username: username, (err, user) ->
-                return callback? err, user if err? or user?
-
-                # Create user dashboard
-                doc =
-                    username:  username
-                    dashboard: {}
-                users.insert doc, (err) ->
-                    if err?
-                        console.log "ERROR: #{err}"
-                        return callback? err
-                    callback? null, doc
+_      = require('underscore')
+crypto = require('crypto')
 
 sha = (data) ->
     s = crypto.createHash('sha1')
@@ -61,6 +45,25 @@ get_token = (db) ->
                         users.update {username: username}, {$set: token: token}, (err, result) ->
                             callback? null, token
 
+get_user = (db) ->
+    users = db.collection("users")
+    (username) ->
+        (callback) ->
+            users.findOne username: username, (err, user) ->
+                return callback? err, user if err? or user?
+
+                # Create user dashboard
+                doc =
+                    username:  username
+                    dashboard: {}
+                users.insert doc, (err) ->
+                    if err?
+                        console.log "ERROR: #{err}"
+                        return callback? err
+                    callback? null, doc
+
+exports.get_user = get_user
+
 exports.init_user = (app, db) ->
     users = db.collection("users")
 
@@ -69,7 +72,7 @@ exports.init_user = (app, db) ->
     user  = get_user db
 
     app.get "/user", (req, res) ->
-        username = req.session.username
+        username = req.user?.username
         if not username?
             res.send {}
         else
@@ -82,7 +85,7 @@ exports.init_user = (app, db) ->
                     res.send {}
 
     app.get "/user/token", (req, res) ->
-        username = req.session.username
+        username = req.user?.username
         if not username?
             res.send 401
         else
@@ -93,7 +96,7 @@ exports.init_user = (app, db) ->
                     res.send {status:"ok", token:token}
 
     app.get "/user/dashboard", (req,res) ->
-        username = req.session.username
+        username = req.user?.username
         if not username?
             res.send {}
         else
@@ -104,7 +107,7 @@ exports.init_user = (app, db) ->
                     res.send {status:"ok", result:user.dashboard}
 
     app.post "/user/dashboard/save", (req, res) ->
-        username = req.session.username
+        username = req.user?.username
 
         users.update {username: username}, {$set: dashboard: req.body}, (err) ->
             if err?

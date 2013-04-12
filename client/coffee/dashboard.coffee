@@ -45,16 +45,16 @@ submit_login_form = () ->
 
     $form.find('input').attr 'disabled', 'disabled'
 
-    $.post "/auth/login", req, (data) ->
+    $.post("/auth/login", req)
+    .done (data) ->
+        load_dashboard (data) ->
+            current_user = data
+            init_user_dashboard(data.dashboard)
+    .fail (xhr, status) ->
+        $form.find('.error').show()
+        balance_columns()
+    .always ->
         $form.find('input').removeAttr 'disabled'
-        if data.status == "error"
-            # show error message
-            $form.find('.error').show()
-            balance_columns()
-        else
-            load_dashboard (data) ->
-                current_user = data
-                init_user_dashboard(data.dashboard)
 
     return false
 
