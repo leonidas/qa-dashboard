@@ -18,8 +18,7 @@
 # 02110-1301 USA
 #
 
-auth = require('authentication')
-_    = require('underscore')
+_ = require('underscore')
 
 get_user = (db) ->
     users = db.collection("users")
@@ -38,10 +37,34 @@ get_user = (db) ->
                         return callback? err
                     callback? null, doc
 
+sha = (data) ->
+    s = crypto.createHash('sha1')
+    s.update(data)
+    return s.digest('hex')
+
+generate_new_token = (username) -> (callback) ->
+    seed = new Date().getTime() + Math.random()*1000
+    data = username + seed
+    callback? null, sha(data)
+
+get_token = (db) ->
+    users = db.collection("users")
+    (username) ->
+        (callback) ->
+            users.findOne {username: username}, {token: 1}, (err, result) ->
+                return callback? err if err?
+                if result.token?
+                    callback? null, result.token
+                else
+                    generate_new_token(username) (err, token) ->
+                        return callback? err if err?
+                        users.update {username: username}, {$set: token: token}, (err, result) ->
+                            callback? null, token
+
 exports.init_user = (app, db) ->
     users = db.collection("users")
 
-    token = auth.get_token db
+    token = get_token db
 
     user  = get_user db
 

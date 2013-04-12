@@ -23,16 +23,6 @@ mysql  = require('mysql_auth')
 
 settings = null
 
-sha = (data) ->
-    s = crypto.createHash('sha1')
-    s.update(data)
-    return s.digest('hex')
-
-generate_new_token = (username) -> (callback) ->
-    seed = new Date().getTime() + Math.random()*1000
-    data = username + seed
-    callback? null, sha(data)
-
 authenticate = (username, password) -> (callback) ->
     switch settings.auth.method
         when "ldap"
@@ -48,20 +38,6 @@ authenticate = (username, password) -> (callback) ->
         else
             ok = username == "guest" and password == "guest"
             callback? null, ok
-
-exports.get_token = (db) ->
-    users = db.collection("users")
-    (username) ->
-        (callback) ->
-            users.findOne {username: username}, {token: 1}, (err, result) ->
-                return callback? err if err?
-                if result.token?
-                    callback? null, result.token
-                else
-                    generate_new_token(username) (err, token) ->
-                        return callback? err if err?
-                        users.update {username: username}, {$set: token: token}, (err, result) ->
-                            callback? null, token
 
 exports.secure = (db) ->
     users = db.collection("users")
@@ -111,4 +87,3 @@ exports.init_authentication = (app, db) ->
 
     app.get "/auth/whoami", (req,res) ->
         res.send {username:req.session.username}
-
