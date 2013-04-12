@@ -217,12 +217,15 @@ create_new_widget = (name) -> (callback) ->
     init_widget_dom_events(dom)
     get_widget_class(name) (cls) ->
         wgt = new cls()
-        wgt.type = name
-        dom.attr("class", cls.prototype.template.attr("class"))
-        dom.addClass("widget")
-        dom.data("widgetObj", wgt)
-        wgt.dom = dom
-        callback? wgt
+        # Get default config to get some configuration saved, otherwise
+        # the widget will show different data on page refresh
+        wgt.get_config ->
+            wgt.type = name
+            dom.attr("class", cls.prototype.template.attr("class"))
+            dom.addClass("widget")
+            dom.data("widgetObj", wgt)
+            wgt.dom = dom
+            callback? wgt
     return dom
 
 init_widget_dom_events = (dom) ->
