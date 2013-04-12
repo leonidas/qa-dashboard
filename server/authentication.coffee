@@ -17,14 +17,11 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301 USA
 #
-crypto = require('crypto')
-ldap   = require('ldap_shellauth')
-mysql  = require('mysql_auth')
-
 {ObjectID}    = require 'mongodb'
 passport      = require('passport')
 LocalStrategy = require('passport-local').Strategy
 bcrypt        = require('bcrypt')
+LdapAuth      = require('ldapauth')
 
 {get_user} = require 'user'
 
@@ -39,58 +36,47 @@ verify_password = (pwd, hash, cb) -> bcrypt.compare pwd, hash, cb
 
 
 strategy   = null
-strategies =
-    # guest / guest authentication.
-    dummy:
-        init: (db) ->
-            users = db.collection 'users'
-            get_or_create_user = get_user db
+strategies = (db) ->
+    users = db.collection 'users'
+    get_or_create_user = get_user db
 
-            # TODO: Can we use same serializers for all methods? To be seen.
-            passport.serializeUser (user, cb) ->
-                cb null, user._id.toString()
-
-            passport.deserializeUser (id, cb) ->
-                users.findOne _id: new ObjectID(id), (err, user) ->
-                    return cb err if err
-                    return cb "User does not exist" if not user?
-                    cb null, user
-
+    return {
+        dummy: ->
             passport.use new LocalStrategy (username, password, cb) ->
                 process.nextTick ->
                     if username == 'guest' && password == 'guest'
                         get_or_create_user('guest')(cb)
                     else
                         cb null, false, message: 'Incorrect username/password'
-
             'local' # Return the strategy name for authanticate() to work
-    local:
-        init: (db) ->
-            users = db.collection 'users'
-            get_or_create_user = get_user db
 
-            # TODO: Can we use same serializers for all methods? To be seen.
-            passport.serializeUser (user, cb) ->
-                cb null, user._id.toString()
-
-            passport.deserializeUser (id, cb) ->
-                users.findOne _id: new ObjectID(id), (err, user) ->
-                    return cb err if err
-                    return cb "User does not exist" if not user?
-                    cb null, user
-
+        local: ->
             passport.use new LocalStrategy (username, password, cb) ->
-                users.findOne username: username, (err, user) ->
-                    return cb? err, null, message: 'Login failed' if err?
-                    return cb? null, false, message: 'Incorrect username and/or password' if not user?
+                process.nextTick ->
+                    users.findOne username: username, (err, user) ->
+                        return cb? err, null, message: 'Login failed' if err?
+                        return cb? null, false, message: 'Incorrect username and/or password' if not user?
 
-                    verify_password password, user.password, (err, res) ->
-                        return cb? err null, message: 'Incorrect username and/or password' if err?
-                        return cb? null, false, message: 'Incorrect username and/or password' if not res
+                        verify_password password, user.password, (err, res) ->
+                            return cb? err null, message: 'Incorrect username and/or password' if err?
+                            return cb? null, false, message: 'Incorrect username and/or password' if not res
 
-                        cb? null, user
-
+                            cb? null, user
             'local'
+
+        ldap: ->
+            ldap = new LdapAuth settings.auth.ldap
+            # ldapsearch -x -H url -D adminDN -w adminPassword -b searchBase searchFilter
+            passport.use new LocalStrategy (username, password, cb) ->
+                process.nextTick ->
+                    ldap.authenticate username, password, (err, user) ->
+                        if err?
+                            if err.name == 'InvalidCredentialsError' || err.match /^no such user/i
+                                return cb? null, false, message: 'Incorrect username and/or password'
+                            return cb? err, null, message: 'Login failed' if err?
+                        get_or_create_user(username)(cb)
+            'local'
+    }
 
 # Create a new local user to database.
 exports.create_user = (db, username, password, cb) ->
@@ -120,14 +106,26 @@ exports.secure = (db) ->
             return res.send 403 unless valid
             return handler req, res
 
-exports.init_passport = (method, db) -> strategy = strategies[method].init db
+exports.init_passport = (cfg, db) ->
+    settings = cfg
+    users    = db.collection 'users'
 
-exports.init_authentication = (app, db) ->
-    # TODO are this in good location
-    users = db.collection("users")
     users.ensureIndex "username", unique: true, ->
     users.ensureIndex "token", sparse: true, ->
 
+    # Serialization and deserialization for persistent sessions. All user
+    # accounts are stored to local database.
+    passport.serializeUser (user, cb) -> cb null, user._id.toString()
+
+    passport.deserializeUser (id, cb) ->
+        users.findOne _id: new ObjectID(id), (err, user) ->
+            return cb err if err
+            return cb "User does not exist" if not user?
+            cb null, user
+
+    strategy = strategies(db)[settings.auth.method]()
+
+exports.init_authentication = (app, db) ->
     # TODO: there should be a nicer way to do this
     settings = app.dashboard_settings
 

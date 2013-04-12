@@ -31,7 +31,7 @@ create_app = (settings, db) ->
     env   = process.env.NODE_ENV || 'development'
     store = new MongoStore db: "qadash-sessions-#{env}"
 
-    auth.init_passport settings.auth.method, db
+    auth.init_passport settings, db
 
     app.configure ->
         app.use ccs
@@ -75,10 +75,6 @@ create_app = (settings, db) ->
     require('query-api' ).init_query_plugins basedir, app, db
     require('user').init_user app, db
     auth.init_authentication app, db
-
-    #switch settings.auth.method
-    #    when 'ldap' then require('ldap_shellauth').init_ldap_shellauth settings
-    #    when 'mysql' then require('mysql_auth').init_mysql_auth settings
 
     widgetdir = basedir+"/plugins/widgets"
     require('widgets').initialize_widgets widgetdir, app, db

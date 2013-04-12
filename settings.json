@@ -17,18 +17,12 @@
   "auth": {
     "method": "dummy",
 
-    "ldap"   : {
-      "uri": "ldap://localhost:389",
-      "dn_base": "ou=people,dc=qa-dashboard,dc=qa,dc=my-domain,dc=com",
-      "filters": ""
-    },
-
-    "mysql": {
-      "host": "",
-      "port": "",
-      "database": "",
-      "username": "",
-      "password": ""
+    "ldap": {
+      "url": "ldap://localhost:389",
+      "adminDn": "",
+      "adminPassword": "",
+      "searchBase": "ou=people,dc=qa-dashboard,dc=qa,dc=my-domain,dc=com",
+      "searchFilter": "uid={{username}}"
     }
   }
 }
