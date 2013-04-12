@@ -163,7 +163,6 @@ class QAReportsWidget extends WidgetBase
 
     format_settings_view: ($t, cb) ->
         cfg = @config
-
         init_hw  = cfg.hwproduct
         init_ver = cfg.release
 
@@ -186,14 +185,17 @@ class QAReportsWidget extends WidgetBase
             labelTmpl = rel.find("label").first().clone().unbind().removeAttr "for"
             inputTmpl.removeAttr "checked"
             rel.empty()
-            inputTmpl.appendTo(rel)#.hide()
-            labelTmpl.appendTo(rel)#.hide()
+            inputTmpl.appendTo(rel).hide()
+            labelTmpl.appendTo(rel).hide()
 
             found = false
             for k of data
                 do (k) ->
-                    i = inputTmpl.clone()#.show()
-                    l = labelTmpl.clone()#.show()
+                    i = inputTmpl.clone()
+                    # Don't use show, for some reason it sets style attribute
+                    # of the element to block instead of what's defined in
+                    # CSS. This did not happen with jQuery 1.4 but does now
+                    l = labelTmpl.clone().css 'display', 'inline-block'
                     if k == checked
                         i.attr('checked','checked')
                         found = true
@@ -233,7 +235,7 @@ class QAReportsWidget extends WidgetBase
                     passtarget = row.find('input.passtarget')
                     if use_pass
                         passtarget.show()
-                        pt = targets[key] ? "0"
+                        pt = targets?[key] ? "0"
                         passtarget.val pt
                     else
                         passtarget.hide()
@@ -335,7 +337,6 @@ class QAReportsWidget extends WidgetBase
         cached.get "/query/qa-reports/groups", (data) ->
             currentHw  = () -> hwsel.find("input:checked").val()
             currentVer = () -> relsel.find("input:checked").val()
-
             selectRelease = (ver) ->
                 hw = currentHw()
                 createRadioButtons hwsel, data[ver], hw, selectHw
@@ -355,7 +356,7 @@ class QAReportsWidget extends WidgetBase
             createRadioButtons hwsel, data[init_ver], init_hw, selectHw
 
             # Generate List of Test Sets
-            createTestSets data[init_ver][init_hw]
+            createTestSets data[init_ver]?[init_hw]
 
             # Set Alert Limit
             if use_alert

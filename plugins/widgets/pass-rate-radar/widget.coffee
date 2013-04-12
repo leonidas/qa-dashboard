@@ -94,7 +94,7 @@ class RadarChart
         for r in rs
             title = "#{r.profile} #{r.testtype}"
             arcw = 360 * r.total_cases/grand_total
-            target = targets[title]
+            target = targets?[title]
             if not target?
                 target = 0
 
