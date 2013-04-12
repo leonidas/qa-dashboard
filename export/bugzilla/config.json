@@ -1,5 +1,6 @@
 {
-  "update_interval": "6",
+  "update_interval": 6,
+  "fetch_days": 30,
 
   "bugzilla": {
     "url": "https://bugs.meego.com",
@@ -21,14 +22,15 @@
       "password": ""
     },
     "proxy": {
-      "enabled": true,
+      "enabled": false,
       "url": ""
-    }
+    },
+    "start_date": "2010-03-23"
   },
-    
+
   "dashboard": {
     "url": "http://localhost:3030",
-    "token": "785d50c891ddb5776502d88c871a3fe0c6f1e021",
+    "token": "13a46fae7c5627dc26ee7b40349afe833dee0b15",
     "basicAuth": {
       "enabled":  false,
       "username": "",

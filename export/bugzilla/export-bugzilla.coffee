@@ -19,7 +19,7 @@ SECOND = 1000
 MINUTE = 60 * SECOND
 HOUR   = 60 * MINUTE
 
-date_utils = 
+date_utils =
   # Bugzilla datetime string
   bugzilla_string_to_date: (str) ->
     unless str?.match /^\d{4}-\d{1,2}-\d{1,2} \d{1,2}:\d{1,2}:\d{1,2}$/
@@ -83,25 +83,33 @@ launch_daemon = (settings) ->
 
     request.get opts, (err, res, data) ->
       return promise.reject err if err?
-      return promise.fulfill null unless data?.changeddate?
+      return promise.reject "HTTP #{res.statusCode}. Is the token correct?" unless res.statusCode == 200
+      cd = data?.changeddate || settings.bugzilla.start_date
+      return promise.fulfill null unless cd? && cd != ""
       # Start a day earlier than the latest in DB - it seems it is possible
       # to miss some bugs if using the same date
-      d = new Date(data.changeddate)
+      d = new Date(cd)
       d.setDate(d.getDate() - 1)
-      return promise.fulfill new Date(data.changeddate)
+      return promise.fulfill d
 
     promise
 
   # Fetch bugs from Bugzilla
   fetch_bugs = (start_time) ->
-    winston.info "Fetch bugs from date #{start_time?.toISOString()}"
+    winston.warning "No start date defined, fetching all bugs!" unless start_time?
     promise = Vow.promise()
 
     opts        = __get_opts(settings.bugzilla)
     opts['uri'] = __login_info("#{settings.bugzilla.url}#{settings.bugzilla.query_uri}")
 
     if start_time?
-      opts['uri'] += "&chfieldfrom=" + __format_date(start_time)
+      st = __format_date(start_time)
+      start_time.setDate(start_time.getDate() + settings.fetch_days)
+      et = __format_date(start_time)
+      opts['uri'] += "&chfieldfrom=" + st
+      opts['uri'] += "&chfieldto="   + et
+
+      winston.info "Fetch bugs from #{st} to #{et}"
 
     request.get opts, (err, res, body) ->
       return promise.reject err if err?
@@ -120,7 +128,7 @@ launch_daemon = (settings) ->
             record.weeknum = w
             record.year    = y
           record
-        .to.array (data) -> promise.fulfill data
+        .to.array (data) -> promise.fulfill bugs: data, end_time: et
       # Something else, don't know what to do
       else
         return promise.reject "Did not receive CSV but #{res.headers['content-type']}"
@@ -128,23 +136,35 @@ launch_daemon = (settings) ->
     promise
 
   # Send bugs to QA Dashboard
-  push_bugs = (bugs) ->
-    winston.info "Received #{bugs?.length} bugs, uploading"
+  push_bugs = (data) ->
+    winston.info "Received #{data?.bugs?.length} bugs, uploading"
     promise = Vow.promise()
 
     opts         = __get_opts(settings.dashboard)
     opts['uri']  = "#{settings.dashboard.url}/import/bugs/update"
-    opts['json'] = 
-      bugs:  bugs
+    opts['json'] =
+      bugs:  data.bugs
       token: settings.dashboard.token
 
     request.post opts, (err, res, body) ->
       return promise.reject err if err?
       return promise.reject body.error if body.status == 'error'
       return promise.reject "HTTP #{res.statusCode}" if res.statusCode != 200
-      return promise.fulfill()
+      return promise.fulfill data?.end_time
 
     promise
+
+  # Schedule next polling round
+  schedule_next_poll = (end_time) ->
+    et = new Date("#{end_time} 00:00:00 UTC") if end_time?
+    # Keep going until end time is at least "tomorrow" so we get "todays" bugs
+    if et? and et.getTime() < new Date(new Date().getTime() + 24 * HOUR)
+      1 * SECOND
+    # No end time (all bugs fetched) or end_time is in future -> run again
+    # in configured interval
+    else
+      winston.info "Next poll in #{settings.update_interval} hours"
+      settings.update_interval * HOUR
 
   poll_bugs = ->
     winston.info "Start fetching bugs"
@@ -152,19 +172,19 @@ launch_daemon = (settings) ->
     get_start_date()
       .then(fetch_bugs)
       .then(push_bugs)
-      .then () ->
-        winston.info "Next poll in #{settings.update_interval} hours"
-        setTimeout poll_bugs, settings.update_interval * HOUR
+      .then(schedule_next_poll)
+      .then (interval) ->
+        setTimeout poll_bugs, interval
       .fail (err) ->
-        winston.error "Error when polling bugs, trying again in 5 minutes", err
-        setTimeout poll_bugs, 5 * MINUTES
+        winston.error "Error when polling bugs, trying again in 5 minutes.", err
+        setTimeout poll_bugs, 5 * MINUTE
 
   poll_bugs()
 
 # Bugzilla dates do not contain timezone information so they're either in the
 # server default timezone (if not authenticated) or in the timezone defined
 # in the user preferences of the account being used.
-console.log '\u001b[34m' + 
+console.log '\u001b[34m' +
   "This service expects dates from Bugzilla to be in UTC. If this is not the\n" +
   "default for the Bugzilla server in question, you should create a user\n" +
   "account, set it's timezone to UTC, and then set the login info to bzAuth\n" +
