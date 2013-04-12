@@ -33,7 +33,9 @@ deepcopy = (obj) ->
         cp[k] = deepcopy v
     return cp
 
-submit_login_form = () ->
+submit_login_form = (e) ->
+    e.preventDefault()
+
     $form = $(this)
     field = (name) -> $form.find("input[name=\"#{name}\"]").val()
 
@@ -56,19 +58,15 @@ submit_login_form = () ->
     .always ->
         $form.find('input').removeAttr 'disabled'
 
-    return false
-
-submit_user_logout = () ->
+submit_user_logout = (e) ->
+    e.preventDefault()
     $.post "/auth/logout", (data) ->
         window.location.pathname = ""
         window.location.hash = ""
         window.location.reload()
 
-    return false
-
 handle_fragment_path = () ->
     f = parse_fragment()
-    #console.log f
 
     if current_user? and f.user == current_user.username
         init_user_dashboard current_user.dashboard, (err) ->
@@ -118,13 +116,13 @@ initialize_toolbar = (widgets, elem) ->
         $btn.insertBefore $close
         initialize_toolbar_draggable $btn
 
-    $p.add_widget_btn.click ->
+    $p.add_widget_btn.click (e) ->
+        e.preventDefault()
         $elem.slideDown(300)
-        return false
 
-    $close.click ->
+    $close.click (e) ->
+        e.preventDefault()
         $elem.slideUp(300)
-        return false
 
 load_dashboard = (callback) ->
     $.getJSON "/user", (data) ->
@@ -178,11 +176,11 @@ init_user_dashboard = (dashboard, cb) ->
                 $('#tab_navi').css('visibility','visible')
                 cb?(err)
 
-    $p.add_tab_btn.click () ->
+    $p.add_tab_btn.click (e) ->
+        e.preventDefault()
         $new = add_tab_element make_unique_tab_name("New Tab")
         set_current_tab $new
         save_widgets()
-        return false
 
     balance_columns()
 
@@ -230,7 +228,8 @@ create_new_widget = (name) -> (callback) ->
 
 init_widget_dom_events = (dom) ->
     $dom = $(dom)
-    $dom.find('.widget_edit').click ->
+    $dom.find('.widget_edit').click (e) ->
+        e.preventDefault()
         $this = $(this)
 
         $settings = $dom.find('.content_settings')
@@ -254,11 +253,9 @@ init_widget_dom_events = (dom) ->
             obj = $dom.data("widgetObj")
             obj.render_settings_view ->
                 balance_columns()
-                $dom.find('.widget_edit_content form').submit -> return false
+                $dom.find('.widget_edit_content form').submit (e) -> e.preventDefault()
 
         balance_columns()
-
-        return false
 
     $m = $dom.find('.widget_move')
     $m.bind 'mouseover', -> $dom.addClass('move_mode')
@@ -270,9 +267,9 @@ init_widget_dom_events = (dom) ->
         #console.log obj
         $n = $('#notification')
 
-        close = () ->
+        close = (e) ->
+            e.preventDefault()
             $n.slideUp()
-            return false
 
         $n.find('a.undo').unbind().click ->
             dst = if sidebar then $('.sidebar') else $('.left_column')
@@ -372,17 +369,17 @@ init_tab_events = ($dom) ->
             setTimeout f, 0
 
 
-    $dom.click ->
+    $dom.click (e) ->
+        e.preventDefault()
         if $dom.hasClass 'current'
             $actions.toggle().width($dom.width())
         else
             set_current_tab $dom
-        return false
 
-    def_action = (name, f) -> $actions.find(".#{name}").unbind().click ->
+    def_action = (name, f) -> $actions.find(".#{name}").unbind().click (e) ->
+        e.preventDefault()
         f()
         $actions.hide()
-        return false
 
     def_action 'rename', ->
         old = $dom.find('.tab_title').text()
@@ -435,10 +432,10 @@ init_tab_events = ($dom) ->
         conf = serialize_tab $dom
         $n = $('#notification')
 
-        close = () ->
+        close = (e) ->
+            e.preventDefault()
             current_user.dashboard.tab_undo = null
             $n.slideUp()
-            return false
 
         $n.find('a.undo').unbind().click ->
             load_tab(conf) save_widgets
