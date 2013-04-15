@@ -14,6 +14,7 @@ Daemon is configured in `config.json` and has the following options:
     * `url`: Base URL to Bugzilla
     * `prefix`: The Bugzilla service prefix used in QA Reports. This *must* be the same as in QA Reports for bug linking to work!
     * `query_uri`: URI template to `buglist.cgi`. `%s` is replaced with defined columns to fetch.
+    * `show_uri`: URI template to `show_bug.cgi`. `%s` is replaced with bug ID
     * `columns`: An array of column names from Bugzilla to fetch
     * `basicAuth`: HTTP Basic Authentication settings
     * `bzAuth`: Bugzilla authentication settings. These credentials are passed as query string parameters (supported from Bugzilla 3.6). In order to keep them safe Bugzilla should be accessed over HTTPS
