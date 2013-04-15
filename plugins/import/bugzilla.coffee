@@ -25,7 +25,11 @@ exports.register_plugin = (db) ->
     http:
         get:
             "/latest": (req, res) ->
-                bugreports.find({}, {changeddate: 1, _id: 0}).sort({changeddate: -1}).limit(1).toArray (err, arr) ->
+                q = {}
+                if req.param 'prefix'
+                    q = prefix: req.param 'prefix'
+
+                bugreports.find(q, {changeddate: 1, _id: 0}).sort({changeddate: -1}).limit(1).toArray (err, arr) ->
                     return res.status(500).send status: 'error', error: err if err?
                     # Format to UTC, Bugzilla dates are in format yyyy-mm-dd hh:ii:mm
                     return res.send {changeddate: "#{arr[0].changeddate.replace(' ', 'T')}Z"} if arr[0]?

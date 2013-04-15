@@ -33,6 +33,7 @@ exports.register_plugin = (db) ->
     # TODO: We will eventually need to support multiple Bugzilla servers
     # -> bug_id cannot be unique
     bugs.ensureIndex    "bug_id", unique: true, ->
+    bugs.ensureIndex    "prefix", ->
     reports.ensureIndex "features.cases.bugs", sparse: true, ->
 
     merge_counts = (c1, c2) ->

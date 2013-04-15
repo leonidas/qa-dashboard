@@ -2,33 +2,35 @@
   "update_interval": 6,
   "fetch_days": 30,
 
-  "bugzilla": {
-    "url": "https://bugs.meego.com",
-    "prefix": "BZ",
-    "query_uri": "/buglist.cgi?bugidtype=include&query_format=advanced&ctype=csv&columnlist=%s",
-    "show_uri": "/show_bug.cgi?id=%s",
-    "columns": [
-      "bug_id", "short_desc", "bug_status", "resolution",
-      "product", "component", "version", "rep_platform",
-      "opendate", "changeddate",
-      "bug_severity", "priority"
-    ],
-    "basicAuth": {
-      "enabled":  false,
-      "username": "",
-      "password": ""
-    },
-    "bzAuth": {
-      "enabled":  false,
-      "username": "",
-      "password": ""
-    },
-    "proxy": {
-      "enabled": false,
-      "url": ""
-    },
-    "start_date": "2010-03-23"
-  },
+  "bugzillas": [
+    {
+      "url": "https://bugs.meego.com",
+      "prefix": "BZ",
+      "query_uri": "/buglist.cgi?bugidtype=include&query_format=advanced&ctype=csv&columnlist=%s",
+      "show_uri": "/show_bug.cgi?id=%s",
+      "columns": [
+        "bug_id", "short_desc", "bug_status", "resolution",
+        "product", "component", "version", "rep_platform",
+        "opendate", "changeddate",
+        "bug_severity", "priority"
+      ],
+      "basicAuth": {
+        "enabled":  false,
+        "username": "",
+        "password": ""
+      },
+      "bzAuth": {
+        "enabled":  false,
+        "username": "",
+        "password": ""
+      },
+      "proxy": {
+        "enabled": false,
+        "url": ""
+      },
+      "start_date": "2010-03-23"
+    }
+  ],
 
   "dashboard": {
     "url": "http://localhost:3030",
