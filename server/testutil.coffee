@@ -32,6 +32,8 @@ TEST_SETTINGS =
     "db":
         "host": "localhost"
         "port": 27017
+    "qa-reports":
+        "url":  "http://localhost:3000"
     "app":
         "root": __dirname + "/.."
     "auth":
@@ -63,10 +65,12 @@ test_server = (env, tests) ->
 
     createApp = (callback) ->
         new mongodb.Db("qadash-#{env}", new mongodb.Server(TEST_SETTINGS.db.host, TEST_SETTINGS.db.port), {w:1}).open (err, db) =>
+            tests.db  = db
             tests.app = app.create_app TEST_SETTINGS, db
             tests.app.listen TEST_SETTINGS.server.port, callback
 
     closeApp = ->
+        tests.db.close()  if tests.db?
         tests.app.close() if tests.app?
 
     tests.setUp = (callback) ->

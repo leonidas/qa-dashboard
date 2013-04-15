@@ -29,7 +29,10 @@ create_app = (settings, db) ->
     app.dashboard_settings = settings
 
     env   = process.env.NODE_ENV || 'development'
-    store = new MongoStore db: "qadash-sessions-#{env}"
+    if env != 'test'
+        store = new MongoStore db: "qadash-sessions-#{env}"
+    else
+        store = new express.session.MemoryStore()
 
     auth.init_passport settings, db
 
