@@ -5,6 +5,7 @@
   "bugzilla": {
     "url": "https://bugs.meego.com",
     "query_uri": "/buglist.cgi?bugidtype=include&query_format=advanced&ctype=csv&columnlist=%s",
+    "show_uri": "/show_bug.cgi?id=%s",
     "columns": [
       "bug_id", "short_desc", "bug_status", "resolution",
       "product", "component", "version", "rep_platform",
