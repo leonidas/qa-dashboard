@@ -1,6 +1,5 @@
 
 express  = require('express')
-http     = require('http')
 _        = require('underscore')
 ccs      = require('connect-coffee-script')
 cless    = require('connect-less')
@@ -82,6 +81,6 @@ create_app = (settings, db) ->
     widgetdir = basedir+"/plugins/widgets"
     require('widgets').initialize_widgets widgetdir, app, db
 
-    return http.createServer app
+    app
 
 exports.create_app = create_app

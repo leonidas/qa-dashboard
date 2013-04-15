@@ -22,6 +22,7 @@ SETTINGS_FILE = "#{APPROOT}/settings.json"
 
 fs      = require('fs')
 mongodb = require('mongodb')
+http    = require('http')
 
 settings          = JSON.parse fs.readFileSync(SETTINGS_FILE)
 settings.app.root = APPROOT
@@ -31,7 +32,8 @@ port = process.env.PORT || settings.server.port
 
 dbs = new mongodb.Server settings.db.host, settings.db.port
 new mongodb.Db("qadash-#{env}", dbs, w: 1).open (err, db) ->
-  app = require('app').create_app settings, db
+  app    = require('app').create_app settings, db
+  server = http.createServer app
 
   console.log "Server listening on port #{port}"
-  app.listen(port)
+  server.listen(port)
