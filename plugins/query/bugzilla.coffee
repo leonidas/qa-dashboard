@@ -37,10 +37,14 @@ exports.register_plugin = (db) ->
 
     merge_counts = (c1, c2) ->
         merged = {}
-        for b,c of c1
-            merged[b] = (merged[b] ? 0) + c
-        for b,c of c2
-            merged[b] = (merged[b] ? 0) + c
+        merge  = (arr) ->
+            for id, item of arr
+                if merged[id]?
+                    merged[id]['count'] += item.count
+                else
+                    merged[id] = item
+        merge c1
+        merge c2
         return merged
 
 
@@ -55,7 +59,15 @@ exports.register_plugin = (db) ->
                 for fea in r.features
                     for c in fea.cases
                         for b in c.bugs
-                            bugcounts[b] = (bugcounts[b] ? 0) + 1
+                            # We're only interested in items that are coming
+                            # from Bugzilla. QA Reports has other types as well.
+                            if b.type == 'bugzilla'
+                                key = "#{b.prefix}##{b.id}"
+                                bugcounts[key] ?=
+                                    count:  0
+                                    id:     b.id
+                                    url:    b.url
+                                bugcounts[key]['count'] += 1
 
             cb? null, bugcounts
 
@@ -75,21 +87,23 @@ exports.register_plugin = (db) ->
             cb null, bugobjs
 
     api.top_bugs_for_groups = (grps, num, cb) ->
-            api.bug_counts_for_groups grps, (err, counts) ->
-                return cb? err if err?
+        api.bug_counts_for_groups grps, (err, counts) ->
+            return cb? err if err?
+            ids = _.keys counts
 
-                ids = _.keys counts
-                api.bugs_by_ids ids, (err, bugs) ->
-                    step = (memo,v,k) ->
-                        b = bugs[k]
-                        if not b? or not b.resolution? or b.resolution == '---'
-                            memo.push [v,k,b]
-                        return memo
-                    bugcount = _.reduce counts, step, []
-                    bugcount = _(bugcount).sortBy (x) -> x[0]
-                    bugcount.reverse()
-                    bugcount = bugcount.slice(0,num)
-                    cb? null, bugcount
+            # Fetch the bugs from bugs collection (descriptions etc.)
+            api.bugs_by_ids ids, (err, bugs) ->
+                step = (memo,value,prefixed_id) ->
+                    b = bugs[prefixed_id]
+                    # Skip resolved bugs in blockers
+                    if not b? or not b.resolution? or b.resolution == '---'
+                        memo.push [value.count, value.id, value.url, b]
+                    return memo
+                bugcount = _.reduce counts, step, []
+                bugcount = _(bugcount).sortBy (x) -> x[0]
+                bugcount.reverse()
+                bugcount = bugcount.slice(0,num)
+                cb? null, bugcount
 
     name: "bugzilla"
     api: api

@@ -29,11 +29,10 @@ class TopBlockers extends QAReportsWidget
             $table = $t.find("table")
             $trow = $table.find("tr.row-template")
             _(bugs).each (bug) ->
-                [count,bug_id,obj] = bug
-                url = "https://bugs.meego.com/show_bug.cgi?id=" + bug_id
+                [count, id, url, obj] = bug
                 title = if obj? then obj.short_desc else ""
                 $row = $trow.clone()
-                $row.find("td.bug_id a").attr("href", url).text(bug_id)
+                $row.find("td.bug_id a").attr("href", url).text(id)
                 $row.find("td.bug_description a").attr("href", url).text(title)
                 $row.find("td.bug_blocker_count").text(count)
                 $row.insertBefore $trow

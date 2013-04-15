@@ -4,6 +4,7 @@
 
   "bugzilla": {
     "url": "https://bugs.meego.com",
+    "prefix": "BZ",
     "query_uri": "/buglist.cgi?bugidtype=include&query_format=advanced&ctype=csv&columnlist=%s",
     "show_uri": "/show_bug.cgi?id=%s",
     "columns": [

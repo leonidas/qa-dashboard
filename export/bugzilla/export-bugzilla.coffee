@@ -124,7 +124,11 @@ launch_daemon = (settings) ->
       else if res.headers['content-type'].match /text\/csv/
         csv().from.string(body, columns: true).transform (record) ->
           if record.bug_id?
-            record.url = "#{settings.bugzilla.url}#{util.format(settings.bugzilla.show_uri, record.bug_id)}"
+            # QA Reports now returns a prefix for all bugs since it supports
+            # multiple Bugzilla services. So store store the bugs with prefixes
+            # to bugs DB as well
+            record.bug_id = "#{settings.bugzilla.prefix}##{record.bug_id}"
+            record.url    = "#{settings.bugzilla.url}#{util.format(settings.bugzilla.show_uri, record.bug_id)}"
 
             [y, w] = date_utils.get_year_week(date_utils.bugzilla_string_to_date(record['opendate']))
             record.weeknum = w

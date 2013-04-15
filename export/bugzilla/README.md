@@ -10,6 +10,7 @@ Daemon is configured in `config.json` and has the following options:
 * `fetch_days`: How many days' bugs to fetch at once? This is really meaningful only for the initial run because `update_interval` is likely less than this anyways. You need to define `start_date` for Bugzilla for this to have effect - if no `start_date` is defined all bugs are fetched on the initial run in single query, but if `start_date` is defined then the bugs are fetched in batches of `fetch_days` days.
 * `bugzilla`:
     * `url`: Base URL to Bugzilla
+    * `prefix`: The Bugzilla service prefix used in QA Reports. This *must* be the same as in QA Reports for bug linking to work!
     * `query_uri`: URI template to `buglist.cgi`. `%s` is replaced with defined columns to fetch.
     * `columns`: An array of column names from Bugzilla to fetch
     * `basicAuth`: HTTP Basic Authentication settings
