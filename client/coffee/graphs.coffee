@@ -45,14 +45,21 @@ arcPath = (cx, cy, start, end, radius) ->
 window.arcPoints = arcPoints
 
 window.drawSector = (paper, cx, cy, start, end, radius) ->
-    s = sectorPath(cx,cy,start,end,radius)
-    paper.path(s)
+    # Arc cannot be used to draw a circle
+    if start == 0 && end == 360
+        paper.circle(cx, cy, radius)
+    else
+        s = sectorPath(cx,cy,start,end,radius)
+        paper.path(s)
 
 window.drawArc = (paper, cx, cy, start, end, radius) ->
     s = arcPath(cx,cy,start,end,radius)
     paper.path(s)
 
 window.drawSectorPath = (paper, cx, cy, sectors) ->
+    # Drawing a circle if only one sector given
+    return paper.circle(cx, cy, sectors[0].radius) if sectors.length == 1
+
     d = ""
 
     for s in sectors
@@ -69,3 +76,4 @@ window.drawSectorPath = (paper, cx, cy, sectors) ->
     if fst?
         d = d.concat "L",[fst.sx,fst.sy]
     paper.path(d)
+
