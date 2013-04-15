@@ -20,6 +20,7 @@
 {ObjectID}    = require 'mongodb'
 passport      = require('passport')
 LocalStrategy = require('passport-local').Strategy
+LdapStrategy  = require('passport-ldapauth').Strategy
 bcrypt        = require('bcrypt')
 LdapAuth      = require('ldapauth')
 
@@ -42,16 +43,15 @@ strategies = (db) ->
 
     return {
         dummy: ->
-            passport.use new LocalStrategy (username, password, cb) ->
+            new LocalStrategy (username, password, cb) ->
                 process.nextTick ->
                     if username == 'guest' && password == 'guest'
                         get_or_create_user('guest')(cb)
                     else
                         cb null, false, message: 'Incorrect username/password'
-            'local' # Return the strategy name for authanticate() to work
 
         local: ->
-            passport.use new LocalStrategy (username, password, cb) ->
+            new LocalStrategy (username, password, cb) ->
                 process.nextTick ->
                     users.findOne username: username, (err, user) ->
                         return cb? err, null, message: 'Login failed' if err?
@@ -62,20 +62,11 @@ strategies = (db) ->
                             return cb? null, false, message: 'Incorrect username and/or password' if not res
 
                             cb? null, user
-            'local'
 
         ldap: ->
-            ldap = new LdapAuth settings.auth.ldap
-            # ldapsearch -x -H url -D adminDN -w adminPassword -b searchBase searchFilter
-            passport.use new LocalStrategy (username, password, cb) ->
+            new LdapStrategy server: settings.auth.ldap, (user, cb) ->
                 process.nextTick ->
-                    ldap.authenticate username, password, (err, user) ->
-                        if err?
-                            if err.name == 'InvalidCredentialsError' || err.match /^no such user/i
-                                return cb? null, false, message: 'Incorrect username and/or password'
-                            return cb? err, null, message: 'Login failed' if err?
-                        get_or_create_user(username)(cb)
-            'local'
+                    get_or_create_user(user.mail)(cb)
     }
 
 # Create a new local user to database.
@@ -124,12 +115,13 @@ exports.init_passport = (cfg, db) ->
             cb null, user
 
     strategy = strategies(db)[settings.auth.method]()
+    passport.use strategy
 
 exports.init_authentication = (app, db) ->
     # TODO: there should be a nicer way to do this
     settings = app.dashboard_settings
 
-    app.post "/auth/login", passport.authenticate(strategy), (req, res) ->
+    app.post "/auth/login", passport.authenticate(strategy.name), (req, res) ->
         res.send status: 'ok'
 
     app.post "/auth/logout", (req, res) ->
