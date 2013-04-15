@@ -61,6 +61,8 @@ init_plugins = (plugintype, basedir, httproot, app, db, anonaccess, callback) ->
             return callback? err
         for module in modules
             plugin = module.register_plugin(db)
+            if plugin.set_settings?
+                plugin.set_settings app.dashboard_settings
             if plugin.http?
                 for method,funcs of plugin.http
                     init_routes(app, db, method, httproot+"/"+plugin.name, funcs, anonaccess)

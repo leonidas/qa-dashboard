@@ -58,9 +58,7 @@ class PassRateBarChart extends QAReportsWidget
 
                 # Title
 
-                ## TODO: hardcoded url to qa-reports
-                url  = "http://qa-reports.meego.com/#{r.release}/#{r.profile}/#{r.testtype}/#{r.hardware}/#{r.qa_id}"
-                row.find('.title a').attr("href", url).attr("title", r.title)
+                row.find('.title a').attr("href", r.url).attr("title", r.title)
                 row.find('.title .profile').text r.profile
                 row.find('.title .testtype').text r.testtype
 
@@ -120,10 +118,7 @@ class PassRateBarChart extends QAReportsWidget
 
                 # Title
 
-                ## TODO: hardcoded url to qa-reports
-                url  = "http://qa-reports.meego.com/#{r.release}/#{r.profile}/#{r.testtype}/#{r.hardware}/#{r.qa_id}"
-                row.find('.title a').attr("href", url).attr("title", r.title)
-
+                row.find('.title a').attr("href", r.url).attr("title", r.title)
                 row.find('.title .profile').text r.profile
                 row.find('.title .testtype').text r.testtype
 

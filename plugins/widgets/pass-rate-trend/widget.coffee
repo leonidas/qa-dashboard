@@ -53,8 +53,7 @@ class PassRateTrend extends QAReportsWidget
                 row = tr.clone()
                 # Title
 
-                ## TODO: hardcoded url to qa-reports
-                url  = "http://qa-reports.meego.com/#{r.release}/#{r.profile}/#{r.testtype}/#{r.hardware}"
+                url = r.url.replace /\/\d+$/, ''
                 row.find('.title a').attr "href", url
                 row.find('.title .profile').text r.profile
                 row.find('.title .testtype').text r.testtype
@@ -130,7 +129,7 @@ class PassRateTrend extends QAReportsWidget
         hh = @history_height
         bw = @history_width/@history_num-@history_spacing
 
-        url  = "http://qa-reports.meego.com/#{r.release}/#{r.profile}/#{r.testtype}/#{r.hardware}/#{r.qa_id}"
+        url  = r.url
 
         passrate = parseInt(r.total_pass*100/r.total_cases)
         failrate = parseInt(r.total_fail*100/r.total_cases)

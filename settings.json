@@ -10,6 +10,10 @@
     "port": 27017
   },
 
+  "qa-reports": {
+    "url": "http://qa-reports.meego.com"
+  },
+
   "app": {
     "name": "qa-dashboard"
   },

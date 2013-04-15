@@ -416,6 +416,10 @@ class QAReportsWidget extends WidgetBase
                 cb _(data).filter (rs) ->
                     f rs[0]
 
+    base_url: (cb) ->
+        cached.get '/query/qa-reports/url', (data) ->
+            cb data.url
+
 group_key = (grp) ->
     "#{grp.profile} #{grp.testtype}".replace('.',':')
 

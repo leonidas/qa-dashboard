@@ -28,6 +28,10 @@ exports.register_plugin = (db) ->
     reports.ensureIndex {release: -1, hardware: 1, profile: 1}, {sparse: true}, ->
     reports.ensureIndex {testtype: 1}, {sparse: true}, ->
 
+    qa_reports_url = ""
+    read_settings  = (settings) ->
+        qa_reports_url = settings['qa-reports']['url'].replace /\/$/, ''
+
     api = {}
 
     api.reports_for_bug = (hw, id, cb) ->
@@ -73,7 +77,7 @@ exports.register_plugin = (db) ->
 
             reformat = (r) ->
                 doc = {}
-                doc.url = "http://qa-reports.meego.com/#{r.release}/#{r.profile}/#{r.testtype}/#{r.hardware}/#{r.qa_id}"
+                doc.url = "#{qa_reports_url}/#{r.release}/#{r.profile}/#{r.testtype}/#{r.hardware}/#{r.qa_id}"
                 doc.title = r.title
                 features = _(r.features).map format_feature
                 doc.features =_(features).filter (f) -> f.fail_cases > 0 or f.na_cases > 0
@@ -122,6 +126,7 @@ exports.register_plugin = (db) ->
 
         reports.find(grp, fields).sort(tested_at: -1, created_at: -1).limit(n).toArray (err, arr) ->
             return callback? err if err?
+            arr = _.map arr, (r) -> r.url = "#{qa_reports_url}/#{r.release}/#{r.profile}/#{r.testtype}/#{r.hardware}/#{r.qa_id}"; r
             arr = arr[0] if n == 1
             callback? null, arr
 
@@ -196,3 +201,8 @@ exports.register_plugin = (db) ->
                     res.send 500
                 else
                     res.send arr
+
+        "/url": (req, res) ->
+            res.send url: qa_reports_url
+
+    set_settings: read_settings
