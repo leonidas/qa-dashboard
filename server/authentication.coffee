@@ -64,9 +64,9 @@ strategies = (db) ->
                             cb? null, user
 
         ldap: ->
-            new LdapStrategy server: settings.auth.ldap, (user, cb) ->
+            new LdapStrategy server: settings.auth.ldap, passReqToCallback: true, (req, user, cb) ->
                 process.nextTick ->
-                    get_or_create_user(user.mail)(cb)
+                    get_or_create_user(req.body.username)(cb)
     }
 
 # Create a new local user to database.
