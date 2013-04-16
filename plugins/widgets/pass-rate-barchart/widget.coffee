@@ -14,27 +14,12 @@ class PassRateBarChart extends QAReportsWidget
 
     history_num: 10
 
-    # group_key: (grp) ->
-    #     "#{grp.profile} #{grp.testtype}"
-
     get_default_config: (cb) ->
-        hw = "N900"
-        cached.get "/query/qa-reports/groups", (data) ->
-            targets = {}
-            ver = _.last _(data).keys()
-            if not data[ver][hw]?
-                hw  = _.first _(data[ver]).keys()
-
-            groups = []
-            for grp in data[ver][hw]
-                groups.push grp
-            cb
-                product: hw
-                release: ver
-                groups: groups
-                alert:30
-                passtargets: targets
-                title: "Pass rate: #{hw}"
+        super (cfg) ->
+            cfg.alert       = 30
+            cfg.title       = "Pass Rate: #{cfg.release} #{cfg.profile} #{cfg.testset}"
+            cfg.passtargets = {}
+            cb cfg
 
     format_main_view: ($t, cb) ->
         self    = @

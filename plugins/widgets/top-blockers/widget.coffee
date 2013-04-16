@@ -1,22 +1,10 @@
 class TopBlockers extends QAReportsWidget
 
     get_default_config: (cb) ->
-        hw = "N900"
-        cached.get "/query/qa-reports/groups", (data) =>
-            targets = {}
-            ver = _.last _(data).keys()
-            if not data[ver][hw]?
-                hw  = _.first _(data[ver]).keys()
-
-            groups = []
-            for grp in data[ver][hw]
-                groups.push grp
-            cb
-                groups: groups
-                release: ver
-                product: hw
-                title: "Top Blockers: #{hw}"
-                num: 5
+        super (cfg) ->
+            cfg.title = "Top Blockers: #{cfg.release} #{cfg.profile} #{cfg.testset}"
+            cfg.num   = 5
+            cb cfg
 
     format_main_view: ($t, cb) ->
         @format_bug_table $t, cb

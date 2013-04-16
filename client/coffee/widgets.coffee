@@ -161,6 +161,23 @@ class QAReportsWidget extends WidgetBase
                         @inputify_header()
                         cb?()
 
+    get_default_config: (cb) ->
+        cached.get "/query/qa-reports/groups", (data) ->
+            s = data[0]
+            filter_groups = (row) ->
+                r = row.release == s.release
+                p = row.profile == s.profile
+                t = row.testset == s.testset
+                return r && p && t
+
+            groups = _.filter data, filter_groups
+            cb
+                release: s.release
+                profile: s.profile
+                testset: s.testset
+                product: 'Any'
+                groups:  groups
+
     set_row: ($td, g) ->
         $td.find('.release').text g.release
         $td.find('.profile').text g.profile
