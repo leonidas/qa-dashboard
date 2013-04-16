@@ -163,8 +163,10 @@ class QAReportsWidget extends WidgetBase
 
     format_settings_view: ($t, cb) ->
         cfg = @config
-        init_hw  = cfg.hwproduct
-        init_ver = cfg.release
+        init_product = cfg.product
+        init_release = cfg.release
+        init_profile = cfg.profile
+        init_testset = cfg.testset
 
         groups   = cfg.groups
         targets  = cfg.passtargets
@@ -189,7 +191,7 @@ class QAReportsWidget extends WidgetBase
             labelTmpl.appendTo(rel).hide()
 
             found = false
-            for k in _.keys(data).sort()
+            for k in ['Any'].concat data.sort()
                 do (k) ->
                     i = inputTmpl.clone()
                     # Don't use show, for some reason it sets style attribute
@@ -207,7 +209,7 @@ class QAReportsWidget extends WidgetBase
                         i.click()
                         func?(k)
             if not found
-                parent.find("input").first().click()
+                parent.find('input[value!="XYZ"]').first().click()
 
         updateSelectedSets = (data) ->
             parent = $t.find("table.multiple_select")
@@ -335,28 +337,62 @@ class QAReportsWidget extends WidgetBase
 
 
         cached.get "/query/qa-reports/groups", (data) ->
-            currentHw  = () -> hwsel.find("input:checked").val()
-            currentVer = () -> relsel.find("input:checked").val()
-            selectRelease = (ver) ->
-                hw = currentHw()
-                createRadioButtons hwsel, data[ver], hw, selectHw
-                hw = currentHw()
-                createTestSets data[ver][hw]
+            $releases = $t.find("form div.release")
+            $profiles = $t.find("form div.profile")
+            $testsets = $t.find("form div.testset")
+            $products = $t.find("form div.product")
 
-            selectHw = (hw) ->
-                ver = currentVer()
-                createTestSets data[ver][hw]
+            currentRelease = () -> $releases.find('input:checked').val()
+            currentProfile = () -> $profiles.find('input:checked').val()
+            currentTestset = () -> $testsets.find('input:checked').val()
+            currentProduct = () -> $products.find('input:checked').val()
 
-            # Generate Release Radio Buttons
-            relsel = $t.find("form div.release")
-            createRadioButtons relsel, data, init_ver, selectRelease
+            currentSelections = ->
+                [currentRelease(), currentProfile(), currentTestset(), currentProduct()]
 
-            # Generate Handware Radio Buttons
-            hwsel = $t.find("form div.hardware")
-            createRadioButtons hwsel, data[init_ver], init_hw, selectHw
+            filterFixed = (release, profile) -> (row) ->
+                release ||= currentRelease()
+                profile ||= currentProfile()
+                r = release == 'Any' || release == row.release
+                p = profile == 'Any' || profile == row.profile
+                return r && p
+
+            filterRow = (release, profile, testset, product) -> (row) ->
+                t = testset == 'Any' || testset == row.testset
+                h = product == 'Any' || product == row.product
+                return filterFixed(release, profile)(row) && t && h
+
+            pluckUniq = (arr, field) -> _(arr).chain().pluck(field).uniq().value()
+
+            # Test sets list depends on release and profile selections
+            pluckUniqTestSets = (arr) ->
+                foo = _(arr).chain().filter(filterFixed()).value()
+                _(arr).chain().filter(filterFixed()).pluck('testset').uniq().value()
+
+            # Product list depends on release, profile, and testset selections
+            pluckUniqProducts = (arr) ->
+                filter_rows = (row) ->
+                    t = currentTestset()
+                    return filterFixed()(row) && (t == 'Any' || t == row.testset)
+                _(arr).chain().filter(filter_rows).pluck('product').uniq().value()
+
+            select = ->
+                [release, profile, testset, product] = currentSelections()
+                matching = _.filter data, filterRow(release, profile, testset, product)
+                # All test sets matching current filters
+                #createTestSets matching
+
+                # Update testset and product selections
+                createRadioButtons $testsets, pluckUniqTestSets(data), testset, select
+                createRadioButtons $products, pluckUniqProducts(data), product, select
+
+            createRadioButtons $releases, pluckUniq(data, 'release'), init_release, select
+            createRadioButtons $profiles, pluckUniq(data, 'profile'), init_profile, select
+            createRadioButtons $testsets, pluckUniqTestSets(data), init_testset, select
+            createRadioButtons $products, pluckUniqProducts(data), init_product, select
 
             # Generate List of Test Sets
-            createTestSets data[init_ver]?[init_hw]
+            createTestSets data[init_release]?[init_product]
 
             # Set Alert Limit
             if use_alert
@@ -371,7 +407,7 @@ class QAReportsWidget extends WidgetBase
         @config = {}
 
         @config.release = $form.find("div.release input:checked").val()
-        @config.hwproduct = $form.find("div.hardware input:checked").val()
+        @config.product = $form.find("div.hardware input:checked").val()
         if @use_alert
             @config.alert = $form.find("input.alert").val()
 
@@ -406,7 +442,7 @@ class QAReportsWidget extends WidgetBase
         cb?()
 
     get_reports: (groups, num, cb) ->
-        url = "/query/qa-reports/latest/#{@config.release}/#{@config.hwproduct}?num=#{num}"
+        url = "/query/qa-reports/latest/#{@config.release}/#{@config.product}?num=#{num}"
         groups = _(@config.groups).toArray()
         f = contains_group groups
         cached.get url, (data) ->
