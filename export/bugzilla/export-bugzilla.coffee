@@ -67,7 +67,7 @@ launch_daemon = (settings) ->
   # Add login parameters to Bugzilla query URI.
   __login_info = (uri, bugzilla) ->
     if bugzilla.bzAuth?.enabled
-      "#{uri}&Bugzilla_login=#{encodeURIComponent(bugzilla.bzAuth.username)}&Bugzilla_password=#{encodeURIComponent(bugzilla.bzAuth.username)}"
+      "#{uri}&Bugzilla_login=#{encodeURIComponent(bugzilla.bzAuth.username)}&Bugzilla_password=#{encodeURIComponent(bugzilla.bzAuth.password)}"
     else
       uri
 
@@ -75,27 +75,30 @@ launch_daemon = (settings) ->
   handle_service = (bugzilla) ->
 
     # Get the latest changed date of bugs from QA Dashboard
-    get_start_date = ->
+    get_start_date = (end_date = null) ->
       winston.info "Get the latest change date from QA Dashboard for #{bugzilla.url}"
       promise = Vow.promise()
 
-      opts         = __get_opts(settings.dashboard)
-      opts['uri']  = "#{settings.dashboard.url}/import/bugs/latest"
-      opts['qs']   = token: settings.dashboard.token, prefix: bugzilla.prefix
-      opts['json'] = true
+      if end_date?
+        d = new Date end_date
+        d.setDate d.getDate() - 1
+        promise.fulfill d
+      else
+        opts         = __get_opts(settings.dashboard)
+        opts['uri']  = "#{settings.dashboard.url}/import/bugs/latest"
+        opts['qs']   = token: settings.dashboard.token, prefix: bugzilla.prefix
+        opts['json'] = true
 
-      request.get opts, (err, res, data) ->
-        return promise.reject err if err?
-        return promise.reject "HTTP #{res.statusCode}. Is the token correct?" unless res.statusCode == 200
-        cd = data?.changeddate || bugzilla.start_date
-        return promise.fulfill null unless cd? && cd != ""
-        # Start a day earlier than the latest in DB - it seems it is possible
-        # to miss some bugs if using the same date
-        if bugzilla.prefix == 'MOZ'
-          cd = "2013-04-15"
-        d = new Date(cd)
-        d.setDate(d.getDate() - 1)
-        return promise.fulfill d
+        request.get opts, (err, res, data) ->
+          return promise.reject err if err?
+          return promise.reject "HTTP #{res.statusCode}. Is the token correct?" unless res.statusCode == 200
+          cd = data?.changeddate || bugzilla.start_date
+          return promise.fulfill null unless cd? && cd != ""
+          # Start a day earlier than the latest in DB - it seems it is possible
+          # to miss some bugs if using the same date
+          d = new Date(cd)
+          d.setDate(d.getDate() - 1)
+          return promise.fulfill d
 
       promise
 
@@ -149,20 +152,26 @@ launch_daemon = (settings) ->
 
     # Send bugs to QA Dashboard
     push_bugs = (data) ->
+      # If the CSV response contained just the header csv parser will output
+      # a single item with the headers in it. Such data we cannot upload
+      data.bugs = [] unless data?.bugs?.length >= 1 && data.bugs[0].bug_id?
       winston.info "Received #{data?.bugs?.length} bugs from #{bugzilla.url}, uploading"
       promise = Vow.promise()
 
-      opts         = __get_opts(settings.dashboard)
-      opts['uri']  = "#{settings.dashboard.url}/import/bugs/update"
-      opts['json'] =
-        bugs:  data.bugs
-        token: settings.dashboard.token
+      if data.bugs.length > 0
+        opts         = __get_opts(settings.dashboard)
+        opts['uri']  = "#{settings.dashboard.url}/import/bugs/update"
+        opts['json'] =
+          bugs:  data.bugs
+          token: settings.dashboard.token
 
-      request.post opts, (err, res, body) ->
-        return promise.reject err if err?
-        return promise.reject body.error if body.status == 'error'
-        return promise.reject "HTTP #{res.statusCode}" if res.statusCode != 200
-        return promise.fulfill data?.end_time
+        request.post opts, (err, res, body) ->
+          return promise.reject err if err?
+          return promise.reject body.error if body.status == 'error'
+          return promise.reject "HTTP #{res.statusCode}" if res.statusCode != 200
+          return promise.fulfill data?.end_time
+      else
+        promise.fulfill data?.end_time
 
       promise
 
@@ -171,27 +180,27 @@ launch_daemon = (settings) ->
       et = new Date("#{end_time} 00:00:00 UTC") if end_time?
       # Keep going until end time is at least "tomorrow" so we get "todays" bugs
       if et? and et.getTime() < new Date(new Date().getTime() + 24 * HOUR)
-        true
+        run_again: true, end_date: end_time
       else
-        false
+        run_again: false
 
     promise = Vow.promise()
-    poll_bugs = ->
-      get_start_date()
+    poll_bugs = (end_date = null) -> ->
+      get_start_date(end_date)
         .then(fetch_bugs)
         .then(push_bugs)
         .then(schedule_next_poll)
-        .then (run_again) ->
-          if run_again
-            setTimeout poll_bugs, 1 * SECOND
+        .then (data) ->
+          if data.run_again
+            setTimeout poll_bugs(data.end_date), 1 * SECOND
           else
             winston.info "Done handling #{bugzilla.url} for now"
             promise.fulfill()
         .fail (err) ->
           winston.error "Error when polling bugs from #{bugzilla.url}, trying again in 5 minutes.", err
-          setTimeout poll_bugs, 5 * MINUTE
+          setTimeout poll_bugs(), 5 * MINUTE
 
-    poll_bugs()
+    poll_bugs()()
     promise
 
   poll_bugs = ->
