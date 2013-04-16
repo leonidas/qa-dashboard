@@ -29,7 +29,7 @@ class PassRateBarChart extends QAReportsWidget
             for grp in data[ver][hw]
                 groups.push grp
             cb
-                hwproduct: hw
+                product: hw
                 release: ver
                 groups: groups
                 alert:30

@@ -14,7 +14,7 @@ class TopBlockers extends QAReportsWidget
             cb
                 groups: groups
                 release: ver
-                hwproduct: hw
+                product: hw
                 title: "Top Blockers: #{hw}"
                 num: 5
 
@@ -40,7 +40,7 @@ class TopBlockers extends QAReportsWidget
             cb $t
 
     get_top_bugs: (cb) ->
-        hw = @config.hwproduct or "N900"
+        hw = @config.product or "N900"
         num = @config.num or 5
         data =
             num: @config.num or 5
