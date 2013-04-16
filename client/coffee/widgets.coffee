@@ -161,8 +161,18 @@ class QAReportsWidget extends WidgetBase
                         @inputify_header()
                         cb?()
 
+    set_row: ($td, g) ->
+        $td.find('.release').text g.release
+        $td.find('.profile').text g.profile
+        $td.find('.testset').text g.testset
+        $td.find('.product').text g.product
+
+    group_key: (grp) ->
+        "#{grp.release} #{grp.profile} #{grp.testset} #{grp.product}".replace('.',':')
+
     format_settings_view: ($t, cb) ->
-        cfg = @config
+        self = @
+        cfg  = @config
         init_product = cfg.product
         init_release = cfg.release
         init_profile = cfg.profile
@@ -231,8 +241,7 @@ class QAReportsWidget extends WidgetBase
                     checkbox.attr("checked", "checked").val key
                     checkbox.unbind()
 
-                    row.find('span.target').text g.profile
-                    row.find('strong.testtype').text g.testtype
+                    self.set_row row, g
 
                     passtarget = row.find('input.passtarget')
                     if use_pass
@@ -279,9 +288,10 @@ class QAReportsWidget extends WidgetBase
             normalize = (s) ->
                 $.trim(s).toLowerCase().replace(/\s+/, " ")
 
+            # Suggestion filtering
             filter = parent.find("input.filters")
-            expr  = normalize filter.val()
-            words = expr.split(" ")
+            expr   = normalize filter.val()
+            words  = expr.split(" ")
 
             pattern = words.join(".*")
             regexp  = new RegExp(pattern, "i")
@@ -313,11 +323,21 @@ class QAReportsWidget extends WidgetBase
                     checkbox.removeAttr("checked").val key
                     checkbox.unbind()
 
-                    span = row.find('span.target')
-                    hilight_span span, g.profile, hilights, 0
+                    # Generate the suggestions list with highlights in place
+                    span = row.find('span.release')
+                    hilight_span span, g.release, hilights, 0
+                    next_start = g.release.length + 1
 
-                    span = row.find('strong.testtype')
-                    hilight_span span, g.testtype, hilights, g.profile.length+1
+                    span = row.find('span.profile')
+                    hilight_span span, g.profile, hilights, next_start
+                    next_start += g.profile.length + 1
+
+                    span = row.find('strong.testset')
+                    hilight_span span, g.testset, hilights, next_start
+                    next_start += g.testset.length + 1
+
+                    span = row.find('span.product')
+                    hilight_span span, g.product, hilights, next_start
 
                     checkbox.click ->
                         groups.push g
@@ -362,6 +382,10 @@ class QAReportsWidget extends WidgetBase
                 h = product == 'Any' || product == row.product
                 return filterFixed(release, profile)(row) && t && h
 
+            filterRows = ->
+                [release, profile, testset, product] = currentSelections()
+                _.filter data, filterRow(release, profile, testset, product)
+
             pluckUniq = (arr, field) -> _(arr).chain().pluck(field).uniq().value()
 
             # Test sets list depends on release and profile selections
@@ -377,14 +401,12 @@ class QAReportsWidget extends WidgetBase
                 _(arr).chain().filter(filter_rows).pluck('product').uniq().value()
 
             select = ->
-                [release, profile, testset, product] = currentSelections()
-                matching = _.filter data, filterRow(release, profile, testset, product)
+                matching = filterRows()
                 # All test sets matching current filters
-                #createTestSets matching
-
+                createTestSets matching
                 # Update testset and product selections
-                createRadioButtons $testsets, pluckUniqTestSets(data), testset, select
-                createRadioButtons $products, pluckUniqProducts(data), product, select
+                createRadioButtons $testsets, pluckUniqTestSets(data), currentTestset(), select
+                createRadioButtons $products, pluckUniqProducts(data), currentProduct(), select
 
             createRadioButtons $releases, pluckUniq(data, 'release'), init_release, select
             createRadioButtons $profiles, pluckUniq(data, 'profile'), init_profile, select
@@ -392,7 +414,7 @@ class QAReportsWidget extends WidgetBase
             createRadioButtons $products, pluckUniqProducts(data), init_product, select
 
             # Generate List of Test Sets
-            createTestSets data[init_release]?[init_product]
+            createTestSets filterRows()
 
             # Set Alert Limit
             if use_alert
@@ -407,7 +429,9 @@ class QAReportsWidget extends WidgetBase
         @config = {}
 
         @config.release = $form.find("div.release input:checked").val()
-        @config.product = $form.find("div.hardware input:checked").val()
+        @config.profile = $form.find("div.profile input:checked").val()
+        @config.testset = $form.find("div.testset input:checked").val()
+        @config.product = $form.find("div.product input:checked").val()
         if @use_alert
             @config.alert = $form.find("input.alert").val()
 
@@ -436,13 +460,10 @@ class QAReportsWidget extends WidgetBase
         if @use_passtargets
             @config.passtargets = passtargets
 
-        #console.log selected
-        #console.log @config
-
         cb?()
 
     get_reports: (groups, num, cb) ->
-        url = "/query/qa-reports/latest/#{@config.release}/#{@config.product}?num=#{num}"
+        url = "/query/qa-reports/latest/#{@config.release}/#{@config.profile}/#{@config.testset}/#{@config.product}?num=#{num}"
         groups = _(@config.groups).toArray()
         f = contains_group groups
         cached.get url, (data) ->
@@ -457,7 +478,7 @@ class QAReportsWidget extends WidgetBase
             cb data.url
 
 group_key = (grp) ->
-    "#{grp.profile} #{grp.testtype}".replace('.',':')
+    "#{grp.release} #{grp.profile} #{grp.testset} #{grp.product}".replace('.',':')
 
 same_group = (g1, g2) -> group_key(g1) == group_key(g2)
 

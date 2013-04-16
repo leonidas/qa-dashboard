@@ -39,6 +39,8 @@
     color: #C25050;
 }
 
+.widget_pass_rate_bars td.title span.product,
+.widget_pass_rate_bars td.title span.release,
 .widget_pass_rate_bars td.title span.profile {
     color: #A6A6A6;
 }

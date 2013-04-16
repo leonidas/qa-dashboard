@@ -25,8 +25,8 @@ exports.register_plugin = (db) ->
     reports = db.collection('qa-reports')
 
     reports.ensureIndex {qa_id: 1}, {unique: true}, ->
-    reports.ensureIndex {release: -1, hardware: 1, profile: 1}, {sparse: true}, ->
-    reports.ensureIndex {testtype: 1}, {sparse: true}, ->
+    reports.ensureIndex {release: -1, product: 1, profile: 1}, {sparse: true}, ->
+    reports.ensureIndex {testset: 1}, {sparse: true}, ->
 
     qa_reports_url = ""
     read_settings  = (settings) ->
@@ -34,17 +34,18 @@ exports.register_plugin = (db) ->
 
     api = {}
 
-    api.reports_for_bug = (hw, id, cb) ->
+    # TODO this is not used? Does not work now due to latest_reports change
+    api.reports_for_bug = (product, id, cb) ->
         id = parseInt id
         fields =
-            qa_id:1
-            title:1
-            profile:1
-            hardware:1
-            testtype:1
-            release:1
-            features:1
-        api.latest_reports 1, hw, fields, (err, arr) ->
+            qa_id:      1
+            title:      1
+            profile:    1
+            product:    1
+            testset:    1
+            release:    1
+            features:   1
+        api.latest_reports 1, product, fields, (err, arr) ->
             return cb? err if err?
             has_bug = (r) ->
                 for f in r.features
@@ -77,7 +78,7 @@ exports.register_plugin = (db) ->
 
             reformat = (r) ->
                 doc = {}
-                doc.url = "#{qa_reports_url}/#{r.release}/#{r.profile}/#{r.testtype}/#{r.hardware}/#{r.qa_id}"
+                doc.url = "#{qa_reports_url}/#{r.release}/#{r.profile}/#{r.testset}/#{r.product}/#{r.qa_id}"
                 doc.title = r.title
                 features = _(r.features).map format_feature
                 doc.features =_(features).filter (f) -> f.fail_cases > 0 or f.na_cases > 0
@@ -86,47 +87,44 @@ exports.register_plugin = (db) ->
             arr = _(arr).filter has_bug
             cb? null,_(arr).map reformat
 
-    api.targets_for_hw = (ver, hw, callback) ->
-        reports.distinct 'profile', {release: ver, hardware: hw}, callback
+    api.targets_for_product = (ver, product, callback) ->
+        reports.distinct 'profile', {release: ver, product: product}, callback
 
-    api.types_for_hw = (ver, hw) -> (profile, callback) ->
-        reports.distinct 'testtype', {release: ver, hardware: hw, profile: profile}, callback
+    api.types_for_product = (ver, product) -> (profile, callback) ->
+        reports.distinct 'testset', {release: ver, product: product, profile: profile}, callback
 
-    api.groups_for_hw = (ver, hw) -> (callback) ->
-        api.targets_for_hw ver, hw, (err, targets) ->
+    api.report_groups = (release, profile, testset, product) -> (callback) ->
+        filter_row = (row) ->
+            r = not release? || release == row.release
+            p = not profile? || profile == row.profile
+            t = not testset? || testset == row.testset
+            h = not product? || product == row.product
+            return r && p && t && h
+
+        # There really isn't that many groups that we couldn't just fetch all
+        # (because a methods exists) and then filter those.
+        api.all_groups (err, groups) ->
             return callback? err if err?
-            async.map targets, api.types_for_hw(ver, hw), (err, types) ->
-                return callback? err if err?
-
-                result = []
-                for [target,typs] in _.zip(targets,types)
-                    for type in typs
-                        result.push
-                            release:ver
-                            profile:target
-                            testtype:type
-                            hardware:hw
-
-                callback? null, result
+            callback? null, _.filter(groups, filter_row)
 
     api.latest_for_group = (n, fields) -> (grp, callback) ->
         fields ?=
-            hardware:1
-            profile:1
-            testtype:1
-            release:1
-            tested_at:1
+            product:    1
+            profile:    1
+            testset:    1
+            release:    1
+            tested_at:  1
             total_cases:1
-            total_pass:1
-            total_fail:1
-            total_na:1
-            qa_id:1
-            tested_at:1
-            title:1
+            total_pass: 1
+            total_fail: 1
+            total_na:   1
+            qa_id:      1
+            tested_at:  1
+            title:      1
 
         reports.find(grp, fields).sort(tested_at: -1, created_at: -1).limit(n).toArray (err, arr) ->
             return callback? err if err?
-            arr = _.map arr, (r) -> r.url = "#{qa_reports_url}/#{r.release}/#{r.profile}/#{r.testtype}/#{r.hardware}/#{r.qa_id}"; r
+            arr = _.map arr, (r) -> r.url = "#{qa_reports_url}/#{r.release}/#{r.profile}/#{r.testset}/#{r.product}/#{r.qa_id}"; r
             arr = arr[0] if n == 1
             callback? null, arr
 
@@ -136,8 +134,8 @@ exports.register_plugin = (db) ->
     api.all_profiles = (callback) ->
         reports.distinct 'profile', callback
 
-    api.hws_for_release = (ver, callback) ->
-        reports.distinct 'hardware', {release: ver}, callback
+    api.products_for_release = (ver, callback) ->
+        reports.distinct 'product', {release: ver}, callback
 
     api.sets = (release, profile, cb) ->
         reports.distinct 'testset', release: release, profile: profile, cb
@@ -145,14 +143,15 @@ exports.register_plugin = (db) ->
     api.products = (release, profile, testset, cb) ->
         reports.distinct 'product', release: release, profile: profile, testset: testset, cb
 
-    api.hw_groups_for_release = (ver) -> (callback) ->
-        api.hws_for_release ver, (err, arr) ->
-            return callback? err if err?
-            hws = {}
-            for hw in arr
-                hws[hw] = api.groups_for_hw ver, hw
-            async.parallel hws, callback
+    # api.product_groups_for_release = (ver) -> (callback) ->
+    #     api.products_for_release ver, (err, arr) ->
+    #         return callback? err if err?
+    #         products = {}
+    #         for product in arr
+    #             products[product] = api.groups_for_product ver, product
+    #         async.parallel products, callback
 
+    # Get all unique groups for given release/profile/testset combination
     api.group_rows_for = (release, profile, testset) -> (cb) ->
         api.products release, profile, testset, (err, arr) ->
             return cb? err if err?
@@ -167,6 +166,8 @@ exports.register_plugin = (db) ->
                 rows.push row
             cb? null, rows
 
+    # Get all unique groups for given release/profile combination (gets the
+    # sets first and then for each set the products)
     api.sets_for_release_profile = (release, profile) -> (cb) ->
         api.sets release, profile, (err, arr) ->
             return cb? err if err?
@@ -177,7 +178,9 @@ exports.register_plugin = (db) ->
             async.parallel products, cb
 
 
-    # Return a flat list of all existing release/target/testset/product combinations
+    # Return a flat list of all existing release/target/testset/product
+    # combinations, i.e. single item in list is:
+    # {release: '', profile: '', testset: '', product: ''}
     api.all_groups = (callback) ->
         async.parallel [
             api.all_releases
@@ -199,33 +202,37 @@ exports.register_plugin = (db) ->
                 arr = _.flatten arr
                 return callback? null, arr
 
-    api.latest_reports = (n, ver, hw, fields, callback) ->
-        api.groups_for_hw(ver, hw) (err, groups) ->
-            if not callback?
-                callback = fields
-                fields = null
+    api.latest_reports = (n, release, profile, testset, product, fields, callback) ->
+        [fields, callback] = [null, fields] if typeof fields == 'function'
+
+        release = null if release == 'Any'
+        profile = null if profile == 'Any'
+        testset = null if testset == 'Any'
+        product = null if product == 'Any'
+
+        api.report_groups(release, profile, testset, product) (err, groups) ->
             return callback? err if err?
-            async.map groups, api.latest_for_group(n,fields), callback
+            async.map groups, api.latest_for_group(n, fields), callback
 
     name: "qa-reports"
     api: api
     http: get:
-        "/for_bug/:id/:hw": (req,res) ->
-            api.reports_for_bug req.params.hw, req.params.id, (err, arr) ->
+        "/for_bug/:id/:product": (req,res) ->
+            api.reports_for_bug req.params.product, req.params.id, (err, arr) ->
                 res.send arr
 
-        "/latest/:hw": (req,res) ->
-            num = parseInt(req.param("num") ? "1")
-            api.latest_reports num, "1.2", req.params.hw, (err,arr) ->
-                if err?
-                    console.log err
-                    res.send 500
-                else
-                    res.send arr
+        # "/latest/:product": (req,res) ->
+        #     num = parseInt(req.param("num") ? "1")
+        #     api.latest_reports num, "1.2", req.params.product, (err,arr) ->
+        #         if err?
+        #             console.log err
+        #             res.send 500
+        #         else
+        #             res.send arr
 
-        "/latest/:ver/:hw": (req, res) ->
+        "/latest/:release/:profile/:testset/:product": (req, res) ->
             num = parseInt(req.param("num") ? "1")
-            api.latest_reports num, req.params.ver, req.params.hw, (err,arr) ->
+            api.latest_reports num, req.params.release, req.params.profile, req.params.testset, req.params.product, (err,arr) ->
                 if err?
                     console.log err
                     res.send 500

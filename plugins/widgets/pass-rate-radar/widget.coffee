@@ -48,7 +48,7 @@ class PassRateChart extends QAReportsWidget
         @chart.render_reports(@reports, @config.passtargets, {labels:false})
 
 
-class RadarChart
+class RadarChart extends QAReportsWidget
     constructor: (@elem, @width, @height) ->
         @paper = Raphael(@elem.get(0), @width, @height)
 
@@ -57,9 +57,10 @@ class RadarChart
         @maxsize = @height * 0.35
 
     render_reports: (rs, targets, opts) ->
-        if opts == undefined
-            opts = {labels:true}
-        sumtotal = (acc,x) -> acc + x.total_cases
+        self   = @
+        opts ||= labels: true
+
+        sumtotal    = (acc,x) -> acc + x.total_cases
         grand_total = _(rs).reduce sumtotal, 0
 
         # the sector width for a report will be 360*total_cases/grand_total
@@ -76,7 +77,7 @@ class RadarChart
         target_sectors = []
 
         for r in rs
-            title = "#{r.profile} #{r.testtype}"
+            title = self.group_key r
             arcw = 360 * r.total_cases/grand_total
             target = targets?[title]
             if not target?

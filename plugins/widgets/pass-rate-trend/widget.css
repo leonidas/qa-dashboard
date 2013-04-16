@@ -21,6 +21,8 @@
     bottom: -5px;
 }
 
+.widget_pass_rate_trend td.title span.product,
+.widget_pass_rate_trend td.title span.release,
 .widget_pass_rate_trend td.title span.profile {
     color: #A6A6A6;
 }

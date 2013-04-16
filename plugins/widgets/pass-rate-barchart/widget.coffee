@@ -14,8 +14,8 @@ class PassRateBarChart extends QAReportsWidget
 
     history_num: 10
 
-    group_key: (grp) ->
-        "#{grp.profile} #{grp.testtype}"
+    # group_key: (grp) ->
+    #     "#{grp.profile} #{grp.testtype}"
 
     get_default_config: (cb) ->
         hw = "N900"
@@ -37,6 +37,7 @@ class PassRateBarChart extends QAReportsWidget
                 title: "Pass rate: #{hw}"
 
     format_main_view: ($t, cb) ->
+        self    = @
         targets = @config.passtargets
         @get_reports @config.groups, @history_num, (reports) =>
             @reports = reports
@@ -57,10 +58,9 @@ class PassRateBarChart extends QAReportsWidget
                     row.find('.alert img').hide()
 
                 # Title
-
                 row.find('.title a').attr("href", r.url).attr("title", r.title)
-                row.find('.title .profile').text r.profile
-                row.find('.title .testtype').text r.testtype
+
+                self.set_row row, r
 
                 # Age
                 ms_in_day  = 1000 * 60 * 60 * 24
@@ -89,7 +89,7 @@ class PassRateBarChart extends QAReportsWidget
 
                 # Pass Rate Bar
                 container = row.find('div.pass-rate-bar')
-                key = "#{r.profile} #{r.testtype}"
+                key = self.group_key r
                 @draw_graph r, targets?[key], max_total, container
 
                 # Pass Rate History
@@ -101,6 +101,7 @@ class PassRateBarChart extends QAReportsWidget
             cb? $t
 
     format_small_view: ($t, cb) ->
+        self    = @
         targets = @config.passtargets
         @get_reports @config.groups, @history_num, (reports) =>
             @reports = reports
@@ -117,14 +118,13 @@ class PassRateBarChart extends QAReportsWidget
                     passrate = r.total_pass*100/r.total_cases
 
                 # Title
-
                 row.find('.title a').attr("href", r.url).attr("title", r.title)
-                row.find('.title .profile').text r.profile
-                row.find('.title .testtype').text r.testtype
+
+                self.set_row row, r
 
                 # Pass Rate Bar
                 container = row.find('div.pass-rate-bar')
-                key = "#{r.profile} #{r.testtype}"
+                key = self.group_key r
                 @draw_graph r, targets?[key], max_total, container
 
                 row.insertBefore tr

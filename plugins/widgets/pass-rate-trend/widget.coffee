@@ -33,6 +33,7 @@ class PassRateTrend extends QAReportsWidget
                 title: "Pass Trends: #{hw}"
 
     format_main_view: ($t, cb) ->
+        self   = @
         targets = @config.passtargets
 
         tooltip = @template.find('.tooltip').clone()
@@ -51,13 +52,12 @@ class PassRateTrend extends QAReportsWidget
             for rs in reports
                 r = rs[0]
                 row = tr.clone()
-                # Title
 
+                # Remove report ID since this links to the product level
                 url = r.url.replace /\/\d+$/, ''
+                # Title
                 row.find('.title a').attr "href", url
-                row.find('.title .profile').text r.profile
-                row.find('.title .testtype').text r.testtype
-
+                self.set_row row, r
 
                 # Pass Rate History
                 container = row.find('div.trend-graph')
