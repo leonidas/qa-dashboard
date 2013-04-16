@@ -133,8 +133,17 @@ exports.register_plugin = (db) ->
     api.all_releases = (callback) ->
         reports.distinct 'release', callback
 
+    api.all_profiles = (callback) ->
+        reports.distinct 'profile', callback
+
     api.hws_for_release = (ver, callback) ->
         reports.distinct 'hardware', {release: ver}, callback
+
+    api.sets = (release, profile, cb) ->
+        reports.distinct 'testset', release: release, profile: profile, cb
+
+    api.products = (release, profile, testset, cb) ->
+        reports.distinct 'product', release: release, profile: profile, testset: testset, cb
 
     api.hw_groups_for_release = (ver) -> (callback) ->
         api.hws_for_release ver, (err, arr) ->
@@ -144,14 +153,51 @@ exports.register_plugin = (db) ->
                 hws[hw] = api.groups_for_hw ver, hw
             async.parallel hws, callback
 
+    api.group_rows_for = (release, profile, testset) -> (cb) ->
+        api.products release, profile, testset, (err, arr) ->
+            return cb? err if err?
+
+            rows = []
+            for product in arr
+                row =
+                    release: release
+                    profile: profile
+                    testset: testset
+                    product: product
+                rows.push row
+            cb? null, rows
+
+    api.sets_for_release_profile = (release, profile) -> (cb) ->
+        api.sets release, profile, (err, arr) ->
+            return cb? err if err?
+
+            products = []
+            for testset in arr
+                products.push api.group_rows_for release, profile, testset
+            async.parallel products, cb
+
+
+    # Return a flat list of all existing release/target/testset/product combinations
     api.all_groups = (callback) ->
-        api.all_releases (err, arr) ->
+        async.parallel [
+            api.all_releases
+            api.all_profiles
+        ], (err, results) ->
             return callback? err if err?
-            releases = {}
-            arr?.sort()
-            for v in arr
-                releases[v] = api.hw_groups_for_release(v)
-            async.parallel releases, callback
+
+            releases = results[0]
+            profiles = results[1]
+
+            groups = []
+            # Now collect the data
+            for r in releases
+                for p in profiles
+                    groups.push api.sets_for_release_profile r, p
+
+            async.parallel groups, (err, arr) ->
+                return callback? err if err?
+                arr = _.flatten arr
+                return callback? null, arr
 
     api.latest_reports = (n, ver, hw, fields, callback) ->
         api.groups_for_hw(ver, hw) (err, groups) ->
@@ -180,14 +226,6 @@ exports.register_plugin = (db) ->
         "/latest/:ver/:hw": (req, res) ->
             num = parseInt(req.param("num") ? "1")
             api.latest_reports num, req.params.ver, req.params.hw, (err,arr) ->
-                if err?
-                    console.log err
-                    res.send 500
-                else
-                    res.send arr
-
-        "/groups/:hw": (req,res) ->
-            api.groups_for_hw("1.2", req.params.hw) (err,arr) ->
                 if err?
                     console.log err
                     res.send 500
