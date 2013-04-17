@@ -34,7 +34,7 @@ exports.register_plugin = (db) ->
     # -> bug_id cannot be unique
     bugs.ensureIndex    "bug_id", unique: true, ->
     bugs.ensureIndex    "prefix", ->
-    reports.ensureIndex "features.cases.bugs", sparse: true, ->
+    reports.ensureIndex "features.testcases.bugs", sparse: true, ->
 
     merge_counts = (c1, c2) ->
         merged = {}
@@ -51,14 +51,14 @@ exports.register_plugin = (db) ->
 
     api.bug_counts_for_group = (grp) -> (cb) ->
         reports_api = plugins.api.query['qa-reports']
-        fields = "features.cases.bugs":1
+        fields = "features.testcases.bugs":1
         reports_api.latest_for_group(1, fields) grp, (err, r) ->
             return cb? err if err?
 
             bugcounts = {}
             if r?
                 for fea in r.features
-                    for c in fea.cases
+                    for c in fea.testcases
                         for b in c.bugs
                             # We're only interested in items that are coming
                             # from Bugzilla. QA Reports has other types as well.

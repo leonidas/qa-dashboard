@@ -34,58 +34,58 @@ exports.register_plugin = (db) ->
 
     api = {}
 
-    # TODO this is not used? Does not work now due to latest_reports change
-    api.reports_for_bug = (product, id, cb) ->
-        id = parseInt id
-        fields =
-            qa_id:      1
-            title:      1
-            profile:    1
-            product:    1
-            testset:    1
-            release:    1
-            features:   1
-        api.latest_reports 1, product, fields, (err, arr) ->
-            return cb? err if err?
-            has_bug = (r) ->
-                for f in r.features
-                    for c in f.cases
-                        if id in c.bugs
-                            return true
-                return false
+    # TODO this is not used and it does not work now due to latest_reports change
+    # api.reports_for_bug = (product, id, cb) ->
+    #     id = parseInt id
+    #     fields =
+    #         qa_id:      1
+    #         title:      1
+    #         profile:    1
+    #         product:    1
+    #         testset:    1
+    #         release:    1
+    #         features:   1
+    #     api.latest_reports 1, product, fields, (err, arr) ->
+    #         return cb? err if err?
+    #         has_bug = (r) ->
+    #             for f in r.features
+    #                 for c in f.testcases
+    #                     if id in c.bugs
+    #                         return true
+    #             return false
 
-            count_cases = (cases) ->
-                fail_num = 0
-                na_num = 0
-                for c in cases
-                    if id in c.bugs
-                        if c.result == -1
-                            fail_num += 1
-                        if c.result == 0
-                            na_num += 1
+    #         count_cases = (cases) ->
+    #             fail_num = 0
+    #             na_num = 0
+    #             for c in cases
+    #                 if id in c.bugs
+    #                     if c.result == -1
+    #                         fail_num += 1
+    #                     if c.result == 0
+    #                         na_num += 1
 
-                fail_count: fail_num
-                na_count: na_num
+    #             fail_count: fail_num
+    #             na_count: na_num
 
-            format_feature = (fea) ->
-                doc = {}
-                doc.name = fea.name
-                cases = count_cases(fea.cases)
-                doc.fail_cases = cases.fail_count
-                doc.na_cases   = cases.na_count
-                doc.qa_id      = fea.qa_id
-                return doc
+    #         format_feature = (fea) ->
+    #             doc = {}
+    #             doc.name = fea.name
+    #             cases = count_cases(fea.testcases)
+    #             doc.fail_cases = cases.fail_count
+    #             doc.na_cases   = cases.na_count
+    #             doc.qa_id      = fea.qa_id
+    #             return doc
 
-            reformat = (r) ->
-                doc = {}
-                doc.url = "#{qa_reports_url}/#{r.release}/#{r.profile}/#{r.testset}/#{r.product}/#{r.qa_id}"
-                doc.title = r.title
-                features = _(r.features).map format_feature
-                doc.features =_(features).filter (f) -> f.fail_cases > 0 or f.na_cases > 0
-                return doc
+    #         reformat = (r) ->
+    #             doc = {}
+    #             doc.url = "#{qa_reports_url}/#{r.release}/#{r.profile}/#{r.testset}/#{r.product}/#{r.qa_id}"
+    #             doc.title = r.title
+    #             features = _(r.features).map format_feature
+    #             doc.features =_(features).filter (f) -> f.fail_cases > 0 or f.na_cases > 0
+    #             return doc
 
-            arr = _(arr).filter has_bug
-            cb? null,_(arr).map reformat
+    #         arr = _(arr).filter has_bug
+    #         cb? null,_(arr).map reformat
 
     api.targets_for_product = (ver, product, callback) ->
         reports.distinct 'profile', {release: ver, product: product}, callback
@@ -118,6 +118,7 @@ exports.register_plugin = (db) ->
             total_pass: 1
             total_fail: 1
             total_na:   1
+            total_measured: 1
             qa_id:      1
             tested_at:  1
             title:      1
@@ -217,9 +218,9 @@ exports.register_plugin = (db) ->
     name: "qa-reports"
     api: api
     http: get:
-        "/for_bug/:id/:product": (req,res) ->
-            api.reports_for_bug req.params.product, req.params.id, (err, arr) ->
-                res.send arr
+        # "/for_bug/:id/:product": (req,res) ->
+        #     api.reports_for_bug req.params.product, req.params.id, (err, arr) ->
+        #         res.send arr
 
         # "/latest/:product": (req,res) ->
         #     num = parseInt(req.param("num") ? "1")
