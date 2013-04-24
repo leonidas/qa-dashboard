@@ -1,16 +1,15 @@
 set :app_name, "qa-dashboard"
 set :server_host, "#{app_name}"
+# The port number to which the node process binds to
 set :server_port, 8000
 
 set :application, server_host
 set :deploy_to, "/home/#{user}/#{application}"
 set :node_env, "production"
 
-#set :branch, "fea-new-server-deployment"
-
 set :keep_releases, 10
 
-server server_host, :app, :web, :db, :primary => true
+server "localhost", :app, :web, :db, :primary => true
 
 after "deploy:symlink" do
   # Allow robots to index
