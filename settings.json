@@ -1,8 +1,6 @@
 {
  "server": {
-    "host": "localhost",
-    "port": 3030,
-    "url" : "http://localhost:3030"
+    "port": 3030
   },
 
   "db": {
@@ -11,7 +9,7 @@
   },
 
   "qa-reports": {
-    "url": "http://qa-reports.meego.com"
+    "url": "http://qa-reports.qa.leonidasoy.fi"
   },
 
   "app": {

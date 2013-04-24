@@ -153,6 +153,7 @@ namespace :qadashboard do
       get_exporters().each do |item|
         if item.key?(:config)
           settings = JSON.parse File.read(item[:config])
+          settings["dashboard"]["url"] = "http://localhost:#{server_port}"
           put JSON.pretty_generate(settings), "#{shared_path}/#{item[:shortname]}/config.json"
         end
       end

@@ -1,6 +1,6 @@
 {
   "reports": {
-    "url": "http://qa-reports.meego.com",
+    "url": "http://qa-reports.qa.leonidasoy.fi",
     "basicAuth": {
       "enabled":  false,
       "username": "",
@@ -16,7 +16,7 @@
 
   "dashboard": {
     "url": "http://localhost:3030",
-    "token": "13a46fae7c5627dc26ee7b40349afe833dee0b15",
+    "token": "2e66b09419c56e33b8487fd8bd2014490d2ac7c5",
     "basicAuth": {
       "enabled":  false,
       "username": "",
