@@ -6,7 +6,7 @@ require 'json'
 set :user, "www-data"
 set :use_sudo, false
 set :copy_compression, :zip
-set :branch, "node-v0.8"
+
 set :scm, :git
 set :repository, "https://github.com/leonidas/qa-dashboard.git"
 set :deploy_via, :remote_cache
@@ -36,14 +36,17 @@ namespace :deploy do
   desc "Restart server"
   task :restart, :roles => :app do
     run "sudo /sbin/start #{app_name} || sudo /sbin/restart #{app_name}"
+    qadashboard.restart_exporters
   end
   desc "Start server"
   task :start, :roles => :app do
     run "sudo /sbin/start #{app_name}"
+    qadashboard.start_exporters
   end
   desc "Stop server"
   task :stop, :roles => :app do
     run "sudo /sbin/stop #{app_name}"
+    qadashboard.stop_exporters
   end
 end
 
@@ -92,6 +95,24 @@ namespace :qadashboard do
     end
   end
 
+  desc "Stop exporters"
+  task :stop_exporters, :roles => :app do
+    get_exporters().each do |item|
+      if item.key?(:upstart)
+        run "sudo /sbin/stop #{item[:name]}"
+      end
+    end
+  end
+
+  desc "Start exporters"
+  task :start_exporters, :roles => :app do
+    get_exporters().each do |item|
+      if item.key?(:upstart)
+        run "sudo /sbin/start #{item[:name]}"
+      end
+    end
+  end
+
   namespace :setup do
     desc "QA Dashboard setup"
     task :setup, :roles => :app do
@@ -110,6 +131,7 @@ namespace :qadashboard do
       qadashboard.setup.settings_exporters
       qadashboard.setup.upstart
       qadashboard.setup.upstart_exporters
+      qadashboard.setup.logrotate
 
       puts "\033[33m\n\nThere are still things you need to do:\033[0m"
       puts "  - Copy the generated upstart configuration files to /etc/init"
@@ -140,7 +162,7 @@ namespace :qadashboard do
     task :upstart, :roles => :app do
       conf = ERB.new(File.read("./config/upstart.conf")).result(binding)
       put conf, "#{shared_path}/#{app_name}.conf"
-      puts "\033[32mNOTICE:  Upstart configuration generated to #{shared_path}/#{app_name}.conf\033[0m"
+      puts "\033[32mNOTICE: Upstart configuration generated to #{shared_path}/#{app_name}.conf\033[0m"
     end
 
     desc "Generate upstart configurations for exporters"
@@ -153,11 +175,18 @@ namespace :qadashboard do
           target = "#{shared_path}/#{item[:name]}.conf"
           conf   = ERB.new(File.read(item[:upstart])).result(binding)
           put conf, target
-          puts "\033[32mNOTICE:  Upstart configuration generated to #{target}\033[0m"
+          puts "\033[32mNOTICE: Upstart configuration generated to #{target}\033[0m"
         else
           puts "\033[34mWARNING: No upstart configuration file found from #{fullpath}\033[0m"
         end
       end
+    end
+
+    desc "Generate logrotate configuration"
+    task :logrotate, :roles => :app do
+      conf = ERB.new(File.read("config/logrotate.conf")).result(binding)
+      put conf, "#{shared_path}/logrotate.conf"
+      puts "\033[32mNOTICE: Logrotate configuration generated to #{shared_path}/logrotate.conf\033[0m"
     end
   end
 end

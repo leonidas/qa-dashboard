@@ -1,6 +1,8 @@
 
 This readme is work in progress.
 
+*NOTICE:* If you have set up QA Dashboard back in the day and are now considering upgrading, it is worth to notice that current version is *not* compatible with the previous one. You should either keep your current installation or set up from scratch. Notice also that old QA Reports installations are *not* compatible with new QA Dashboard.
+
 ## Development environment
 
 * Install Node.js:
