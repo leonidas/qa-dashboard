@@ -6,7 +6,7 @@ require 'json'
 set :user, "www-data"
 set :use_sudo, false
 set :copy_compression, :zip
-
+set :branch, "node-v0.8"
 set :scm, :git
 set :repository, "https://github.com/leonidas/qa-dashboard.git"
 set :deploy_via, :remote_cache
@@ -70,7 +70,7 @@ namespace :qadashboard do
     if shared_node_modules
       run "rm -fr #{current_path}/node_modules && ln -nfs #{shared_path}/node_modules #{current_path}/node_modules"
       get_exporters().each do |item|
-        run "rm -fr #{current_path}/#{item[:path]}/node_modules && ln -nfs #{shared_path}/#{item[:shortname]}/node_modules #{current_path}/#{item[:path]}/node_modules")
+        run "rm -fr #{current_path}/#{item[:path]}/node_modules && ln -nfs #{shared_path}/#{item[:shortname]}/node_modules #{current_path}/#{item[:path]}/node_modules"
       end
     end
   end
