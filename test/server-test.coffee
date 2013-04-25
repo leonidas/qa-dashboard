@@ -23,6 +23,8 @@ describe 'QA Dashboard', ->
   before (cb) ->
     dbs = new mongodb.Server TEST_SETTINGS.db.host, TEST_SETTINGS.db.port
     new mongodb.Db("qadash-test", dbs, w: 1).open (err, dbo) ->
+      return cb err if err?
+
       db  = dbo
       db.dropDatabase (err, done) ->
         return cb err if err?
