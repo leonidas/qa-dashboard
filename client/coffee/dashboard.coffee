@@ -160,11 +160,12 @@ init_user_dashboard = (dashboard, cb) ->
     $p.toolbar_container.show()
     $p.upper_header.show()
     $p.logged_user.text(current_user.username)
-    $p.token.text(current_user.token)
 
     $p.logged_user.on 'click', (e) ->
         e.preventDefault()
-        $('#user_info').slideToggle(300)
+        cached.get "/user/token", (data) ->
+            $p.token.text(data.token)
+            $('#user_info').slideToggle(300)
 
     cached.get "/widgets", (data) ->
         initialize_toolbar data, $p.widget_bar
