@@ -160,6 +160,11 @@ init_user_dashboard = (dashboard, cb) ->
     $p.toolbar_container.show()
     $p.upper_header.show()
     $p.logged_user.text(current_user.username)
+    $p.token.text(current_user.token)
+
+    $p.logged_user.on 'click', (e) ->
+        e.preventDefault()
+        $('#user_info').slideToggle(300)
 
     cached.get "/widgets", (data) ->
         initialize_toolbar data, $p.widget_bar
@@ -731,6 +736,8 @@ $ () ->
     $p.toolbar_container = $('.toolbar_container')
     $p.upper_header      = $('#upper_header')
     $p.logged_user       = $('#logged_user')
+
+    $p.token             = $p.logged_user.siblings('#user_info').find('.token')
 
     $p.widget_bar        = $('#widget_bar')
     $p.add_widget_btn    = $('#add_widgets_btn')
