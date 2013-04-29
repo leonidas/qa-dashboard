@@ -145,6 +145,18 @@ namespace :qadashboard do
       settings = JSON.parse File.read("./#{settings_file}")
       settings["app"]["name"]    = app_name
       settings["server"]["port"] = server_port
+
+      # Check authentication settings
+      if settings["auth"]["method"] == "ldap"
+        if settings["auth"]["ldap"]["adminDn"].empty?
+          settings["auth"]["ldap"]["adminDn"] = Capistrano::CLI.ui.ask "Please enter LDAP admin DN: "
+        end
+
+        if settings["auth"]["ldap"]["adminPassword"].empty?
+          settings["auth"]["ldap"]["adminPassword"] = Capistrano::CLI.password_prompt "Please enter LDAP password for '#{settings["auth"]["ldap"]["adminDn"]}': "
+        end
+      end
+
       put JSON.pretty_generate(settings), "#{shared_path}/#{settings_file}"
     end
 
