@@ -119,9 +119,10 @@ class PassRateTrend extends QAReportsWidget
 
         url  = r.url
 
-        passrate = parseInt(r.total_pass*100/r.total_cases)
-        failrate = parseInt(r.total_fail*100/r.total_cases)
-        narate   = parseInt(r.total_na  *100/r.total_cases)
+        adjusted_total = r.total_cases - r.total_measured
+        passrate = (r.total_pass*100/adjusted_total).toFixed(0)
+        failrate = (r.total_fail*100/adjusted_total).toFixed(0)
+        narate   = (r.total_na*100/adjusted_total).toFixed(0)
 
         date = (""+r.tested_at)
         date = date.slice(0,date.indexOf("T"))

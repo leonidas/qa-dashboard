@@ -129,7 +129,7 @@ class PassRateBarChart extends QAReportsWidget
         m2 = m*2
 
         # Comment out for absolute
-        max_total = report.total_cases
+        max_total = report.total_cases - report.total_measured
 
         paper = Raphael(elem.get(0), bw,bh)
         x = 0
