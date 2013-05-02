@@ -200,6 +200,8 @@ get_widget_class = (name) -> (callback) ->
             setTimeout (-> callback cls), 1
     else
         cached.get "/widgets/#{name}", (data) ->
+            return callback? null unless data?
+
             code = data.code
             cls = eval code
             cls.prototype.template = $(data.html)
@@ -220,6 +222,8 @@ create_new_widget = (name) -> (callback) ->
     dom.find('.content_main').show()
     init_widget_dom_events(dom)
     get_widget_class(name) (cls) ->
+        return callback? null unless cls?
+
         wgt = new cls()
         # Get default config to get some configuration saved, otherwise
         # the widget will show different data on page refresh
@@ -614,6 +618,8 @@ $sidebar     = () -> $('#page_content .sidebar')
 
 load_widget = ($elem) -> (w) -> (cb) ->
     create_new_widget(w.type) (obj) ->
+        return cb?() unless obj?
+
         obj.config = w.config
         dom = obj.dom
         $elem.append(dom)
