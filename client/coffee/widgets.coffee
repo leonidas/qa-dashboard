@@ -142,6 +142,40 @@ class WidgetBase
 
     process_save_settings: ($form, cb) -> cb?()
 
+    # TODO: This is more of a helper method but it is useful for many
+    # widgets (e.g. all QA Reports widgets use this). Should this be
+    # placed somewhere else?
+    @create_radio_buttons: (parent, data, checked, func) ->
+        # Generate Radio Buttons from Templates
+        rel = parent
+        inputTmpl = rel.find("input").first().clone().unbind().removeAttr "id"
+        labelTmpl = rel.find("label").first().clone().unbind().removeAttr "for"
+        inputTmpl.removeAttr "checked"
+        rel.empty()
+        inputTmpl.appendTo(rel).hide()
+        labelTmpl.appendTo(rel).hide()
+
+        found = false
+        for k in ['Any'].concat data.sort()
+            do (k) ->
+                i = inputTmpl.clone()
+                # Don't use show, for some reason it sets style attribute
+                # of the element to block instead of what's defined in
+                # CSS. This did not happen with jQuery 1.4 but does now
+                l = labelTmpl.clone().css 'display', 'inline-block'
+                if k == checked
+                    i.attr('checked','checked')
+                    found = true
+                i.val k
+                l.text k
+                i.appendTo rel
+                l.appendTo rel
+                l.click ->
+                    i.click()
+                    func?(k)
+        if not found
+            parent.find('input[value!="XYZ"]').first().click()
+
 
 class QAReportsWidget extends WidgetBase
     use_passtargets: false
@@ -208,37 +242,6 @@ class QAReportsWidget extends WidgetBase
             cfg.groups = groups = g_.toArray()
 
         selected = contains_group groups
-
-        createRadioButtons = (parent, data, checked, func) ->
-            # Generate Radio Buttons from Templates
-            rel = parent
-            inputTmpl = rel.find("input").first().clone().unbind().removeAttr "id"
-            labelTmpl = rel.find("label").first().clone().unbind().removeAttr "for"
-            inputTmpl.removeAttr "checked"
-            rel.empty()
-            inputTmpl.appendTo(rel).hide()
-            labelTmpl.appendTo(rel).hide()
-
-            found = false
-            for k in ['Any'].concat data.sort()
-                do (k) ->
-                    i = inputTmpl.clone()
-                    # Don't use show, for some reason it sets style attribute
-                    # of the element to block instead of what's defined in
-                    # CSS. This did not happen with jQuery 1.4 but does now
-                    l = labelTmpl.clone().css 'display', 'inline-block'
-                    if k == checked
-                        i.attr('checked','checked')
-                        found = true
-                    i.val k
-                    l.text k
-                    i.appendTo rel
-                    l.appendTo rel
-                    l.click ->
-                        i.click()
-                        func?(k)
-            if not found
-                parent.find('input[value!="XYZ"]').first().click()
 
         updateSelectedSets = (data) ->
             parent = $t.find("table.multiple_select")
@@ -422,15 +425,15 @@ class QAReportsWidget extends WidgetBase
             select = ->
                 matching = filterRows()
                 # Update testset and product selections
-                createRadioButtons $testsets, pluckUniqTestSets(data), currentTestset(), select
-                createRadioButtons $products, pluckUniqProducts(data), currentProduct(), select
+                WidgetBase.create_radio_buttons $testsets, pluckUniqTestSets(data), currentTestset(), select
+                WidgetBase.create_radio_buttons $products, pluckUniqProducts(data), currentProduct(), select
                 # All test sets matching current filters
                 createTestSets matching
 
-            createRadioButtons $releases, pluckUniq(data, 'release'), init_release, select
-            createRadioButtons $profiles, pluckUniq(data, 'profile'), init_profile, select
-            createRadioButtons $testsets, pluckUniqTestSets(data), init_testset, select
-            createRadioButtons $products, pluckUniqProducts(data), init_product, select
+            WidgetBase.create_radio_buttons $releases, pluckUniq(data, 'release'), init_release, select
+            WidgetBase.create_radio_buttons $profiles, pluckUniq(data, 'profile'), init_profile, select
+            WidgetBase.create_radio_buttons $testsets, pluckUniqTestSets(data), init_testset, select
+            WidgetBase.create_radio_buttons $products, pluckUniqProducts(data), init_product, select
 
             # Generate List of Test Sets
             createTestSets filterRows()
