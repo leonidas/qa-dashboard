@@ -419,11 +419,11 @@ class QAReportsWidget extends WidgetBase
 
             select = ->
                 matching = filterRows()
-                # All test sets matching current filters
-                createTestSets matching
                 # Update testset and product selections
                 createRadioButtons $testsets, pluckUniqTestSets(data), currentTestset(), select
                 createRadioButtons $products, pluckUniqProducts(data), currentProduct(), select
+                # All test sets matching current filters
+                createTestSets matching
 
             createRadioButtons $releases, pluckUniq(data, 'release'), init_release, select
             createRadioButtons $profiles, pluckUniq(data, 'profile'), init_profile, select
