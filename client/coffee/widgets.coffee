@@ -140,6 +140,8 @@ class WidgetBase
             @config.title = t = title.find("input").val()
             cb?()
 
+    process_save_settings: ($form, cb) -> cb?()
+
 
 class QAReportsWidget extends WidgetBase
     use_passtargets: false

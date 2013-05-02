@@ -243,7 +243,7 @@ init_widget_dom_events = (dom) ->
             $this.removeClass 'active'
 
             $form   = $dom.find(".widget_edit_content form")
-            $widget = $form.closest(".widget")
+            $widget = $this.closest(".widget")
             obj     = $widget.data("widgetObj")
 
             $widget.find(".action .widget_edit").toggleClass("active")
