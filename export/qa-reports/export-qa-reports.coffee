@@ -45,6 +45,11 @@ launchDaemon = (cfg) ->
             opts['uri'] += "&begin_time=#{fmtDate since}"
 
         request.get opts, (err, res, body) ->
+            # Mark the report being delivered using the exporter. We can
+            # then return the latest report date for exported reports only.
+            # Now if QA Reports exports n reports but only the last one
+            # succeeds the exporter will find the remaining reports.
+            reports = _.map body, (report) -> report.exported = true
             return callback err if err?
             return callback res.statusCode if res.statusCode != 200
             return callback null, body
