@@ -29,6 +29,12 @@ exports.register_plugin = (db) ->
         else
             true
 
+    fix_values = (doc) ->
+        doc.created_at = new Date(doc.created_at)
+        doc.tested_at  = new Date(doc.tested_at)
+        doc.updated_at = new Date(doc.updated_at)
+        doc
+
     name: "qa-reports"
     http:
         get:
@@ -49,11 +55,12 @@ exports.register_plugin = (db) ->
             "/update": (req, res) ->
                 doc = req.body.report
                 return if not valid_request_format(doc,res)
+                doc = fix_values doc
 
                 reports.findOne qa_id: doc.qa_id, (err, old) ->
                     return res.send status: "error", error: err if err?
 
-                    if not old? || (new Date(doc.updated_at) >= new Date(old.updated_at))
+                    if not old? || (doc.updated_at >= old.updated_at)
                         reports.update {qa_id: doc.qa_id}, doc, {upsert: true}, (err) ->
                             return res.send status: "error", error: err if err?
                             res.send status: 'ok'
@@ -70,11 +77,12 @@ exports.register_plugin = (db) ->
                             err = "invalid document format"
                             cb err, null
                         else
+                            report = fix_values report
                             cb null, (callback) ->
                                 reports.findOne qa_id: report.qa_id, (err, old) ->
                                     return callback err, null if err?
 
-                                    if not old? || (new Date(report.updated_at) >= new Date(old.updated_at))
+                                    if not old? || (report.updated_at >= old.updated_at)
                                         reports.update {qa_id: report.qa_id}, report, {upsert: true}, callback
                     (err, q_arr) ->
                         return res.send status: 'error', error: err if err?
