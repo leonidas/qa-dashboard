@@ -212,9 +212,13 @@ get_widget_class = (name) -> (callback) ->
 add_custom_css = (css) ->
     if css? and css != ""
         elem = document.getElementById('custom_styles')
-        src = elem.innerText + '\n\n' + css
-        elem.innerText = src
-
+        src  = elem.innerText + '\n\n' + css
+        if elem.styleSheet
+            elem.styleSheet.cssText = src
+        else
+            while elem.firstChild
+                elem.removeChild elem.firstChild
+            elem.appendChild document.createTextNode src
 
 create_new_widget = (name) -> (callback) ->
     dom = $("#widget-base-template").clone().removeAttr("id")
