@@ -361,10 +361,11 @@ class QAReportsWidget extends WidgetBase
                     span = row.find('span.product')
                     hilight_span span, g.product, hilights, next_start
 
-                    checkbox.click ->
+                    checkbox.click (e, p) ->
                         groups.push g
-                        updateSelectedSets(data)
-                        updateSuggestions(data)
+                        if p != 'select-all'
+                            updateSelectedSets(data)
+                            updateSuggestions(data)
 
                     row.appendTo body
 
@@ -430,6 +431,12 @@ class QAReportsWidget extends WidgetBase
                 # All test sets matching current filters
                 createTestSets matching
 
+            set_select_all_suggestions = (dom) ->
+                dom.find('a.select-all', '.widget_edit_content').on 'click', (e) ->
+                    e.preventDefault()
+                    $(this).parents('.title-group').next('.suggestion-group').find('input[type="checkbox"]:visible').trigger 'click', ['select-all']
+                    createTestSets filterRows()
+
             WidgetBase.create_radio_buttons $releases, pluckUniq(data, 'release'), init_release, select
             WidgetBase.create_radio_buttons $profiles, pluckUniq(data, 'profile'), init_profile, select
             WidgetBase.create_radio_buttons $testsets, pluckUniqTestSets(data), init_testset, select
@@ -444,6 +451,8 @@ class QAReportsWidget extends WidgetBase
                 $t.find("form input.alert").val(""+cfg.alert)
             else
                 $t.find("div.alert").hide()
+
+            set_select_all_suggestions $t
 
             cb? $t
 
