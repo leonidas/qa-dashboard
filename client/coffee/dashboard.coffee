@@ -107,7 +107,10 @@ initialize_toolbar = (widgets, elem) ->
     $close = $elem.find(".close_widget_bar")
     $tmpl  = $("#hidden_templates .widget_info")
 
-    for name,cfg of widgets
+    names = _.keys(widgets).sort()
+
+    for name in names
+        cfg = widgets[name]
         $btn = $tmpl.clone(true)
         $btn.find("h1").text cfg.title
         $btn.find("p").text cfg.desc
