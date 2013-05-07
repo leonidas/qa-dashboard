@@ -739,7 +739,7 @@ save_widgets = (cb) ->
 
 
 $ () ->
-    CFInstall?.check()
+    CFInstall?.check mode: 'overlay'
 
     $(window).load   balance_columns
     $(window).resize balance_columns
