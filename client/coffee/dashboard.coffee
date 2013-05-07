@@ -94,7 +94,7 @@ initialize_application = () ->
                 # render dashboard
                 init_user_dashboard(data.dashboard)
         else
-            if frag? and frag != ''
+            if frag? and frag != '' and frag != '#'
                 frag = frag.substring(1)
                 handle_fragment_path frag
             else
@@ -128,7 +128,7 @@ initialize_toolbar = (widgets, elem) ->
         $elem.slideUp(300)
 
 load_dashboard = (callback) ->
-    $.getJSON "/user", (data) ->
+    $.getJSON "/user?#{(new Date()).getTime()}", (data) ->
         callback? data
 
 reset_dashboard = () ->
