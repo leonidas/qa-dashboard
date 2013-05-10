@@ -180,6 +180,7 @@ init_user_dashboard = (dashboard, cb) ->
             if dashboard?.column?
                 # backwads compatibility
                 load_widgets()
+            cb?()
         else
             load_tabs dashboard.tabs, (err) ->
                 $('#tab_navi').css('visibility','visible')
