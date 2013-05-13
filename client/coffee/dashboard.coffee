@@ -80,27 +80,46 @@ handle_fragment_path = () ->
             $('.share_link a').attr "href","#{window.location.protocol}//#{window.location.host}"
             init_shared_dashboard tab
 
+load_settings = (cb) ->
+    show_navi_link = (cls, href) ->
+        if href? && href != ""
+            $target = $(cls, '#upper_header .h-navi')
+            if href.match /^mailto:/
+                $target.addClass 'mailto'
+            else
+                $target.addClass 'external'
+
+            $target.attr('href', href).show()
+
+    cached.get '/config', (cfg) ->
+        show_navi_link '.feedback_link', cfg.feedback_link
+        show_navi_link '.documentation_link', cfg.documentation_link
+        show_navi_link '.idea_link', cfg.idea_link
+        cb()
+
 initialize_application = () ->
     frag = window.location.hash
-    load_dashboard (data) ->
-        if data.username?
-            current_user = data
-            data.dashboard ?= {}
-            # TODO: refactor duplicate frag checking
-            if frag? and frag != ''
-                frag = frag.substring(1)
-                handle_fragment_path frag
+
+    load_settings ->
+        load_dashboard (data) ->
+            if data.username?
+                current_user = data
+                data.dashboard ?= {}
+                # TODO: refactor duplicate frag checking
+                if frag? and frag != ''
+                    frag = frag.substring(1)
+                    handle_fragment_path frag
+                else
+                    # render dashboard
+                    init_user_dashboard(data.dashboard)
             else
-                # render dashboard
-                init_user_dashboard(data.dashboard)
-        else
-            if frag? and frag != '' and frag != '#'
-                frag = frag.substring(1)
-                handle_fragment_path frag
-            else
-                # show login form
-                $p.form_container.show()
-                balance_columns()
+                if frag? and frag != '' and frag != '#'
+                    frag = frag.substring(1)
+                    handle_fragment_path frag
+                else
+                    # show login form
+                    $p.form_container.show()
+                    balance_columns()
 
 initialize_toolbar = (widgets, elem) ->
     $elem  = $(elem)

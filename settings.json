@@ -13,7 +13,13 @@
   },
 
   "app": {
-    "name": "qa-dashboard"
+    "name": "qa-dashboard",
+
+    "exposed": {
+      "feedback_link": "mailto:qa-dashboard@leonidasoy.fi",
+      "documentation_link": "https://github.com/leonidas/qa-dashboard/wiki",
+      "idea_link": "https://github.com/leonidas/qa-dashboard/issues"
+    }
   },
 
   "auth": {

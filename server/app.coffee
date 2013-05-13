@@ -81,6 +81,9 @@ create_app = (settings, db) ->
     widgetdir = basedir+"/plugins/widgets"
     require('widgets').initialize_widgets widgetdir, app, db
 
+    app.get '/config', (req, res) ->
+        res.send settings.app.exposed
+
     app
 
 exports.create_app = create_app
