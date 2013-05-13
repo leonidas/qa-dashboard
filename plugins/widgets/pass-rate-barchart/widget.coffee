@@ -28,15 +28,13 @@ class PassRateBarChart extends QAReportsWidget
             @reports = reports
             tr = $t.find('tbody tr')
 
-            max_total = _.max(rs[0].total_cases for rs in reports)
-
             for rs in reports
                 r = rs[0]
                 row = tr.clone()
                 if r.total_cases == 0
                     passrate = 0
                 else
-                    passrate = r.total_pass*100/r.total_cases
+                    passrate = r.total_pass*100/(r.total_cases - r.total_measured)
 
                 # Alert
                 if passrate >= @config.alert
@@ -59,7 +57,7 @@ class PassRateBarChart extends QAReportsWidget
                     if prev.total_cases == 0
                         c = " "
                     else
-                        ppr = prev.total_pass*100/prev.total_cases
+                        ppr = prev.total_pass*100/(prev.total_cases - prev.total_measured)
                         delta = parseInt(passrate - ppr)
                         if delta > 0
                             c = "+#{delta}%"
@@ -75,7 +73,7 @@ class PassRateBarChart extends QAReportsWidget
                 # Pass Rate Bar
                 container = row.find('div.pass-rate-bar')
                 key = self.group_key r
-                @draw_graph r, targets?[key], max_total, container
+                @draw_graph r, targets?[key], container
 
                 # Pass Rate History
                 container = row.find('div.pass-rate-history')
@@ -92,15 +90,13 @@ class PassRateBarChart extends QAReportsWidget
             @reports = reports
             tr = $t.find('tbody tr')
 
-            max_total = _.max(rs[0].total_cases for rs in reports)
-
             for rs in reports
                 r = rs[0]
                 row = tr.clone()
                 if r.total_cases == 0
                     passrate = 0
                 else
-                    passrate = r.total_pass*100/r.total_cases
+                    passrate = r.total_pass*100/(r.total_cases - r.total_measured)
 
                 # Title
                 row.find('.title a').attr("href", r.url).attr("title", r.title)
@@ -110,14 +106,14 @@ class PassRateBarChart extends QAReportsWidget
                 # Pass Rate Bar
                 container = row.find('div.pass-rate-bar')
                 key = self.group_key r
-                @draw_graph r, targets?[key], max_total, container
+                @draw_graph r, targets?[key], container
 
                 row.insertBefore tr
             tr.remove()
             cb? $t
 
 
-    draw_graph: (report, target, max_total, elem) ->
+    draw_graph: (report, target, elem) ->
         if @dom.parent().hasClass 'sidebar'
             bw = @small_bar_width
             bh = @small_bar_height

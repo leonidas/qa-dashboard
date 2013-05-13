@@ -35,8 +35,6 @@ class PassRateTrend extends QAReportsWidget
             @reports = reports
             tr = $t.find('tbody tr')
 
-            max_total = _.max(rs[0].total_cases for rs in reports)
-
             for rs in reports
                 r = rs[0]
                 row = tr.clone()
@@ -79,8 +77,10 @@ class PassRateTrend extends QAReportsWidget
 
         x = hw
         for r in reports
-            if (r.total_cases > 0)
-                h = (r.total_pass+r.total_fail)*hh/r.total_cases
+            total_cases = r.total_cases - r.total_measured
+
+            if (total_cases > 0)
+                h = (r.total_pass+r.total_fail)*hh/total_cases
 
                 na = paper.rect(x-w,0,w,hh)
                 na.attr
@@ -94,7 +94,7 @@ class PassRateTrend extends QAReportsWidget
                     "stroke-width": 0
                     stroke: null
 
-                h = r.total_pass*hh/r.total_cases
+                h = r.total_pass*hh/total_cases
 
                 pass = paper.rect(x-w,hh-h,w,h)
                 pass.attr
