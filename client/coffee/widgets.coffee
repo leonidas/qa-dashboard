@@ -243,15 +243,15 @@ class QAReportsWidget extends WidgetBase
 
         selected = contains_group groups
 
-        updateSelectedSets = (data) ->
+        updateSelectedSets = (matching, all) ->
             parent = $t.find("table.multiple_select")
             body   = parent.find("tbody.selected-group")
             tmpl   = body.find("tr").first().clone().unbind()
             body.empty()
             tmpl.appendTo(body).hide()
 
-            return balance_columns() unless data?
-            for g in data
+            return balance_columns() unless all?
+            for g in all
                 do (g) ->
                     return if not selected g
 
@@ -275,8 +275,8 @@ class QAReportsWidget extends WidgetBase
 
                     checkbox.click ->
                         remove_group groups, g
-                        updateSelectedSets(data)
-                        updateSuggestions(data)
+                        updateSelectedSets(matching, all)
+                        updateSuggestions(matching, all)
 
                     row.appendTo body
 
@@ -300,7 +300,7 @@ class QAReportsWidget extends WidgetBase
             span.append text.slice(cur)
 
 
-        updateSuggestions = (data) ->
+        updateSuggestions = (matching, all) ->
             parent = $t.find("table.multiple_select")
             body   = parent.find("tbody.suggestion-group")
             tmpl   = body.find("tr").first().clone().unbind()
@@ -320,11 +320,11 @@ class QAReportsWidget extends WidgetBase
 
             filter.unbind().keydown ->
                 f = () ->
-                    updateSuggestions(data) if normalize filter.val() != expr
+                    updateSuggestions(matching, all) if normalize filter.val() != expr
                 setTimeout f, 1
 
-            return balance_columns() unless data?
-            for g in data
+            return balance_columns() unless matching?
+            for g in matching
                 do (g) ->
                     return if selected g
                     key = group_key g
@@ -364,8 +364,8 @@ class QAReportsWidget extends WidgetBase
                     checkbox.click (e, p) ->
                         groups.push g
                         if p != 'select-all'
-                            updateSelectedSets(data)
-                            updateSuggestions(data)
+                            updateSelectedSets(matching, all)
+                            updateSuggestions(matching, all)
 
                     row.appendTo body
 
@@ -373,9 +373,9 @@ class QAReportsWidget extends WidgetBase
 
 
 
-        createTestSets = (data) ->
-            updateSelectedSets(data)
-            updateSuggestions(data)
+        createTestSets = (matching, all) ->
+            updateSelectedSets(matching, all)
+            updateSuggestions(matching, all)
             balance_columns()
 
 
@@ -429,13 +429,13 @@ class QAReportsWidget extends WidgetBase
                 WidgetBase.create_radio_buttons $testsets, pluckUniqTestSets(data), currentTestset(), select
                 WidgetBase.create_radio_buttons $products, pluckUniqProducts(data), currentProduct(), select
                 # All test sets matching current filters
-                createTestSets matching
+                createTestSets matching, data
 
             set_select_all_suggestions = (dom) ->
                 dom.find('a.select-all', '.widget_edit_content').on 'click', (e) ->
                     e.preventDefault()
                     $(this).parents('.title-group').next('.suggestion-group').find('input[type="checkbox"]:visible').trigger 'click', ['select-all']
-                    createTestSets filterRows()
+                    createTestSets filterRows(), data
 
             WidgetBase.create_radio_buttons $releases, pluckUniq(data, 'release'), init_release, select
             WidgetBase.create_radio_buttons $profiles, pluckUniq(data, 'profile'), init_profile, select
@@ -443,7 +443,7 @@ class QAReportsWidget extends WidgetBase
             WidgetBase.create_radio_buttons $products, pluckUniqProducts(data), init_product, select
 
             # Generate List of Test Sets
-            createTestSets filterRows()
+            createTestSets filterRows(), data
 
             # Set Alert Limit
             if use_alert
@@ -494,15 +494,10 @@ class QAReportsWidget extends WidgetBase
         cb?()
 
     get_reports: (groups, num, cb) ->
-        url = "/query/qa-reports/latest/#{@config.release}/#{@config.profile}/#{@config.testset}/#{@config.product}?num=#{num}"
-        groups = _(@config.groups).toArray()
-        f = contains_group groups
-        cached.get url, (data) ->
-            if num == 1
-                cb _(data).filter f
-            else
-                cb _(data).filter (rs) ->
-                    f rs[0]
+        data =
+            groups: groups
+            num:    num,
+        cached.post "/query/qa-reports/latest", data, cb
 
     base_url: (cb) ->
         cached.get '/query/qa-reports/url', (data) ->

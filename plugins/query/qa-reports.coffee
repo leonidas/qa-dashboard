@@ -93,7 +93,7 @@ exports.register_plugin = (db) ->
     api.types_for_product = (ver, product) -> (profile, callback) ->
         reports.distinct 'testset', {release: ver, product: product, profile: profile}, callback
 
-    api.report_groups = (release, profile, testset, product) -> (callback) ->
+    api.report_groups = (groups) -> (callback) ->
         filter_row = (row) ->
             r = not release? || release == row.release
             p = not profile? || profile == row.profile
@@ -203,52 +203,45 @@ exports.register_plugin = (db) ->
                 arr = _.flatten arr
                 return callback? null, arr
 
-    api.latest_reports = (n, release, profile, testset, product, fields, callback) ->
+    api.latest_reports = (groups, n, fields, callback) ->
         [fields, callback] = [null, fields] if typeof fields == 'function'
-
-        release = null if release == 'Any'
-        profile = null if profile == 'Any'
-        testset = null if testset == 'Any'
-        product = null if product == 'Any'
-
-        api.report_groups(release, profile, testset, product) (err, groups) ->
-            return callback? err if err?
-            async.map groups, api.latest_for_group(n, fields), callback
+        async.map groups, api.latest_for_group(n, fields), callback
 
     name: "qa-reports"
     api: api
-    http: get:
-        # "/for_bug/:id/:product": (req,res) ->
-        #     api.reports_for_bug req.params.product, req.params.id, (err, arr) ->
-        #         res.send arr
+    http:
+        get:
+            # "/for_bug/:id/:product": (req,res) ->
+            #     api.reports_for_bug req.params.product, req.params.id, (err, arr) ->
+            #         res.send arr
 
-        # "/latest/:product": (req,res) ->
-        #     num = parseInt(req.param("num") ? "1")
-        #     api.latest_reports num, "1.2", req.params.product, (err,arr) ->
-        #         if err?
-        #             console.log err
-        #             res.send 500
-        #         else
-        #             res.send arr
+            # "/latest/:product": (req,res) ->
+            #     num = parseInt(req.param("num") ? "1")
+            #     api.latest_reports num, "1.2", req.params.product, (err,arr) ->
+            #         if err?
+            #             console.log err
+            #             res.send 500
+            #         else
+            #             res.send arr
+            "/groups": (req, res) ->
+                api.all_groups (err,arr) ->
+                    if err?
+                        console.log err
+                        res.send 500
+                    else
+                        res.send arr
 
-        "/latest/:release/:profile/:testset/:product": (req, res) ->
-            num = parseInt(req.param("num") ? "1")
-            api.latest_reports num, req.params.release, req.params.profile, req.params.testset, req.params.product, (err,arr) ->
-                if err?
-                    console.log err
-                    res.send 500
-                else
-                    res.send arr
+            "/url": (req, res) ->
+                res.send url: qa_reports_url
 
-        "/groups": (req, res) ->
-            api.all_groups (err,arr) ->
-                if err?
-                    console.log err
-                    res.send 500
-                else
-                    res.send arr
-
-        "/url": (req, res) ->
-            res.send url: qa_reports_url
+        post:
+            "/latest": (req, res) ->
+                num = parseInt(req.param("num") ? "1")
+                api.latest_reports req.body.groups, num, (err, arr) ->
+                    if err?
+                        console.log err
+                        res.send 500
+                    else
+                        res.send arr
 
     set_settings: read_settings
