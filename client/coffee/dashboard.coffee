@@ -235,7 +235,7 @@ get_widget_class = (name) -> (callback) ->
 add_custom_css = (css) ->
     if css? and css != ""
         elem = document.getElementById('custom_styles')
-        src  = elem.innerText + '\n\n' + css
+        src  = elem.textContent + '\n\n' + css
         if elem.styleSheet
             elem.styleSheet.cssText = src
         else
