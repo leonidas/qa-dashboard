@@ -46,11 +46,8 @@ exports.register_plugin = (db) ->
                         cb err, null
                     else
                         cb null, (callback) ->
-                            bugreports.update {bug_id: bug.bug_id}, bug, {upsert: true}, (err) ->
-                                if err?
-                                    callback err, null
-                                else
-                                    callback null, null
+                            bugreports.update {bug_id: bug.bug_id}, bug, {upsert: true}, callback
+
                 (err, q_arr) ->
                     if err?
                         res.send {status: "error", error: err} #parse error
