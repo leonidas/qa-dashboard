@@ -22,6 +22,8 @@ passport      = require('passport')
 LocalStrategy = require('passport-local').Strategy
 LdapStrategy  = require('passport-ldapauth').Strategy
 bcrypt        = require('bcrypt')
+fs            = require('fs')
+path          = require('path')
 
 {get_user} = require 'user'
 
@@ -63,6 +65,17 @@ strategies = (db) ->
                             cb? null, user
 
         ldap: ->
+            # Convert root CA if it is a file (note: there are other options that
+            # should be converted to Buffers as well)
+            if typeof settings.auth.ldap.tlsOptions?.ca == 'string'
+                if fs.existsSync settings.auth.ldap.tlsOptions.ca
+                    file = settings.auth.ldap.tlsOptions.ca
+                else
+                    # Try if the file path is relative to app root
+                    file = path.join settings.app.root, settings.auth.ldap.tlsOptions.ca
+                if fs.existsSync file
+                    settings.auth.ldap.tlsOptions.ca = [ fs.readFileSync file ]
+
             new LdapStrategy server: settings.auth.ldap, passReqToCallback: true, (req, user, cb) ->
                 process.nextTick ->
                     get_or_create_user(req.body.username)(cb)
