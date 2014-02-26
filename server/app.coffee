@@ -2,7 +2,7 @@
 express  = require('express')
 _        = require('underscore')
 ccs      = require('connect-coffee-script')
-cless    = require('connect-less')
+cless    = require('less-middleware')
 passport = require('passport')
 
 MongoStore = require('connect-mongo')(express)
@@ -20,7 +20,8 @@ create_app = (settings, db) ->
     COFFEE = basedir + "/client/coffee"
     LESS   = basedir + "/client/less"
 
-    LESS_TARGET   = "#{PUBLIC}/css"
+    LESS_PREFIX   = "/css"
+    LESS_TARGET   = "#{PUBLIC}#{LESS_PREFIX}"
     COFFEE_TARGET = "#{PUBLIC}/js/modules"
 
     app = express()
@@ -43,8 +44,8 @@ create_app = (settings, db) ->
             force:      true
         app.use cless
             src:        LESS
-            dst:        LESS_TARGET
-            dstRoot:    PUBLIC
+            dest:       LESS_TARGET
+            prefix:     LESS_PREFIX
             compress:   true
 
         app.use express.cookieParser 'mmm cookies'

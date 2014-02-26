@@ -11,8 +11,8 @@ This readme is work in progress.
 $ git clone git://github.com/creationix/nvm.git ~/nvm
 $ . ~/nvm/nvm.sh
 $ echo ". ~/nvm/nvm.sh" >> ~/.bashrc
-$ nvm install v0.8
-$ nvm alias default 0.8
+$ nvm install v0.10
+$ nvm alias default 0.10
 ```
 
 * Clone and setup:
@@ -23,7 +23,7 @@ $ cd qa-dashboard
 $ npm install
 ```
 
-* Run: `npm run-script dev-start`
+* Run: `npm run dev-start`
 
 * Login at [http://localhost:3030/](http://localhost:3030/)
   * Username: `guest`
