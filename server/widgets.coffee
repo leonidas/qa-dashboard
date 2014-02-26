@@ -19,7 +19,6 @@
 #
 
 fs      = require('fs')
-path    = require('path')
 async   = require('async')
 coffee  = require('coffee-script')
 express = require('express')
@@ -29,7 +28,7 @@ _       = require('underscore')
 load_widget = (widgetpath) -> (callback) ->
     load_widget_file = (filename) -> (callback) ->
         filename = widgetpath+"/"+filename
-        path.exists filename, (exists) ->
+        fs.exists filename, (exists) ->
             if exists
                 fs.readFile filename, "utf-8", callback
             else
@@ -40,11 +39,11 @@ load_widget = (widgetpath) -> (callback) ->
         filename_js = filename+".js"
         filename_cf = filename+".coffee"
 
-        path.exists filename_js, (exists) ->
+        fs.exists filename_js, (exists) ->
             if exists
                 fs.readFile filename_js, "utf-8", callback
             else
-                path.exists filename_cf, (exists) ->
+                fs.exists filename_cf, (exists) ->
                     if exists
                         fs.readFile filename_cf, "utf-8", (err, src) ->
                             return callback? err if err?
