@@ -205,6 +205,7 @@ exports.register_plugin = (db) ->
 
     api.latest_reports = (groups, n, fields, callback) ->
         [fields, callback] = [null, fields] if typeof fields == 'function'
+        return callback 'No groups' unless groups?
         async.map groups, api.latest_for_group(n, fields), callback
 
     name: "qa-reports"
@@ -240,7 +241,7 @@ exports.register_plugin = (db) ->
                 api.latest_reports req.body.groups, num, (err, arr) ->
                     if err?
                         console.log err
-                        res.send 500
+                        res.send 400, err: err
                     else
                         res.send arr
 

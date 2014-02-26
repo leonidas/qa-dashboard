@@ -45,6 +45,7 @@ window.cached.post = (url, data, cb) ->
             dataType: "json"
             contentType: "application/json; charset=utf-8"
             success: f
+            error: f
 
         $.ajax config
     fut.get cb
