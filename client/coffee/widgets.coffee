@@ -208,9 +208,9 @@ class QAReportsWidget extends WidgetBase
 
             groups = _.filter data, filter_groups
             cb
-                release: s.release
-                profile: s.profile
-                testset: s.testset
+                release: s?.release
+                profile: s?.profile
+                testset: s?.testset
                 product: 'Any'
                 groups:  groups
 
