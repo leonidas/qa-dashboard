@@ -18,10 +18,12 @@
 # 02110-1301 USA
 #
 
-async = require('async')
-_     = require('underscore')
+async  = require('async')
+_      = require('underscore')
+logger = require('winston')
 
 exports.register_plugin = (db) ->
+    logger.debug 'PLUGIN: Register qa-reports'
     reports = db.collection('qa-reports')
 
     reports.ensureIndex {qa_id: 1}, {unique: true}, ->
@@ -220,14 +222,14 @@ exports.register_plugin = (db) ->
             #     num = parseInt(req.param("num") ? "1")
             #     api.latest_reports num, "1.2", req.params.product, (err,arr) ->
             #         if err?
-            #             console.log err
+            #             logger.error "Failed to get latest reports for product #{req.params.product}", err
             #             res.send 500
             #         else
             #             res.send arr
             "/groups": (req, res) ->
                 api.all_groups (err,arr) ->
                     if err?
-                        console.log err
+                        logger.error 'Failed to get groups', err
                         res.send 500
                     else
                         res.send arr
@@ -240,7 +242,7 @@ exports.register_plugin = (db) ->
                 num = parseInt(req.param("num") ? "1")
                 api.latest_reports req.body.groups, num, (err, arr) ->
                     if err?
-                        console.log err
+                        logger.error 'Failed to get latest reports', err
                         res.send 400, err: err
                     else
                         res.send arr

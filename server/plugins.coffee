@@ -21,6 +21,7 @@
 coffee = require('coffee-script')
 fs     = require('fs')
 _      = require('underscore')
+logger = require('winston')
 
 auth   = require('authentication')
 
@@ -48,16 +49,16 @@ init_routes = (app, db, method, root, paths, anonaccess) ->
     m = app[method]
     secure = auth.secure db
     _(paths).each (f,p) ->
-        console.log "PLUGIN: initializing route for #{root+p}"
+        logger.info "PLUGIN: initializing route for #{root+p}"
         f = secure f if not anonaccess
         m.apply(app, [root+p, f])
 
 init_plugins = (plugintype, basedir, httproot, app, db, anonaccess, callback) ->
     plugindir = "#{basedir}/plugins/#{plugintype}"
-    console.log "PLUGIN: initializing plugins in #{plugindir}"
+    logger.info "PLUGIN: initializing plugins in #{plugindir}"
     find_plugins plugindir, (err, modules) ->
         if err?
-            console.log "ERROR: #{err}"
+            logger.error 'find_plugins failed', err
             return callback? err
         for module in modules
             plugin = module.register_plugin(db)

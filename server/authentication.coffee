@@ -24,6 +24,7 @@ LdapStrategy  = require('passport-ldapauth').Strategy
 bcrypt        = require('bcrypt')
 fs            = require('fs')
 path          = require('path')
+logger        = require('winston')
 
 {get_user} = require 'user'
 
@@ -55,7 +56,9 @@ strategies = (db) ->
             new LocalStrategy (username, password, cb) ->
                 process.nextTick ->
                     users.findOne username: username, (err, user) ->
-                        return cb? err, null, message: 'Login failed' if err?
+                        if err?
+                            logger.error "Login failed with username #{username}", err
+                            return cb? err, null, message: 'Login failed'
                         return cb? null, false, message: 'Incorrect username and/or password' if not user?
 
                         verify_password password, user.password, (err, res) ->
@@ -104,7 +107,7 @@ exports.secure = (db) ->
         return res.send 403 unless token?
 
         verify_token(token) (err, valid) ->
-            console.log "ERROR: Verify token failed: #{err}" if err?
+            logger.error 'verify_token failed', err if err?
             return res.send 500 if err?
             return res.send 403 unless valid
             return handler req, res

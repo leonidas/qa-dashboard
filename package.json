@@ -18,7 +18,8 @@
     "passport": "0.2.0",
     "passport-ldapauth": "0.2.0",
     "passport-local": "0.1.6",
-    "underscore": "1.6.0"
+    "underscore": "1.6.0",
+    "winston": "0.7.2"
   },
   "devDependencies": {
     "chai": "1.9.0",

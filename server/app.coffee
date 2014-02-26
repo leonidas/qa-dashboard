@@ -4,6 +4,7 @@ _        = require('underscore')
 ccs      = require('connect-coffee-script')
 cless    = require('less-middleware')
 passport = require('passport')
+logger   = require('winston')
 
 MongoStore = require('connect-mongo')(express)
 
@@ -36,7 +37,13 @@ create_app = (settings, db) ->
 
     auth.init_passport settings, db
 
+    expressLogger = express.logger
+        stream: write: (msg, encoding) -> logger.info msg
+        format: express.logger.default + ' - :response-time ms'
+
     app.configure ->
+        app.use expressLogger
+
         app.use ccs
             src:        COFFEE
             dest:       COFFEE_TARGET
@@ -59,19 +66,16 @@ create_app = (settings, db) ->
         app.use express.static PUBLIC
 
     app.configure "development", ->
-        app.use express.logger()
         app.use express.errorHandler
             dumpExceptions: true
             showStack: true
 
     app.configure "staging", ->
-        app.use express.logger()
         app.use express.errorHandler
             dumpExceptions: true
             showStack: true
 
     app.configure "production", ->
-        app.use express.logger()
         app.use express.errorHandler()
 
     require('import-api').init_import_plugins basedir, app, db

@@ -18,13 +18,13 @@
 # 02110-1301 USA
 #
 
+async   = require('async')
+_       = require('underscore')
+plugins = require('plugins')
+logger  = require('winston')
 
 exports.register_plugin = (db) ->
-    async   = require('async')
-    _       = require('underscore')
-    plugins = require('plugins')
-
-
+    logger.debug 'PLUGIN: Register bugzilla'
     reports = db.collection('qa-reports')
     bugs    = db.collection('bugs')
 
@@ -114,7 +114,7 @@ exports.register_plugin = (db) ->
         num    = body.num
         api.top_bugs_for_groups groups, num, (err, bugs) ->
             if err?
-                console.log err
+                logger.error 'Failed to fetch top bugs for groups', err
                 res.send 500
             else
                 res.send bugs

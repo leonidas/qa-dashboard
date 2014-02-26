@@ -20,6 +20,7 @@
 
 _      = require('underscore')
 crypto = require('crypto')
+logger = require('winston')
 
 sha = (data) ->
     s = crypto.createHash('sha1')
@@ -58,7 +59,7 @@ get_user = (db) ->
                     dashboard: {}
                 users.insert doc, (err) ->
                     if err?
-                        console.log "ERROR: #{err}"
+                        logger.error "Failed to store dashboard for user #{username}", err
                         return callback? err
                     callback? null, doc
 
@@ -77,7 +78,7 @@ exports.init_user = (app, db) ->
             res.send {}
         else
             user(username) (err, user) ->
-                console.log "ERROR: #{err}" if err?
+                logger.error "Failed to get user #{username}", err if err?
                 if user?
                     delete user._id
                     delete user.password
@@ -92,6 +93,7 @@ exports.init_user = (app, db) ->
         else
             token(username) (err,token) ->
                 if err?
+                    logger.error "Failed to get token for #{username}", err
                     res.send {status:"error", error:err}
                 else
                     res.send {status:"ok", token:token}
@@ -103,6 +105,7 @@ exports.init_user = (app, db) ->
         else
             users.findOne {username: username}, {dashboard: 1}, (err, user) ->
                 if err
+                    logger.error "Failed to get dashboard for user #{username}", err
                     res.send {status:"error", error:err}
                 else
                     res.send {status:"ok", result:user.dashboard}
@@ -112,8 +115,8 @@ exports.init_user = (app, db) ->
 
         users.update {username: username}, {$set: dashboard: req.body}, (err) ->
             if err?
+                logger.error "Failed to save dashboard for user #{username}", err
                 res.send 500
-                #res.send {status:"error", error:err}
             else
                 res.send {status:"ok"}
 

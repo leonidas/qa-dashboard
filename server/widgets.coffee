@@ -23,6 +23,7 @@ async   = require('async')
 coffee  = require('coffee-script')
 express = require('express')
 _       = require('underscore')
+logger  = require('winston')
 
 
 load_widget = (widgetpath) -> (callback) ->
@@ -86,7 +87,7 @@ exports.initialize_widgets = (widgetdir, app, db) ->
     if env in ['production', 'staging']
         load_all_widgets widgetdir, (err, widgets) ->
             if err?
-                console.log err
+                logger.error 'Failed to load widgets', err
                 throw err
 
             widgetnames = _(widgets).keys()
@@ -97,7 +98,7 @@ exports.initialize_widgets = (widgetdir, app, db) ->
 
             for name in widgetnames
                 widgetroot = widgetdir + "/#{name}/public"
-                console.log "WIDGET: sharing public files from #{widgetroot}"
+                logger.info "WIDGET: sharing public files from #{widgetroot}"
                 app.use "/widgets/#{name}", express.static widgetroot
 
             app.get "/widgets", (req,res) ->
@@ -108,20 +109,20 @@ exports.initialize_widgets = (widgetdir, app, db) ->
     else
         load_all_widgets widgetdir, (err, widgets) ->
             if err?
-                console.log err
+                logger.error 'Failed to load widgets', err
                 throw err
 
             widgetnames = _(widgets).keys()
 
             for name in widgetnames
                 widgetroot = widgetdir + "/#{name}/public"
-                console.log "WIDGET: sharing public files from #{widgetroot}"
+                logger.info "WIDGET: sharing public files from #{widgetroot}"
                 app.use "/widgets/#{name}", express.static widgetroot
 
         app.get "/widgets", (req,res) ->
             load_all_widgets widgetdir, (err, widgets) ->
                 if err?
-                    console.log err
+                    logger.error 'Failed to load widgets', err
                     throw err
 
                 widgetnames = _(widgets).keys()
@@ -135,7 +136,7 @@ exports.initialize_widgets = (widgetdir, app, db) ->
         app.get "/widgets/:name", (req,res) ->
             load_all_widgets widgetdir, (err, widgets) ->
                 if err?
-                    console.log err
+                    logger.error 'Failed to load widgets', err
                     throw err
 
                 res.send widgets[req.params.name]
