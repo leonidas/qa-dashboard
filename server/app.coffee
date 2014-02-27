@@ -56,7 +56,7 @@ create_app = (settings, db) ->
             compress:   true
 
         app.use express.cookieParser 'mmm cookies'
-        app.use express.bodyParser()
+        app.use express.bodyParser(limit: '50mb')
         app.use express.session
             secret: 'mmm cookies'
             store:  store
