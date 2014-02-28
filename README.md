@@ -21,6 +21,7 @@ $ nvm alias default 0.10
 $ git clone git@github.com:leonidas/qa-dashboard.git
 $ cd qa-dashboard
 $ npm install
+$ npm run bower
 ```
 
 * Run: `npm run dev-start` in one shell, and `npm run watch` in other.
