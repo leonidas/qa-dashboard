@@ -1,3 +1,4 @@
+Raphael = require 'raphael'
 
 class PassRateBarChart extends QAReportsWidget
     use_alert: true

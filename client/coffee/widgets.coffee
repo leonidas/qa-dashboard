@@ -18,7 +18,9 @@
 # 02110-1301 USA
 #
 
-class WidgetBase
+cached = require './cached.coffee'
+
+module.exports.WidgetBase = class WidgetBase
 
     init_new: ->
         @dom = $ @create_dom()
@@ -177,7 +179,7 @@ class WidgetBase
             parent.find('input[value!="XYZ"]').first().click()
 
 
-class QAReportsWidget extends WidgetBase
+module.exports.QAReportsWidget = class QAReportsWidget extends WidgetBase
     use_passtargets: false
     use_alert: false
 
@@ -518,6 +520,3 @@ remove_group = (arr, grp) ->
         if same_group(g,grp)
             arr.splice(i,1)
             return
-
-window.QAReportsWidget = QAReportsWidget
-window.WidgetBase      = WidgetBase

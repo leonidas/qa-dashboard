@@ -18,6 +18,19 @@
 # 02110-1301 USA
 #
 
+$     = require 'jquery'
+_     = require 'underscore'
+async = require 'async'
+
+require 'equal-heights'
+require 'jquery-ui-draggable'
+require 'jquery-ui-droppable'
+require 'jquery-ui-sortable'
+
+cached = require './cached.coffee'
+graphs = require './graphs.coffee'
+
+{WidgetBase, QAReportsWidget} = require './widgets.coffee'
 
 ## Module Globals
 current_user = null

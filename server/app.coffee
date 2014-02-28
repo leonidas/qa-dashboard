@@ -1,8 +1,6 @@
 
 express  = require('express')
 _        = require('underscore')
-ccs      = require('connect-coffee-script')
-cless    = require('less-middleware')
 passport = require('passport')
 logger   = require('winston')
 
@@ -18,12 +16,6 @@ create_app = (settings, db) ->
     basedir = settings.app.root
 
     PUBLIC = basedir + "/public"
-    COFFEE = basedir + "/client/coffee"
-    LESS   = basedir + "/client/less"
-
-    LESS_PREFIX   = "/css"
-    LESS_TARGET   = "#{PUBLIC}#{LESS_PREFIX}"
-    COFFEE_TARGET = "#{PUBLIC}/js/modules"
 
     app = express()
 
@@ -43,17 +35,6 @@ create_app = (settings, db) ->
 
     app.configure ->
         app.use expressLogger
-
-        app.use ccs
-            src:        COFFEE
-            dest:       COFFEE_TARGET
-            prefix:     COFFEE_TARGET.substring(PUBLIC.length)
-            force:      true
-        app.use cless
-            src:        LESS
-            dest:       LESS_TARGET
-            prefix:     LESS_PREFIX
-            compress:   true
 
         app.use express.cookieParser 'mmm cookies'
         app.use express.bodyParser(limit: '50mb')

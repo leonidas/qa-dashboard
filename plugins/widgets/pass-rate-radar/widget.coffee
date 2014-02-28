@@ -1,3 +1,5 @@
+Raphael = require 'raphael'
+{drawSector, drawArc, drawSectorPath} = require './graphs.coffee'
 
 class PassRateChart extends QAReportsWidget
     use_passtargets: true

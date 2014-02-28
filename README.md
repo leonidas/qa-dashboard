@@ -23,7 +23,7 @@ $ cd qa-dashboard
 $ npm install
 ```
 
-* Run: `npm run dev-start`
+* Run: `npm run dev-start` in one shell, and `npm run watch` in other.
 
 * Login at [http://localhost:3030/](http://localhost:3030/)
   * Username: `guest`

@@ -4,7 +4,7 @@
 
   "bugzillas": [
     {
-      "url": "https://bugs.meego.com",
+      "url": "https://bugzilla.mozilla.org",
       "prefix": "BZ",
       "query_uri": "/buglist.cgi?bugidtype=include&query_format=advanced&ctype=csv&columnlist=%s",
       "show_uri": "/show_bug.cgi?id=%s",
@@ -34,7 +34,7 @@
 
   "dashboard": {
     "url": "http://localhost:3030",
-    "token": "13a46fae7c5627dc26ee7b40349afe833dee0b15",
+    "token": "8298b1a0f29e3eade55a101ece970be5ad22e240",
     "basicAuth": {
       "enabled":  false,
       "username": "",

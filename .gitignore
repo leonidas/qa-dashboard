@@ -12,3 +12,6 @@ server/js
 log
 features/step_definitions/*.js
 selenium-server*
+.bower*
+vendor/js/bower
+public/js

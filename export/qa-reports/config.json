@@ -16,7 +16,7 @@
 
   "dashboard": {
     "url": "http://localhost:3030",
-    "token": "2e66b09419c56e33b8487fd8bd2014490d2ac7c5",
+    "token": "8298b1a0f29e3eade55a101ece970be5ad22e240",
     "basicAuth": {
       "enabled":  false,
       "username": "",

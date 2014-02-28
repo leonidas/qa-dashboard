@@ -1,3 +1,4 @@
+Raphael = require 'raphael'
 
 class PassRateTrend extends QAReportsWidget
     use_passtargets: true
