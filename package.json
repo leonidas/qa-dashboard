@@ -33,6 +33,7 @@
     "supervisor": "0.5.7"
   },
   "scripts": {
+    "prepublish": "bower install && gulp build",
     "start": "NODE_PATH=server NODE_ENV=production coffee qadash.coffee",
     "build": "gulp build",
     "watch": "gulp",
