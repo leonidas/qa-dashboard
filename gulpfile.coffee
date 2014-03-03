@@ -88,31 +88,18 @@ compileLess = (debug = false) ->
     .pipe(less(compress: !debug))
     .pipe(gulp.dest('public/css/'))
 
-# compileStylus = (debug = false) ->
-#   styles = gulp
-#     .src('src/stylus/style.styl')
-#     .pipe(stylus('include css': true))
-
-#   styles.pipe(CSSmin()) unless debug
-
-#   styles.pipe(gulp.dest('public/css/'))
-#     .pipe livereload reloadServer
-
-
 # Build tasks
-gulp.task "less-production",   -> compileLess()
+gulp.task 'less-production',   -> compileLess()
 gulp.task 'coffee-production', -> compileCoffee()
 
 # Development tasks
-gulp.task "less",   -> compileLess   true
+gulp.task 'less',   -> compileLess   true
 gulp.task 'coffee', -> compileCoffee true
 
-gulp.task "watch", ->
-  gulp.watch "client/coffee/*.coffee", ["coffee"]
-  gulp.watch "client/less/*.less",     ["less"]
+gulp.task 'watch', ->
+  gulp.watch 'client/coffee/*.coffee', ['coffee']
+  gulp.watch 'client/less/*.less',     ['less']
 
-gulp.task "build", ->
-  gulp.run "coffee-production", "less-production"
+gulp.task 'build', ['coffee-production', 'less-production']
 
-gulp.task "default", ->
-  gulp.run "coffee", "less", "watch"
+gulp.task 'default', ['coffee', 'less', 'watch']
