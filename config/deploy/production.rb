@@ -1,27 +1,24 @@
-set :app_name, "qa-dashboard"
-set :server_host, "#{app_name}"
-# The port number to which the node process binds to
-set :server_port, 8000
+set :server_host, "#{fetch(:application)}.leonidasoy.fi"
+set :deploy_to,   "/home/#{fetch(:user)}/#{fetch(:server_host)}"
 
-set :application, server_host
-set :deploy_to, "/home/#{user}/#{application}"
-set :node_env, "production"
+# The port number to which the node process binds to
+set :server_port,  8000
+set :node_env,     'production'
 
 set :keep_releases, 10
 
-server "localhost", :app, :web, :db, :primary => true
-
-after "deploy:symlink" do
-  # Allow robots to index
-  run "rm #{current_path}/public/robots.txt"
-  run "touch #{current_path}/public/robots.txt"
-end
+server 'localhost', user: fetch(:user), roles: %w{web app db}
 
 namespace :db do
-  desc "Dump and fetch production database"
-  task :dump, :roles => :db, :only => {:primary => true} do
-    run "cd #{current_path} && mongodump --db qadash-production && tar -czf qadash-production.tar.gz ./dump/qadash-production"
-    get "#{current_path}/qadash-production.tar.gz", "./qadash-production.tar.gz"
-    run "rm #{current_path}/qadash-production.tar.gz"
+  desc 'Dump and fetch production database'
+  task :dump do
+    on roles(:db) do
+      within current_path do
+        execute :mongodump, '--db', 'qadash-production'
+        execute :tar, '-czf', 'qadash-production.tar.gz', './dump/qadash-production'
+        download! "#{current_path}/qadash-production.tar.gz", "./qadash-production.tar.gz"
+        execute :rm, 'qadash-production.tar.gz'
+      end
+    end
   end
 end
