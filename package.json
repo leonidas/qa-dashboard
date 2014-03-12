@@ -37,7 +37,7 @@
     "build": "gulp build",
     "watch": "gulp",
     "bower": "bower install",
-    "test": "NODE_PATH=server NODE_ENV=test mocha --compilers coffee:coffee-script test/*-test.coffee",
+    "test": "NODE_PATH=server NODE_ENV=test mocha --compilers coffee:coffee-script/register test/*-test.coffee",
     "createuser": "NODE_PATH=server coffee server/user_admin.coffee",
     "dev-start": "NODE_PATH=server NODE_ENV=development supervisor -w qadash.coffee,server,plugins/query,plugins/import,settings.json -n -e coffee,json -x coffee qadash.coffee"
   },
