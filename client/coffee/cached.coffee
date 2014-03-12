@@ -21,31 +21,33 @@
 _cache = {}
 _post_cache = {}
 
-window.cached = {}
-window.cached.get = (url, cb) ->
-    fut = _cache[url]
-    if not fut?
-        fut = future.call $.getJSON, url
-        _cache[url] = fut
-    fut.get cb
+future = require './future.coffee'
 
-window.cached.post = (url, data, cb) ->
-    json = if data? then JSON.stringify(data) else null
-    key = url + "##" + json
-    fut  = _cache[key]
-    if not fut?
-        fut = new future.Future()
-        _cache[key] = fut
-        f = (data) ->
-            fut.callback data
-        config =
-            url: url
-            type: "POST"
-            data: json
-            dataType: "json"
-            contentType: "application/json; charset=utf-8"
-            success: f
-            error: f
+module.exports =
+    get: (url, cb) ->
+        fut = _cache[url]
+        if not fut?
+            fut = future.call $.getJSON, url
+            _cache[url] = fut
+        fut.get cb
 
-        $.ajax config
-    fut.get cb
+    post: (url, data, cb) ->
+        json = if data? then JSON.stringify(data) else null
+        key = url + "##" + json
+        fut  = _cache[key]
+        if not fut?
+            fut = new future.Future()
+            _cache[key] = fut
+            f = (data) ->
+                fut.callback data
+            config =
+                url: url
+                type: "POST"
+                data: json
+                dataType: "json"
+                contentType: "application/json; charset=utf-8"
+                success: f
+                error: f
+
+            $.ajax config
+        fut.get cb

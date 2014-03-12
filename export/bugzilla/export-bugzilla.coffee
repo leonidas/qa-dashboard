@@ -1,10 +1,10 @@
 # Bugzilla export daemon - fetch data from Bugzilla and deliver to QA Dashboard
 request = require 'request'
-Vow     = require 'vow'
 fs      = require 'fs'
 csv     = require 'csv'
 winston = require 'winston'
 util    = require 'util'
+Promise = require 'bluebird'
 
 # Initialize logger
 winston.remove winston.transports.Console
@@ -12,8 +12,6 @@ winston.add winston.transports.Console,
   timestamp:   true
   colorize:    true
   prettyPrint: true
-  level:       'info'
-winston.setLevels winston.config.syslog.levels
 
 SECOND = 1000
 MINUTE = 60 * SECOND
@@ -76,104 +74,98 @@ launch_daemon = (settings) ->
 
     # Get the latest changed date of bugs from QA Dashboard
     get_start_date = (end_date = null) ->
-      winston.info "Get the latest change date from QA Dashboard for #{bugzilla.url}"
-      promise = Vow.promise()
+      new Promise (resolve, reject) ->
+        winston.info "Get the latest change date from QA Dashboard for #{bugzilla.url}"
 
-      if end_date?
-        d = new Date end_date
-        d.setDate d.getDate() - 1
-        promise.fulfill d
-      else
-        opts         = __get_opts(settings.dashboard)
-        opts['uri']  = "#{settings.dashboard.url}/import/bugs/latest"
-        opts['qs']   = token: settings.dashboard.token, prefix: bugzilla.prefix
-        opts['json'] = true
+        if end_date?
+          d = new Date end_date
+          d.setDate d.getDate() - 1
+          resolve d
+        else
+          opts         = __get_opts(settings.dashboard)
+          opts['uri']  = "#{settings.dashboard.url}/import/bugs/latest"
+          opts['qs']   = token: settings.dashboard.token, prefix: bugzilla.prefix
+          opts['json'] = true
 
-        request.get opts, (err, res, data) ->
-          return promise.reject err if err?
-          return promise.reject "HTTP #{res.statusCode}. Is the token correct?" unless res.statusCode == 200
-          cd = data?.changeddate || bugzilla.start_date
-          return promise.fulfill null unless cd? && cd != ""
-          # Start a day earlier than the latest in DB - it seems it is possible
-          # to miss some bugs if using the same date
-          d = new Date(cd)
-          d.setDate(d.getDate() - 1)
-          return promise.fulfill d
-
-      promise
+          request.get opts, (err, res, data) ->
+            return reject err if err?
+            return reject "HTTP #{res.statusCode}. Is the token correct?" unless res.statusCode == 200
+            cd = data?.changeddate || bugzilla.start_date
+            return resolve null unless cd? && cd != ""
+            # Start a day earlier than the latest in DB - it seems it is possible
+            # to miss some bugs if using the same date
+            d = new Date(cd)
+            d.setDate(d.getDate() - 1)
+            return resolve d
 
     # Fetch bugs from Bugzilla
     fetch_bugs = (start_time) ->
-      winston.warning "No start date defined, fetching all bugs from #{bugzilla.url}!" unless start_time?
-      promise = Vow.promise()
+      new Promise (resolve, reject) ->
+        winston.warning "No start date defined, fetching all bugs from #{bugzilla.url}!" unless start_time?
 
-      opts        = __get_opts(bugzilla)
-      opts['uri'] = __login_info("#{bugzilla.url}#{bugzilla.query_uri}", bugzilla)
+        opts        = __get_opts(bugzilla)
+        opts['uri'] = __login_info("#{bugzilla.url}#{bugzilla.query_uri}", bugzilla)
 
-      if start_time?
-        st = __format_date(start_time)
-        start_time.setDate(start_time.getDate() + settings.fetch_days)
-        et = __format_date(start_time)
-        opts['uri'] += "&chfieldfrom=" + st
-        opts['uri'] += "&chfieldto="   + et
+        if start_time?
+          st = __format_date(start_time)
+          start_time.setDate(start_time.getDate() + settings.fetch_days)
+          et = __format_date(start_time)
+          opts['uri'] += "&chfieldfrom=" + st
+          opts['uri'] += "&chfieldto="   + et
 
-        winston.info "Fetch bugs from #{st} to #{et} from #{bugzilla.url}"
+          winston.info "Fetch bugs from #{st} to #{et} from #{bugzilla.url}"
 
-      request.get opts, (err, res, body) ->
-        return promise.reject err if err?
-        return promise.reject "Empty response" if body == ""
-        # HTML response, something went wrong
-        if res.headers['content-type'].match /text\/html/i
-          if res.body.match /The username or password you entered is not valid/
-            return promise.reject "Failed to login to Bugzilla (#{bugzilla.url})"
+        request.get opts, (err, res, body) ->
+          return reject err if err?
+          return reject "Empty response" if body == ""
+          # HTML response, something went wrong
+          if res.headers['content-type'].match /text\/html/i
+            if res.body.match /The username or password you entered is not valid/
+              return reject "Failed to login to Bugzilla (#{bugzilla.url})"
+            else
+              return reject 'HTML response received from #{bugzilla.url}, something is wrong'
+          # CSV response, parse it
+          else if res.headers['content-type'].match /text\/csv/
+            csv().from.string(body, columns: true).transform (record) ->
+              if record.bug_id?
+                # QA Reports now returns a prefix for all bugs since it supports
+                # multiple Bugzilla services. So store store the bugs with prefixes
+                # to bugs DB as well
+                record.bug_id = "#{bugzilla.prefix}##{record.bug_id}"
+                record.prefix = bugzilla.prefix
+                record.url    = "#{bugzilla.url}#{util.format(bugzilla.show_uri, record.bug_id)}"
+
+                [y, w] = date_utils.get_year_week(date_utils.bugzilla_string_to_date(record['opendate']))
+                record.weeknum = w
+                record.year    = y
+              record
+            .to.array (data) -> resolve bugs: data, end_time: et
+          # Something else, don't know what to do
           else
-            return promise.reject 'HTML response received from #{bugzilla.url}, something is wrong'
-        # CSV response, parse it
-        else if res.headers['content-type'].match /text\/csv/
-          csv().from.string(body, columns: true).transform (record) ->
-            if record.bug_id?
-              # QA Reports now returns a prefix for all bugs since it supports
-              # multiple Bugzilla services. So store store the bugs with prefixes
-              # to bugs DB as well
-              record.bug_id = "#{bugzilla.prefix}##{record.bug_id}"
-              record.prefix = bugzilla.prefix
-              record.url    = "#{bugzilla.url}#{util.format(bugzilla.show_uri, record.bug_id)}"
-
-              [y, w] = date_utils.get_year_week(date_utils.bugzilla_string_to_date(record['opendate']))
-              record.weeknum = w
-              record.year    = y
-            record
-          .to.array (data) -> promise.fulfill bugs: data, end_time: et
-        # Something else, don't know what to do
-        else
-          return promise.reject "Did not receive CSV but #{res.headers['content-type']}"
-
-      promise
+            return reject "Did not receive CSV but #{res.headers['content-type']}"
 
     # Send bugs to QA Dashboard
     push_bugs = (data) ->
-      # If the CSV response contained just the header csv parser will output
-      # a single item with the headers in it. Such data we cannot upload
-      data.bugs = [] unless data?.bugs?.length >= 1 && data.bugs[0].bug_id?
-      winston.info "Received #{data?.bugs?.length} bugs from #{bugzilla.url}, uploading"
-      promise = Vow.promise()
+      new Promise (resolve, reject) ->
+        # If the CSV response contained just the header csv parser will output
+        # a single item with the headers in it. Such data we cannot upload
+        data.bugs = [] unless data?.bugs?.length >= 1 && data.bugs[0].bug_id?
+        winston.info "Received #{data?.bugs?.length} bugs from #{bugzilla.url}, uploading"
 
-      if data.bugs.length > 0
-        opts         = __get_opts(settings.dashboard)
-        opts['uri']  = "#{settings.dashboard.url}/import/bugs/update"
-        opts['json'] =
-          bugs:  data.bugs
-          token: settings.dashboard.token
+        if data.bugs.length > 0
+          opts         = __get_opts(settings.dashboard)
+          opts['uri']  = "#{settings.dashboard.url}/import/bugs/update"
+          opts['json'] =
+            bugs:  data.bugs
+            token: settings.dashboard.token
 
-        request.post opts, (err, res, body) ->
-          return promise.reject err if err?
-          return promise.reject body.error if body.status == 'error'
-          return promise.reject "HTTP #{res.statusCode}" if res.statusCode != 200
-          return promise.fulfill data?.end_time
-      else
-        promise.fulfill data?.end_time
-
-      promise
+          request.post opts, (err, res, body) ->
+            return reject err if err?
+            return reject body.error if body.status == 'error'
+            return reject "HTTP #{res.statusCode}" if res.statusCode != 200
+            return resolve data?.end_time
+        else
+          resolve data?.end_time
 
     # See if we still need to poll this service during this round
     schedule_next_poll = (end_time) ->
@@ -184,24 +176,26 @@ launch_daemon = (settings) ->
       else
         run_again: false
 
-    promise = Vow.promise()
-    poll_bugs = (end_date = null) -> ->
-      get_start_date(end_date)
-        .then(fetch_bugs)
-        .then(push_bugs)
-        .then(schedule_next_poll)
-        .then (data) ->
-          if data.run_again
-            setTimeout poll_bugs(data.end_date), 1 * SECOND
-          else
-            winston.info "Done handling #{bugzilla.url} for now"
-            promise.fulfill()
-        .fail (err) ->
-          winston.error "Error when polling bugs from #{bugzilla.url}, trying again in 5 minutes.", err
-          setTimeout poll_bugs(), 5 * MINUTE
+    new Promise (resolve, reject) ->
+      poll_bugs = (end_date = null) -> ->
+        get_start_date(end_date)
+          .then(fetch_bugs)
+          .then(push_bugs)
+          .then(schedule_next_poll)
+          .then (data) ->
+            if data.run_again
+              setTimeout poll_bugs(data.end_date), 1 * SECOND
+            else
+              winston.info "Done handling #{bugzilla.url} for now"
+              resolve()
+          .catch (err) ->
+            winston.error "Error when polling bugs from #{bugzilla.url}, quitting", err
+            reject 'Error'
+          .error (err) ->
+            winston.error "Error when polling bugs from #{bugzilla.url}, trying again in 5 minutes.", err
+            setTimeout poll_bugs(), 5 * MINUTE
 
-    poll_bugs()()
-    promise
+      poll_bugs()()
 
   poll_bugs = ->
     winston.info "Start fetching bugs"
@@ -210,13 +204,16 @@ launch_daemon = (settings) ->
     for bz in settings.bugzillas
       promises.push handle_service bz
 
-    Vow.all(promises)
+    Promise.all(promises)
       .then ->
         winston.info "Next poll in #{settings.update_interval} hours"
         setTimeout poll_bugs, settings.update_interval * HOUR
-      .fail ->
+      .catch (err) ->
+        winston.error "Uncaught error when polling bugs", err
+      .error (err) ->
         winston.error "Error when polling bugs, trying again in 5 minutes.", err
         setTimeout poll_bugs, 5 * MINUTE
+      .done()
 
   poll_bugs()
 

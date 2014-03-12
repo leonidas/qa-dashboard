@@ -1,3 +1,5 @@
+Raphael = require 'raphael'
+
 class TopBlockers extends QAReportsWidget
 
     get_default_config: (cb) ->

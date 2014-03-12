@@ -21,9 +21,10 @@ $ nvm alias default 0.10
 $ git clone git@github.com:leonidas/qa-dashboard.git
 $ cd qa-dashboard
 $ npm install
+$ npm run bower
 ```
 
-* Run: `npm run dev-start`
+* Run: `npm run dev-start` in one shell, and `npm run watch` in other.
 
 * Login at [http://localhost:3030/](http://localhost:3030/)
   * Username: `guest`
@@ -45,3 +46,9 @@ $ npm start
 ```
 
 * Hit `Ctrl-C` once you have enough reports. The script fetches reports in batches of 20 and it starts from the oldest report found.
+
+### Deploy
+
+Deployed with Capistrano. You'll need to install Ruby, then run `gem install bundler`, and then `bundle install`. You will also need Node.js locally installed since JavaScript and CSS assets are compiled locally and uploaded to remote server.
+
+Once you've set up `config/deploy.rb` and `config/deploy/production.rb`, run `cap production deploy:setup`, answer the questions and copy the created files on their places on production environment, and then run `cap production deploy`.

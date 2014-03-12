@@ -40,6 +40,9 @@ port = process.env.PORT || settings.server.port
 
 dbs = new mongodb.Server settings.db.host, settings.db.port
 new mongodb.Db("qadash-#{env}", dbs, w: 1).open (err, db) ->
+  if err?
+    logger.error 'Failed to connect to database', err
+    process.exit(1)
   app    = require('app').create_app settings, db
   server = http.createServer app
 
